@@ -1,0 +1,148 @@
+ /* Couleurs personnalisées */
+ .text-primary-custom {
+    color: #f7840d !important;
+}
+
+.btn-send {
+    position: relative; /* Nécessaire pour que z-index s'applique */
+    z-index: 3; /* Plus élevé que l'overlay */
+    background-color: #f7840d;
+    color: #fff;
+    /* padding: 10px 20px; */
+    border-radius: 50px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-send:hover{
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #eef2ee;
+}
+
+.btn-arrow {
+    transition: transform 0.3s ease; /* Ajoute une transition pour l'animation */
+}
+
+/* Animation sur hover */
+.btn-send:hover .btn-arrow {
+    transform: translateX(10px); /* Déplace l'image de 10px vers la droite */
+}
+
+.google-map-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Ratio d'aspect 16:9 */
+    height: 0;
+    overflow: hidden;
+    border: 1px solid #ddd; /* Optionnel : ajouter une bordure */
+    border-radius: 8px; /* Optionnel : coins arrondis */
+}
+
+.google-map-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Formulaire */
+/* Conteneur Google Maps */
+.bg-light {
+    background-color: #f8f9fa !important;
+    border-right: 1px solid #e6e6e6; /* Séparation visuelle */
+}
+
+/* Message d'erreur */
+.error-message i {
+    font-size: 2rem;
+    color: #6c757d;
+}
+.error-message h5 {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Section Formulaire */
+.bg-white {
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+/* Champs de formulaire */
+.form-control-custom {
+    /* border: 1px solid #ddd; */
+    border-radius: 0; /* Désactive complètement le border-radius */
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+}
+
+
+.form-control-custom:focus {
+    border-color: #000;
+    /* box-shadow: 0 0 5px rgba(247, 132, 13, 0.5); */
+    box-shadow: none; /* Supprime l'effet bleu/orange */
+    outline: none; /* Supprime l'outline par défaut */
+}
+
+/* Couleur du placeholder par défaut */
+.form-control-custom::placeholder {
+    color: #6c757d; /* Gris par défaut */
+    transition: color 0.3s ease, opacity 0.3s ease; /* Douce transition */
+}
+
+/* Couleur du placeholder lorsque le champ est en focus */
+.form-control-custom:focus::placeholder {
+    color: #fff; /* Blanc au focus */
+    opacity: 0.5; /* Optionnel : ajustez l'opacité si souhaité */
+}
+
+/* Responsivité */
+@media (max-width: 768px) {
+    .bg-light {
+        border: none;
+    }
+    .contact-form {
+        padding: 1rem;
+    }
+    .btn-send {
+        font-size: 14px;
+    }
+}
+
+/* Conteneur de la carte */
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 400px; /* Hauteur de la carte */
+    border-top-left-radius: 200px; /* Arrondi en haut à gauche */
+    border-top-right-radius: 200px; /* Arrondi en haut à droite */
+    overflow: hidden; /* Masque tout débordement */
+    background-color: #eaeaea; /* Fond gris clair (par défaut) */
+}
+
+/* Iframe de Google Maps */
+.map-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+/* Media query pour mobiles */
+@media (max-width: 576px) {
+    .map-container {
+        height: 300px; /* Réduction de la hauteur sur mobile */
+    }
+
+ 
+}

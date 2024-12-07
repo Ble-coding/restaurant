@@ -1,0 +1,127 @@
+
+/* Footer Section */
+.bg-dark {
+    background-color: #121212 !important;
+}
+
+.text-white {
+    color: #fff !important;
+}
+
+.container h5{
+    margin-bottom: 30px;
+}
+
+
+.btn-custom{
+    position: relative; /* Nécessaire pour que z-index s'applique */
+    z-index: 3; /* Plus élevé que l'overlay */
+    background-color: #f7840d;
+    color: #fff;
+    /* padding: 10px 20px; */
+    border-radius: 50px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-custom:hover{
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #eef2ee;
+}
+
+/* Champs de formulaire */
+.form-custom {
+    /* border: 1px solid #ddd; */
+    border-radius: 0; /* Désactive complètement le border-radius */
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.form-custom:focus {
+    border-color: #000;
+    /* box-shadow: 0 0 5px rgba(247, 132, 13, 0.5); */
+    box-shadow: none; /* Supprime l'effet bleu/orange */
+    outline: none; /* Supprime l'outline par défaut */
+}
+
+/* Couleur du placeholder par défaut */
+.form-custom::placeholder {
+    color: #6c757d; /* Gris par défaut */
+    transition: color 0.3s ease, opacity 0.3s ease; /* Douce transition */
+}
+
+/* Couleur du placeholder lorsque le champ est en focus */
+.form-custom:focus::placeholder {
+    color: #fff; /* Blanc au focus */
+    opacity: 0.5; /* Optionnel : ajustez l'opacité si souhaité */
+}
+
+
+/* Remove horizontal rule color */
+hr.bg-secondary {
+    border-color: #fff; 
+    border-width: 5px; /* Épaisseur du trait */
+    border-style: solid; /* Style du trait (solid, dashed, etc.) */
+    width: 100%; /* Largeur de la ligne, ajustable */
+    margin: 20px 0; /* Espacement vertical (facultatif) */
+}
+
+/* .bg-dark a .bi:hover{
+    background-color:(0, 0, 0, 0.1);
+} */
+
+/* Container des icônes */
+.social-icons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Boutons personnalisés */
+.btn-custom-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background-color: #000; /* Couleur noire pour le fond */
+    color: #fff; /* Couleur blanche pour les icônes */
+    /* border-radius: 50%;  */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none; /* Retirer les soulignements */
+}
+
+/* Effet au survol */
+.btn-custom-icon:hover {
+    background-color: #faa93d; /* Couleur orange au survol */
+    color: #fff;
+}
+
+/* Icônes */
+.btn-custom-icon i {
+    font-size: 20px; /* Taille des icônes */
+}
+
+@media (max-width: 768px) {
+
+    .container h5{
+        font-size: 16px;
+    }
+
+    .container p{
+        font-size: 16px;
+    }
+
+    .container p strong{
+        font-size: 14px;
+    }
+        
+    .text-center p{
+        font-size: 14px;
+    }
+}

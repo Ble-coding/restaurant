@@ -1,0 +1,541 @@
+/* #0a4a1b, rgb(10,74,27) vert
+#eef2ee rgb(238,242,238) gris
+#f7840d rgb(247,132,13) orange
+#8e6434 rgb(142,100,52) maron clair
+#783804 rgb(120,56,4) maron pur
+#df9f5b rgb(223,159,91) maron ciel
+#fbc87d rgb(251,200,125) marron tres ciel
+#6cac84 rgb(108,172,132) vert clair
+#b75906 rgb(183,89,6) pas trop marron pas trop orange
+#faa93d rgb(250,169,61) orange clair */
+
+@font-face {
+    font-family: 'Poppins';
+    src:
+         url('../fonts/Poppins/Poppins-Regular.ttf') format('ttf'),
+         url('../fonts/Poppins/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('../fonts/poppins/Poppins-Bold.woff2') format('ttf'),
+         url('../fonts/poppins/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Merriweather';
+    src:
+         url('../fonts/Merriweather/Merriweather-Black.ttf') format('ttf'),
+         url('../fonts/Merriweather/Merriweather-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Merriweather';
+    src: url('../fonts/Merriweather/Merriweather-Bold.ttf') format('ttf'),
+         url('../fonts/Merriweather/Merriweather-Light.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src:
+         url('../fonts/Open_Sans/OpenSans-Italic-VariableFont_wdth\,wght.ttf') format('ttf'),
+         url('../fonts/Open_Sans/OpenSans-VariableFont_wdth\,wght.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+
+/* Reset some default styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', Arial, sans-serif;
+    scroll-behavior: smooth;
+}
+
+/* Conteneur du panier */
+.shopping-cart {
+    color: #ffffff; /* Couleur de l'icône */
+    font-size: 1.5rem; /* Taille de l'icône */
+    cursor: pointer; /* Curseur au survol */
+    position: relative; /* Nécessaire pour positionner le badge */
+    display: inline-block; /* S'assure que l'élément est bien placé dans la ligne */
+}
+
+.badge {
+    position: absolute;
+    top: 8px; /* Ajuste pour placer le badge au-dessus de l'icône */
+    right: 20px; /* Ajuste pour aligner horizontalement */
+    background-color: #f7840d; /* Rouge pour les notifications */
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5); /* Petit effet de profondeur */
+    border: 2px solid #fff; /* Bordure blanche pour un contraste */
+}
+
+/* Style pour le menu déroulant actif */
+.dropdown-menu .dropdown-item.active {
+    background-color: #f7840d; /* Couleur de fond orange */
+    color: #ffffff; /* Couleur du texte blanc */
+}
+
+/* Assurez-vous que le survol des éléments ne surcharge pas */
+.dropdown-menu .dropdown-item:hover {
+    background-color: #f7840d; /* Même couleur que pour l'état actif */
+    color: #ffffff; /* Texte blanc */
+}
+
+
+/* Icône SVG pour le panier */
+.nav-link svg {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    bottom: 5px;
+    color: white; /* Assure une couleur cohérente */
+}
+
+.navbar {
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    /* background-color: transparent;  */
+    transition: background-color 0.3s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.6);
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);  */
+}
+
+.navbar-brand {
+    position: fixed; /* Permet de placer le logo indépendamment */
+    top: 1%;
+    left: 10px; /* Distance du côté gauche */
+    transform: translateY(-50%); /* Centrer verticalement par rapport à la navbar */
+    max-height: 40px;
+     z-index: 30; /* Place le logo au-dessus de la navbar */
+}
+.hero-section {
+    background: url('../images/header/header_bg_foutou.png') center/cover no-repeat;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+    color: #ffffff;
+    text-align: left;
+    padding-top: 100px; /* To offset the fixed navbar */
+}
+
+/* Navbar avec fond noir après le scroll */
+/* .navbar.scrolled {
+
+} */
+
+
+
+.navbar .nav-link {
+    /* font-weight: bold; */
+    color: #fff;
+    margin-right: 20px;
+    font-size: 12px;
+    padding: 0 8px;
+    transition: color 0.3s ease;
+}
+
+.navbar .nav-link.active,
+.navbar .nav-link:hover {
+    color: #f7840d;
+}
+
+
+
+.subtitle {
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #eef2ee;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.description {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    max-width: 500px;
+    color: #f1f1f1;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1; /* Overlay reste en dessous */
+}
+
+
+.dropdown-menu a:hover{
+    background-color: #fff;
+}
+
+/* Afficher le menu dropdown au survol */
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block; /* Force l'affichage du menu */
+    margin-top: 0; /* Supprime le décalage */
+    opacity: 1; /* Assure que le menu est bien visible */
+    visibility: visible; /* Pour compatibilité */
+    transition: all 0.3s ease; /* Animation fluide */
+}
+
+/* Ajuste les liens dans le menu déroulant */
+.nav-item .dropdown-menu {
+    display: none; /* Par défaut, le menu est masqué */
+    opacity: 0; /* Invisible au départ */
+    visibility: hidden; /* Invisible au départ */
+    position: absolute;
+    z-index: 1000; /* Au-dessus des autres éléments */
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    background-color: #fff;
+    min-width: 200px;
+    z-index: 1;
+    font-size: 14px;
+    /* padding: 0 8px; */
+}
+
+
+.section-text {
+    position: relative; /* Crée un contexte de position pour les enfants */
+    z-index: 2; /* S'assure que le texte et les boutons sont au-dessus */
+}
+
+.btn-orange {
+    position: relative; /* Nécessaire pour que z-index s'applique */
+    z-index: 3; /* Plus élevé que l'overlay */
+    background-color: #f7840d;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-orange:hover{
+    background-color: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+/* Adjust image styles */
+
+
+
+
+/* Bouton sans bordure focus */
+.navbar-toggler:focus,
+.navbar-toggler:active,
+.navbar-toggler {
+    outline: none;
+    box-shadow: none;
+    border: none;
+}
+
+/* Style général pour le menu mobile */
+@media (max-width: 768px) {
+
+    .badge {
+        top: 22px; /* Position ajustée plus proche pour mobile */
+        right: 250px; /* Plus proche de l'icône */
+        width: 16px; /* Taille légèrement réduite */
+        height: 16px; /* Taille légèrement réduite */
+        font-size: 10px; /* Texte plus petit */
+    }
+
+    .nav-link svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .navbar .nav-link {
+        font-size: 18px;
+        padding: 0 8px;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        /* z-index: 1;  */
+        z-index: 1000; /* Sous le bouton navbar-toggler-icon */
+        display: none; /* Caché par défaut */
+    }
+
+    .btn-orange{
+        font-size: 12px;
+    }
+
+    .navbar-collapse {
+        background-color: rgba(0, 0, 0, 0.9);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1050;
+        padding-top: 70px;
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(-100%);
+    }
+
+    .navbar-collapse.show {
+        transform: translateX(0);
+    }
+
+    .nav-link {
+        color: #fff !important;
+        font-size: 1.5rem;
+        margin: 15px 0;
+        text-align: center;
+        display: block;
+        transition: color 0.3s ease-in-out;
+    }
+
+    /* .nav-link:hover {
+        color: #f7840d !important;
+    } */
+
+     .nav-link.active,
+     .nav-link:hover {
+        color: #f7840d!important;
+    }
+
+    .dropdown-menu {
+        /* background-color: rgba(0, 0, 0, 0.9);  */
+        border: none;
+        padding: 0;
+        background-color: #f7840d!important;
+    }
+
+    .dropdown-item {
+        color: #fff;
+        padding: 10px 20px;
+        font-size: 12px;
+        text-align: left;
+    }
+
+    .dropdown-item:hover {
+        color: #f7840d;
+        background-color: transparent;
+    }
+
+
+    /* Bouton X pour fermer */
+    .navbar-toggler {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        /* background: #666; */
+        border: none;
+        z-index: 1100; /* Au-dessus de l'overlay */
+    }
+
+    .navbar-toggler-icon {
+        font-size: 2rem;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1100;
+    }
+
+    .overlay.show {
+        display: block;
+    }
+
+}
+
+    .navbar-toggler.active {
+        background-color: transparent; /* Optionnel, pour enlever le fond */
+        border: none; /* Optionnel, pour enlever les bordures */
+    }
+
+
+     /* Section principale */
+     .video-section {
+        position: relative;
+        height: 600px;
+        background: url('../images/header/video-bg.jpg') no-repeat center center/cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      /* Superposition sombre */
+      .video-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* background: rgba(0, 0, 0, 0.5); */
+        z-index: 1;
+      }
+
+      /* Contenu au centre */
+      .video-section .content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        color: #fff;
+      }
+
+      /* Style du titre */
+      .video-section .content h2 {
+        font-size: 24px;
+        font-weight: bold;
+        padding: 20px 0;
+        margin: 0 0 15px;
+      }
+
+      /* Style du sous-titre */
+      .video-section .content p {
+        font-size: 16px;
+        margin: 0 0 16px;
+        color: #fff;
+      }
+
+      .play-button {
+        position: relative;
+        width: 90px; /* Largeur de l'image */
+        height: 90px; /* Hauteur de l'image */
+        border-radius: 50%; /* Forme circulaire */
+        /* border: 3px solid rgba(255, 255, 255, 0.9);  */
+        cursor: pointer; /* Curseur interactif */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animations */
+        overflow: hidden; /* Masque pour coupure */
+    }
+
+    /* Coupure sur le bord haut droit */
+    .play-button::after {
+        content: "";
+        position: absolute;
+        top: -5px; /* Position verticale */
+        right: -5px; /* Position horizontale */
+        width: 40px; /* Largeur de la coupure */
+        height: 40px; /* Hauteur de la coupure */
+        background-color: transparent; /* Fond transparent */
+        border-radius: 50%; /* Cercle */
+        border: 3px solid #000; /* Masque noir pour simuler la coupure */
+    }
+
+    /* Effets au survol */
+    .play-button:hover {
+        transform: scale(1.1); /* Zoom */
+        /* box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);  */
+    }
+
+    /* Style pour la modale */
+    .modal {
+        display: none; /* Caché par défaut */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8); /* Fond semi-transparent */
+        z-index: 999; /* Modale légèrement en dessous du bouton de fermeture */
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Contenu de la modale - centré et taille ajustée */
+    .modal-content {
+        position: relative;
+        background-color: transparent;
+        padding: 40px; /* Augmenter l'espace intérieur pour plus d'air */
+        border-radius: 10px;
+        width: 80%; /* Utilisation de 80% de la largeur de la fenêtre */
+        max-width: 900px; /* Augmenter la largeur maximale */
+        height: 80vh; /* Augmenter la hauteur en pourcentage de la fenêtre */
+        text-align: center;
+        margin: auto; /* Centrer la modale */
+        overflow: hidden; /* Masquer le contenu qui dépasse */
+        z-index: 1; /* La modale sera sous le bouton de fermeture */
+    }
+
+    /* Pour l'iframe (YouTube) dans la modale */
+    .modal-content iframe {
+        width: 100%; /* L'iframe occupe 100% de la largeur de la modale */
+        height: 70vh; /* Augmenter la hauteur de l'iframe pour qu'elle occupe plus d'espace */
+        border-radius: 10px; /* Arrondir les bords de l'iframe */
+        margin-top: 10px; /* Ajout d'un espace au-dessus de l'iframe */
+    }
+
+
+    #faq .faq{
+        color: #fff;
+    }
+
+    #faq .accordion-button {
+        background-color: #f7840d !important;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 15px;
+    }
+
+    #faq .accordion-button:not(.collapsed) {
+        background-color:    #f7840d !important; /* Couleur légèrement plus sombre pour le bouton actif */
+    }
+
+    #faq .accordion-item {
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    #faq .accordion-body {
+        background-color: #ffffff; /* Couleur de fond blanche pour le contenu */
+        color: #212121;
+        padding: 20px;
+        border-top: 2px solid #f7840d;
+    }
+
+    #faq .accordion-header {
+        border-radius: 5px;
+    }
+
+    #faq .accordion-button:focus {
+        box-shadow: none;
+    }
+

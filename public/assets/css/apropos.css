@@ -1,0 +1,22 @@
+
+    .about-card h3 {
+        font-size: 18px;
+        /* color: #222222; */
+        margin: 0 0 20px;
+    }
+
+    .about-card p, .about-card ul {
+        font-size: 14px;
+        color: #777;
+        line-height: 1.6;
+        margin: 0 0 10px;
+    }
+
+    .about-card ul {
+        padding-left: 20px;
+    }
+
+    .about-card ul li {
+        list-style-type:square;
+    }
+    
