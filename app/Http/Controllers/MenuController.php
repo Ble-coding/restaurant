@@ -16,25 +16,30 @@ class MenuController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->get('search');
+        $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
 
-        // Filtrer les menus
-        $menus = Product::when($search, function ($query, $search) {
-            return $query->where('name', 'like', '%' . $search . '%')
-                         ->orWhere('description', 'like', '%' . $search . '%')
-                         ->orWhere('status', 'like', '%' . $search . '%');
-        })->paginate(10);
+        // Appliquer la recherche sur les produits (menus)
+        $menus = Product::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', '%' . $search . '%') // Rechercher dans le nom
+                            ->orWhere('description', 'like', '%' . $search . '%') // Rechercher dans la description
+                            ->orWhere('status', 'like', '%' . $search . '%'); // Rechercher dans le statut
+                });
+            })
+            ->orderBy('created_at', 'desc') // Trier par date de création (la plus récente en premier)
+            ->paginate(10); // Pagination avec 10 menus par page
 
         // Charger le panier depuis la session
-        $cart = Session::get('cart', []);
+        $cart = Session::get('cart', []); // Par défaut, le panier est vide s'il n'existe pas dans la session
+
+        // Calculer le sous-total du panier
         $subtotal = collect($cart)->sum(function ($item) {
-            return $item['price'] * $item['quantity'];
+            return $item['price'] * $item['quantity']; // Sous-total = prix x quantité
         });
 
         return view('menus.index', compact('menus', 'cart', 'subtotal'));
     }
-
-
 
     public function cartCount()
     {

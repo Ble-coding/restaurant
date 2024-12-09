@@ -22,7 +22,8 @@ class HomeController extends Controller
         $products = Product::all(); // Récupérer tous les produits
 
         // Récupérer les 4 blogs récents ayant le statut "published"
-        $blogs = Blog::where('status', 'published')
+        $blogs = Blog::withCount('comments')
+             ->where('status', 'published')
             ->orderBy('created_at', 'desc') // Trier par les plus récents
             ->limit(4) // Limiter à 4 blogs
             ->get();

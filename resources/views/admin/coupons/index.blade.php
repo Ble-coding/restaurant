@@ -14,21 +14,55 @@
 
 <div class="container my-5">
 
-    <div class="search-wrapper">
+    {{-- <div class="search-wrapper">
         <div class="search-container">
-            <form method="GET" action="{{ route('admin.coupons.index') }}">
-                @csrf
+            <form method="GET" action="{{ route('admin.coupons.index') }}" id="search-form">
                 <input
                     type="text"
+                    id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher......"
+                    placeholder="Rechercher par nom..."
                     value="{{ request()->get('search') }}"
-                    oninput="this.form.submit()"
                 >
             </form>
         </div>
+    </div> --}}
+
+     <!-- Formulaire de recherche -->
+     <div class="search-wrapper">
+        <div class="search-container">
+            <form method="GET" action="{{ route('admin.coupons.index') }}">
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Champ de recherche -->
+                    <input
+                        type="text"
+                        class="form-control form-custom-user"
+                        name="search"
+                        placeholder="Rechercher par code ou type..."
+                        value="{{ request('search') }}">
+
+                    <!-- Sélecteur de statut -->
+                    <select
+                        class="form-select form-custom-user"
+                        name="expired">
+                        <option value="">-- Statut --</option>
+                        <option value="active" {{ request('expired') === 'active' ? 'selected' : '' }}>Actif</option>
+                        <option value="expired" {{ request('expired') === 'expired' ? 'selected' : '' }}>Expiré</option>
+                    </select>
+
+                    <!-- Bouton de filtrage -->
+                    <button
+                        class="btn view-cart"
+                        type="submit">
+                        Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+
+
         <!-- Début des items de menu -->
         <div class="row">
             @if(session('success'))
@@ -92,7 +126,7 @@
                                         @method('PUT')
                                         <div class="mb-3">
                                             <label for="code" class="form-label">Code</label>
-                                            <input type="text" class="form-control" name="code" value="{{ old('code', $coupon->code) }}">
+                                            <input type="text" class="form-control form-custom-user" name="code" value="{{ old('code', $coupon->code) }}">
                                            @error('code')
                                                     <span class="text-danger">{{ $message }}</span>
                                             @enderror
@@ -100,7 +134,7 @@
 
                                         <div class="mb-3">
                                             <label for="discount" class="form-label">Réduction (%)</label>
-                                            <input type="number" class="form-control" name="discount" value="{{ old('discount', $coupon->discount) }}">
+                                            <input type="number" class="form-control form-custom-user" name="discount" value="{{ old('discount', $coupon->discount) }}">
                                             @error('discount')
                                                     <span class="text-danger">{{ $message }}</span>
                                             @enderror
@@ -108,7 +142,7 @@
 
                                         <div class="mb-3">
                                             <label for="type" class="form-label">Type</label>
-                                            <select name="type" class="form-select">
+                                            <select name="type" class="form-select form-custom-user">
                                                 <option value="percent" {{ $coupon->type === 'percent' ? 'selected' : '' }}>Pourcentage</option>
                                                 <option value="fixed" {{ $coupon->type === 'fixed' ? 'selected' : '' }}>Montant Fixe</option>
                                             </select>
@@ -119,7 +153,7 @@
 
                                         <div class="mb-3">
                                             <label for="expires_at" class="form-label">Date d'expiration</label>
-                                            <input type="date" class="form-control" name="expires_at" value="{{ old('expires_at', $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : '') }}">
+                                            <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ old('expires_at', $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : '') }}">
                                         </div>
 
                                         <button type="submit" class="btn view-cart">Mettre à jour</button>
@@ -224,7 +258,7 @@
 @endsection
 
 @push('scripts')
-
+    <script src="{{ asset('assets/js/search.js') }}"></script>
     <script>
 
         window.addEventListener('DOMContentLoaded', (event) => {

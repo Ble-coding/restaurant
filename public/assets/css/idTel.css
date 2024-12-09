@@ -1,0 +1,68 @@
+
+.iti__country-name, .iti__flag-box{
+    color: #000!important;
+}
+
+.djobo-background-store input[type="tel"] {
+    width: 100%; /* Utiliser toute la largeur disponible */
+
+    padding: 10px; /* Espacement interne pour plus de confort */
+    font-size: 16px; /* Taille du texte */
+    background-color: #000; /* Fond noir si souhaité */
+    color: #fff; /* Texte blanc */
+    border: 1px solid #fff; /* Bordure blanche */
+}
+
+.iti {
+    width: 100%; /* Le conteneur principal suit la largeur de l'input */
+}
+
+.iti__country-list {
+  width: 200px;
+  overflow-x: hidden;
+}
+
+.iti__dropdown {
+    width: 100% !important; /* Le dropdown s'aligne à l'input */
+    z-index: 1050; /* Pour éviter qu'il soit masqué */
+}
+
+/* Style général pour le menu mobile */
+@media (max-width: 768px) {
+    .iti__country-list {
+        width: 388px;
+        overflow-x: hidden;
+      }
+}
+
+
+  /* Conteneur global pour centrer l'ensemble */
+  .search-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 300px;
+    margin: 10px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 50px 10px 15px; /* Décalage à droite pour laisser de l'espace au bouton */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #1c1c1c;
+    color: #fff;
+    font-size: 16px;
+}
+
+.search-input::placeholder {
+    color: #aaa;
+}
+

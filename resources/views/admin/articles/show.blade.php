@@ -1,15 +1,22 @@
-@extends('layouts.master')
+@extends('layouts.masterAdmin')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/blogId.css') }}">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('assets/css/blogAdminId.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/idTel.css') }}">
-<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.3.0/dist/select2-bootstrap4.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
 @endpush
 
+@section('headerContent')
+    <div class="main-section">
+        <div class="container text-center">
+            <h1>Blog ID</h1>
+            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
+        </div>
+    </div>
+@endsection
+
 @section('content')
-    <div class="container mt-5">
+    <div class="container my-5">
         <div class="row">
 
             <!-- Section principale (texte principal) -->
@@ -17,27 +24,27 @@
                 <div class="content-section">
                     <!-- Catégorie du blog -->
                     <div class="blog-category">
-                        {{ $blog->category->name ?? 'Non catégorisé' }}
+                        {{ $article->category->name ?? 'Non catégorisé' }}
                     </div>
 
                     <!-- Titre du blog -->
                     <h1 class="blog-title">
-                        {{ $blog->title }}
+                        {{ $article->title }}
                     </h1>
 
                     <!-- Métadonnées -->
                     <div class="blog-meta">
-                        Publié le {{ $blog->created_at->format('d M Y') }} <i class="bi bi-chat">{{ $commentsCount }} {{ Str::plural('commentaire', $commentsCount) }}</i>
-                        <span id="like-count-{{ $blog->id }}">
-                            <i class="bi bi-heart-fill"></i>
-                            {{ $blog->likes->count() }} {{ Str::plural('Like', $blog->likes->count()) }}
-                        </span>
+                        Publié le {{ $article->created_at->format('d M Y') }}  <i class="bi bi-chat"></i> {{ $commentsCount }} {{ Str::plural('commentaire', $commentsCount) }}
+                            <span id="like-count-{{ $article->id }}">
+                                <i class="bi bi-heart-fill"></i>
+                                {{ $article->likes->count() }} {{ Str::plural('Like', $article->likes->count()) }}
+                            </span>
                     </div>
 
                     <!-- Image principale -->
                     <div class="blog-image">
-                        @if ($blog->image)
-                            <img src="{{ url('storage/' . $blog->image) }}" alt="{{ $blog->title }}" class="img-fluid">
+                        @if ($article->image)
+                            <img src="{{ url('storage/' . $article->image) }}" alt="{{ $article->title }}" class="img-fluid">
                         @else
                             <img src="{{ asset('assets/images/default-blog.jpg') }}" alt="Image par défaut" class="img-fluid">
                         @endif
@@ -45,62 +52,39 @@
 
                     <!-- Contenu -->
                     <div class="blog-content">
-                        {!! $blog->content !!}
+                        {!! $article->content !!}
                     </div>
                 </div>
 
 
 
                 <!-- Section des commentaires -->
-                <div class="comment-section">
-                    <h3 class="comment-title">Laisser un commentaire</h3>
-                    @if(session('success'))
-                         <div class="alert alert-success" id="success-alert">
-                            {{ session('success') }}
+
+                <div class="comments-section">
+                    <h3 class="comment-title">Commentaires pour cet article</h3>
+
+                    @if ($article->comments->isEmpty())
+                        <p  class="comment-item">Aucun commentaire n'a encore été ajouté pour cet article.</p>
+                    @else
+                        <div class="row">
+                            @foreach ($article->comments as $comment)
+                                <div class="col-md-6 mb-4">
+                                    <div class="comment-item p-3">
+                                        <h4 class="comment-author">
+                                            {{ $comment->name }}
+                                            ({{ $comment->email }}, +{{ $comment->country_code }}{{ $comment->phone }})
+                                        </h4>
+                                        <p class="comment-content">
+                                            {{ $comment->content }}
+                                        </p>
+                                        <p class="comment-date">
+                                            Posté le {{ $comment->created_at->format('d/m/Y à H:i') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     @endif
-                    @if($errors->any())
-                        <div class="alert alert-danger"  id="error-alert">
-                            <ul>
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <form action="{{ route('blogs.storeComment', $blog->id) }}" method="POST" class="comment-form">
-                        @csrf
-                        <div class="form-row">
-                            <input type="text" name="name" placeholder="Nom" class="form-control form-custom">
-                            @error('name') <span class="text-danger">{{ $message }}</span> @enderror
-                            <input type="email" name="email" placeholder="Email" class="form-control form-custom">
-                            @error('email') <span class="text-danger">{{ $message }}</span> @enderror
-                            <input type="text" name="website" placeholder="Site Web" class="form-control form-custom">
-                            @error('website') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-row mt-3 mb-3">
-                            <input type="tel" name="phone" id="phone" placeholder="Téléphone" class="form-control">
-                            <input type="hidden" name="country_code" id="country_code" value="{{ old('country_code') }}">
-                            {{-- <input type="hidden" id="country_code{{ $blog->id }}" name="country_code" value="{{ $blog->country_code }}"> --}}
-                            @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="form-row">
-                            <textarea name="content" placeholder="Entrez votre commentaire ici..." class="form-textarea form-custom" ></textarea>
-                            @error('content') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-row-check checkbox-row">
-                            <input type="hidden" name="save_info" value="0"> <!-- Champ caché -->
-                            <input type="checkbox" id="save-info" name="save_info" value="1">
-                            <label for="save-info">
-                                Enregistrer mon nom, email et site web dans ce navigateur pour mon prochain commentaire.
-                            </label>
-                        </div>
-                        <div class="form-row">
-                            <button type="submit" class="submit-btn">Publier le commentaire</button>
-                        </div>
-                    </form>
                 </div>
             </div>
 
@@ -151,7 +135,7 @@
                     <div class="latest-posts mb-5">
                         <div class="section-titre">Derniers Blogs</div>
                         @foreach ($latestBlogs as $latestBlog)
-                            <a href="{{ route('blogs.show', $latestBlog->id) }}">
+                            <a href="{{ route('admin.articles.show', $latestBlog->id) }}">
                                 <div class="post">
                                     <!-- Image dynamique -->
                                     <img src="{{ url('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->title }}">
@@ -173,7 +157,6 @@
 @endsection
 
 @push('scriptsPhone')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-    <script src="{{ asset('assets/js/global.js') }}"></script>
-    <script src="{{ asset('assets/js/save_content.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="{{ asset('assets/js/global.js') }}"></script>
 @endpush

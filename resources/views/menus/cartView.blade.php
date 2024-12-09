@@ -91,10 +91,9 @@
 
 
 @push('scriptsCart')
+<script src="{{ asset('assets/js/search.js') }}"></script>
 <script>
-
-
-$(document).ready(function () {
+    $(document).ready(function () {
         // Suppression d'un produit du panier
         $('.remove-from-cart').click(function () {
             const productId = $(this).data('id');
@@ -129,9 +128,6 @@ $(document).ready(function () {
             $("#success-alert").slideUp(500);
         });
     });
-
-
-
 
     $(document).ready(function () {
         // Ajouter un produit au panier

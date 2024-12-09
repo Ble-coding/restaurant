@@ -26,7 +26,7 @@
                 </li>
               <!-- Vérification si vous êtes sur la page des blogs -->
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'blogs.index' ? 'active' : '' }}" href="{{ route('blogs.index') }}">Blogs</a>
+                    <a class="nav-link {{ in_array(Route::currentRouteName(), ['blogs.index', 'blogs.show']) ? 'active' : '' }}" href="{{ route('blogs.index') }}">Blogs</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('home') }}#contact">Contact</a>
@@ -39,6 +39,40 @@
                         </svg>
                     </a>
                 </li>
+
+
+                @if(Auth::guard('customer')->check())
+                {{-- Si le client est connecté --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ Auth::guard('customer')->user()->name }} {{-- Affiche le nom du client connecté --}}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li>
+                            {{-- Formulaire de déconnexion --}}
+                            <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+                            <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                Déconnexion
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @else
+                {{-- Si le client n'est pas connecté --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Connexion
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{{ route('customer.login') }}">{{ __('Se connecter') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ route('customer.register') }}">{{ __('S\'enregistrer') }}</a></li>
+                    </ul>
+                </li>
+            @endif
+
+
             </ul>
         </div>
     </div>

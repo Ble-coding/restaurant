@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MenuController;
@@ -19,9 +21,26 @@ Route::get('/welcome', function () {
 });
 
 
+Route::middleware(['auth:customer'])->group(function () {
+    Route::post('/likes', [LikeController::class, 'store']);
+    Route::post('/likes/toggle', [LikeController::class, 'toggleLike']);
+});
+
+
+// Routes publiques pour les clients
+Route::prefix('customer')->name('customer.')->group(function () {
+    Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('login'); // Affiche le formulaire de connexion
+    Route::get('/register', [CustomerAuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [CustomerAuthController::class, 'register'])->name('register');
+    Route::post('/login', [CustomerAuthController::class, 'login'])->name('login');
+    Route::post('/logout', [CustomerAuthController::class, 'logout'])->middleware('auth:customer')->name('logout');
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Route::get('/blogs', [BlogController::class, 'index'])->name('blogs');
 Route::resource('blogs', BlogController::class);
+Route::post('/blogs/{blog}/comments', [BlogController::class, 'storeComment'])->name('blogs.storeComment');
+
 Route::get('/commandes', [OrderController::class, 'index'])->name('orders');
 
 Route::resource('menus', MenuController::class);
@@ -49,6 +68,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('categories', CategoryController::class);
         Route::resource('articles', ArticleController::class);
+        Route::post('/articles/{article}/comments', [ArticleController::class, 'storeComment'])->name('articles.storeComment');
+
         // Ressources pour les rôles
         Route::resource('products', ProductController::class);
         // Ressources pour les rôles

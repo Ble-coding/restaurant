@@ -10,17 +10,25 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-
-    public function index()
+    public function index(Request $request)
     {
-         // Récupérer les blogs publiés, paginés par 8
-         $blogs = Blog::where('status', 'published')
-             ->orderBy('created_at', 'desc') // Trier par les plus récents
-             ->paginate(4); // Pagination (8 articles par page)
+        $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
 
-         // Retourner la vue avec les données
-         return view('blogs.index', compact('blogs'));
+        $blogs = Blog::query()
+            ->withCount('comments')
+            ->where('status', 'published')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('title', 'like', '%' . $search . '%')
+                            ->orWhere('content', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(4);
+
+        return view('blogs.index', compact('blogs'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -43,6 +51,8 @@ class BlogController extends Controller
      */
     public function show(Blog $blog)
     {
+        $commentsCount = $blog->comments()->count();
+
         // Récupérer les 3 derniers blogs publiés, en excluant l'actuel
         $latestBlogs = Blog::where('status', 'published')
             ->where('id', '!=', $blog->id) // Exclure le blog actuel
@@ -50,7 +60,7 @@ class BlogController extends Controller
             ->take(3) // Limiter à 3 blogs
             ->get();
 
-        return view('blogs.show', compact('blog', 'latestBlogs'));
+        return view('blogs.show', compact('blog', 'latestBlogs','commentsCount'));
     }
 
 
@@ -77,4 +87,23 @@ class BlogController extends Controller
     {
         //
     }
+
+    public function storeComment(Request $request, Blog $blog)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'website' => 'nullable|url|max:255',
+            'content' => 'required|string',
+            'country_code' => ['required', 'string'],
+            'phone' => 'required|string|max:20', // Nouveau champ ajouté
+            'save_info' => 'nullable|boolean', // Gérer le champ save_info
+        ]);
+
+        // dd($request);
+        $blog->comments()->create($validated);
+
+        return redirect()->route('blogs.show', $blog->id)->with('success', 'Votre commentaire a été ajouté avec succès.');
+    }
+
 }

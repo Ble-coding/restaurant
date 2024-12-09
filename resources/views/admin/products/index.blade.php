@@ -16,20 +16,18 @@
 
     <div class="search-wrapper">
         <div class="search-container">
-            <form method="GET" action="{{ route('admin.products.index') }}">
-                @csrf
+            <form method="GET" action="{{ route('admin.products.index') }}" id="search-form">
                 <input
                     type="text"
+                    id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher......"
+                    placeholder="Rechercher..."
                     value="{{ request()->get('search') }}"
-                    oninput="this.form.submit()"
                 >
             </form>
         </div>
     </div>
-
 
 
         <!-- Début des items de menu -->
@@ -272,7 +270,7 @@
 
 @push('scripts')
     <!-- Inclure le fichier JS de select2 -->
-
+    <script src="{{ asset('assets/js/search.js') }}"></script>
     <script>
 
         // Initialiser select2 avec un z-index personnalisé

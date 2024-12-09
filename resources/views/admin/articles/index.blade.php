@@ -16,19 +16,19 @@
 
     <div class="search-wrapper">
         <div class="search-container">
-            <form method="GET" action="{{ route('admin.articles.index') }}">
-                @csrf
+            <form method="GET" action="{{ route('admin.articles.index') }}" id="search-form">
                 <input
                     type="text"
+                    id="search"
                     class="search-input"
                     name="search"
                     placeholder="Rechercher..."
                     value="{{ request()->get('search') }}"
-                    oninput="this.form.submit()"
                 >
             </form>
         </div>
     </div>
+
 
         <!-- Début des items de menu -->
         <div class="row">
@@ -50,29 +50,34 @@
             @foreach ($articles as $article)
             <div class="col-md-3 col-lg-6 mb-4">
                 <div class="menu-item p-3">
-                    <div class="menu-item-image">
-                        <img src="{{ url('storage/' . $article->image) }}" alt="{{ $article->title }}">
-                    </div>
 
-                    <div class="menu-item-content">
-                        <div class="menu-item-header">
-                            <h3 class="menu-item-title"> {{ $article->title }} </h3>
-                            <div class="menu-item-dots"></div>
-                            <div class="menu-item-price">
-                                {{ $article->getTranslatedStatus() }}
-                            </div>
+                        <div class="menu-item-image">
+                            <img src="{{ url('storage/' . $article->image) }}" alt="{{ $article->title }}">
                         </div>
-                        <p class="menu-item-description">
-                            <span class="texte">{{ Str::limit(strip_tags($article->content), 100) }}</span>
-                            <a href="{{ route('admin.articles.edit', $article->id) }}" class="add_cart m-3">
-                                ✏️
-                            </a>
 
-                            <!-- Bouton pour ouvrir le modal de suppression -->
-                            <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $article->id }}">🗑️</a>
-                            <span class="menu-badge">{{ $article->category->name }}</span>
-                        </p>
-                    </div>
+                        <div class="menu-item-content">
+                            <div class="menu-item-header">
+                                <h3 class="menu-item-title"> {{ $article->title }} </h3>
+                                <div class="menu-item-dots"></div>
+                                <div class="menu-item-price">
+                                    {{ $article->getTranslatedStatus() }}
+                                </div>
+                            </div>
+                            <p class="menu-item-description">
+                                <span class="texte">{{ Str::limit(strip_tags($article->content), 100) }}</span>
+
+                                <a class="{{ Route::currentRouteName() === 'admin.articles.index' ? 'active' : '' }}" href="{{ route('admin.articles.show', $article->id) }}">👀
+                                </a>
+                                <a href="{{ route('admin.articles.edit', $article->id) }}" class="add_cart m-3">
+                                    ✏️
+                                </a>
+
+                                <!-- Bouton pour ouvrir le modal de suppression -->
+                                <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $article->id }}">🗑️</a>
+                                <span class="menu-badge">{{ $article->category->name }}</span>
+                            </p>
+                        </div>
+
                 </div>
             </div>
 
@@ -116,17 +121,6 @@
 @endsection
 
 @push('scripts')
-    <!-- Inclure le fichier JS de select2 -->
-    {{-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> --}}
-
-    {{-- <script>
-
-        // Initialiser select2 avec un z-index personnalisé
-        $('.select-product').select2({
-            dropdownParent: $('#editModal{{ $product->id }}'), // Limite le dropdown au modal
-            width: '100%', // S'assure que le dropdown s'aligne bien avec l'input
-        });;
-    </script> --}}
-
+    <script src="{{ asset('assets/js/search.js') }}"></script>
 @endpush
 

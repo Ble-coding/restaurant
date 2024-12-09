@@ -14,19 +14,25 @@ class ArticleController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->get('search');
-        $categories = Category::all();
+        $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
+        $categories = Category::all(); // Récupérer toutes les catégories
 
-        // Appliquer la recherche si un terme est spécifié
-        $articles = Blog::when($search, function ($query, $search) {
-            return $query->where('title', 'like', '%' . $search . '%')
-                         ->orWhere('content', 'like', '%' . $search . '%')
-                         ->orWhere('category_id', 'like', '%' . $search . '%')
-                         ->orWhere('status', 'like', '%' . $search . '%');
-        })
-        ->paginate(6); // Pagination des résultats (10 par page)
+        // Appliquer la recherche sur les articles
+        $articles = Blog::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('title', 'like', '%' . $search . '%') // Rechercher dans le titre
+                            ->orWhere('content', 'like', '%' . $search . '%') // Rechercher dans le contenu
+                            ->orWhere('status', 'like', '%' . $search . '%'); // Rechercher dans le statut
+                })
+                ->orWhereHas('category', function ($query) use ($search) { // Rechercher dans les catégories liées
+                    $query->where('name', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('created_at', 'desc') // Trier par date de création, la plus récente en premier
+            ->paginate(6); // Pagination avec 6 articles par page
 
-        return view('admin.articles.index', compact('articles','categories'));
+        return view('admin.articles.index', compact('articles', 'categories'));
     }
 
 
@@ -78,8 +84,19 @@ class ArticleController extends Controller
      */
     public function show(Blog $article)
     {
-        return view('admin.articles.show', compact('article'));
+
+        $commentsCount = $article->comments()->count();
+
+        $article->load('comments');
+        // Récupérer les 3 derniers blogs publiés, en excluant l'actuel
+        $latestBlogs = Blog::where('status', 'published')
+            ->where('id', '!=', $article->id) // Exclure le blog actuel
+            ->orderBy('created_at', 'desc')
+            ->take(3) // Limiter à 3 blogs
+            ->get();
+         return view('admin.articles.show', compact('article', 'latestBlogs','commentsCount'));
     }
+
 
     // Méthode pour afficher le formulaire d'édition d'un article
     public function edit(Blog $article)
@@ -137,6 +154,25 @@ class ArticleController extends Controller
 
         return redirect()->route('admin.articles.index')->with('success', 'Article supprimé avec succès!');
     }
+
+    public function storeComment(Request $request, Blog $article)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'website' => 'nullable|url|max:255',
+            'content' => 'required|string',
+            'country_code' => ['required', 'string'],
+            'phone' => 'required|string|max:20', // Nouveau champ ajouté
+            'save_info' => 'nullable|boolean', // Gérer le champ save_info
+        ]);
+
+        // dd($request);
+        $article->comments()->create($validated);
+
+        return redirect()->route('admin.articles.show', $blog->id)->with('success', 'Votre commentaire a été ajouté avec succès.');
+    }
+
 
     protected function handleImageUpload(Request $request, $existingImage = null)
     {

@@ -545,3 +545,7 @@ hr {
       }
 
 }
+
+.menu-item a{
+    text-decoration: none;
+   }

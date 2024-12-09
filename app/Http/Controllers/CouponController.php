@@ -13,29 +13,33 @@ class CouponController extends Controller
      */
     public function index(Request $request)
     {
+        // Récupérer les paramètres de recherche depuis la requête GET
         $search = $request->get('search');
-        $expired = $request->get('expired'); // Paramètre pour savoir si le coupon est expiré
+        $expired = $request->get('expired'); // Filtrer selon l'état d'expiration
 
-        // Appliquer le filtrage si un terme de recherche est présent
+        // Appliquer le filtrage dynamique
         $coupons = Coupon::when($search, function ($query, $search) {
-            return $query->where('code', 'like', '%' . $search . '%')
-                         ->orWhere('type', 'like', '%' . $search . '%');
-        })
-        ->when($expired, function ($query, $expired) {
-            if ($expired == 'expired') {
-                return $query->whereNotNull('expires_at')
-                             ->where('expires_at', '<', now());
-            } elseif ($expired == 'active') {
-                return $query->whereNull('expires_at')
-                             ->orWhere('expires_at', '>', now());
-            }
-        })
-        ->paginate(5);
+                // Recherche par code ou type
+                return $query->where('code', 'like', '%' . $search . '%')
+                             ->orWhere('type', 'like', '%' . $search . '%');
+            })
+            ->when($expired, function ($query, $expired) {
+                if ($expired === 'expired') {
+                    // Coupons expirés : Date d'expiration passée
+                    return $query->whereNotNull('expires_at')
+                                 ->where('expires_at', '<', now());
+                } elseif ($expired === 'active') {
+                    // Coupons actifs : Pas de date d'expiration ou date future
+                    return $query->whereNull('expires_at')
+                                 ->orWhere('expires_at', '>', now());
+                }
+            })
+            ->orderBy('created_at', 'desc') // Trier par date de création
+            ->paginate(5); // Pagination avec 5 résultats par page
 
+        // Retourner la vue avec les données filtrées
         return view('admin.coupons.index', compact('coupons'));
     }
-
-
 
     /**
      * Show the form for creating a new resource.

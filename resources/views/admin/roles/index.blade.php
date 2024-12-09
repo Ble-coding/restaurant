@@ -16,24 +16,19 @@
 
     <div class="search-wrapper">
         <div class="search-container">
-            <form method="GET" action="{{ route('admin.roles.index') }}">
-                @csrf
+            <form method="GET" action="{{ route('admin.roles.index') }}" id="search-form">
                 <input
                     type="text"
+                    id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher par nom......"
+                    placeholder="Rechercher par nom..."
                     value="{{ request()->get('search') }}"
-                    oninput="this.form.submit()"
                 >
-                {{-- <button class="search-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 16.5A6 6 0 1010.5 4.5a6 6 0 000 12z" />
-                    </svg>
-                </button> --}}
             </form>
         </div>
     </div>
+
 
 
 
@@ -202,9 +197,7 @@
 
 @endsection
 
-{{-- @push('scripts')
-
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-
-@endpush --}}
+@push('scripts')
+    <script src="{{ asset('assets/js/search.js') }}"></script>
+@endpush
 

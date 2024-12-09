@@ -60,7 +60,7 @@
 
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['admin.articles.index', 'admin.articles.create']) ? 'active' : '' }}"
+                    <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['admin.articles.index', 'admin.articles.create', 'admin.articles.show']) ? 'active' : '' }}"
                        href="#"
                        id="navbarDropdown"
                        role="button"

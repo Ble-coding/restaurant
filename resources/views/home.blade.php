@@ -2,14 +2,14 @@
 
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/accueil.css') }}">
+{{--
 <link rel="stylesheet" href="{{ asset('assets/css/service.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/menu.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/team.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/apropos.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/blog.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/contact.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/footer.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/contact.css') }}"> --}}
+
 @endpush
 
 
@@ -275,13 +275,22 @@
                                         {{ Str::limit(strip_tags($blog->content), 70) }}
                                     </p>
 
+                                </a>
                                     <!-- Métadonnées statiques (laisser pour l'instant) -->
                                     <div class="blog-meta">
-                                        <span><i class="bi bi-heart"></i> 45 Likes</span>
-                                        <span><i class="bi bi-chat"></i> 12 Commentaires</span>
+
+                                        <span class="like-btn" data-post-id="{{ $blog->id }}" style="cursor: pointer;">
+                                            <i class="bi {{ $blog->likes->contains('customer_id', auth('customer')->id()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                                            <span id="like-count-{{ $blog->id }}">
+                                                {{ $blog->likes->count() }} {{ Str::plural('Like', $blog->likes->count()) }}
+                                            </span>
+                                        </span>
+
+
+                                        <span><i class="bi bi-chat"></i>  {{ $blog->comments_count }} {{ Str::plural('commentaire', $blog->comments_count) }}</span>
                                     </div>
                                 </div>
-                            </a>
+
                         </article>
                     @endforeach
             </div>
@@ -337,6 +346,7 @@
 
 
 @push('scripts')
+<script src="{{ asset('assets/js/like.js') }}"></script>
 <script src="{{ asset('assets/js/modalVideo.js') }}"></script>
 <script src="{{ asset('assets/js/accueilJs.js') }}"></script>
 <script src="{{ asset('assets/swiper/js/swiper-bundle.min.js') }}"></script>

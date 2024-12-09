@@ -16,19 +16,19 @@
 
     <div class="search-wrapper">
         <div class="search-container">
-            <form method="GET" action="{{ route('admin.permissions.index') }}">
-                @csrf
+            <form method="GET" action="{{ route('admin.permissions.index') }}" id="search-form">
                 <input
                     type="text"
+                    id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher......"
+                    placeholder="Rechercher par nom..."
                     value="{{ request()->get('search') }}"
-                    oninput="this.form.submit()"
                 >
             </form>
         </div>
     </div>
+
 
         <!-- Début des items de menu -->
         <div class="row">
@@ -224,6 +224,7 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('assets/js/search.js') }}"></script>
     <!-- Inclure le fichier JS de select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script>

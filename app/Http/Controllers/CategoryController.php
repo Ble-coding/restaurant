@@ -12,16 +12,18 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->get('search');
+        $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
 
-        // Appliquer la recherche si un terme est spécifié
-        $categories = Category::when($search, function ($query, $search) {
-            return $query->where('name', 'like', '%' . $search . '%');
-        })
-        ->paginate(6); // Pagination des résultats (10 par page)
+        $categories = Category::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('created_at', 'desc') // Optionnel : Trier les catégories par date
+            ->paginate(6); // Pagination des résultats
 
         return view('admin.articles.category.index', compact('categories'));
     }
+
 
     /**
      * Show the form for creating a new resource.

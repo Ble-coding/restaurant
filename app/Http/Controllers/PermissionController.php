@@ -14,18 +14,24 @@ class PermissionController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer la valeur de la recherche depuis la requête GET
-        $search = $request->get('search');
+        // Nettoyer et récupérer le terme de recherche depuis la requête GET
+        $search = trim($request->get('search'));
 
-        // Appliquer le filtrage si un terme de recherche est présent
-        $permissions = Permission::when($search, function($query, $search) {
-            return $query->where('name', 'like', '%'.$search.'%')
-                         ->orWhere('guard_name', 'like', '%'.$search.'%')
-                         ->orWhere('translation', 'like', '%'.$search.'%');
+        // Appliquer le filtrage sur les permissions si un terme de recherche est présent
+        $permissions = Permission::when($search, function ($query, $search) {
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('name', 'like', '%' . $search . '%') // Rechercher dans le nom
+                         ->orWhere('guard_name', 'like', '%' . $search . '%') // Rechercher dans guard_name
+                         ->orWhere('translation', 'like', '%' . $search . '%'); // Rechercher dans translation
+            });
         })
-        ->paginate(6); // Assurez-vous que vous paginez les résultats
+        ->orderBy('created_at', 'desc') // Trier par date de création descendante
+        ->paginate(6); // Pagination avec 6 permissions par page
+
+        // Retourner la vue avec les données paginées
         return view('admin.permissions.index', compact('permissions'));
     }
+
 
     /**
      * Show the form for creating a new resource.

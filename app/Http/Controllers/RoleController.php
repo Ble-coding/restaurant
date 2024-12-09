@@ -16,22 +16,29 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer la valeur de la recherche depuis la requête GET
-        $search = $request->get('search');
+        // Nettoyer et récupérer le terme de recherche depuis la requête GET
+        $search = trim($request->get('search'));
+
+        // Récupérer tous les permissions disponibles
         $permissions = Permission::all();
 
+        // Récupérer les rôles avec leurs permissions, appliquer le filtrage et exclure 'Admin'
+        $roles = Role::with('permissions')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', '%' . $search . '%') // Rechercher dans le nom
+                             ->orWhere('guard_name', 'like', '%' . $search . '%') // Rechercher dans guard_name
+                             ->orWhere('translation', 'like', '%' . $search . '%'); // Rechercher dans translation (si ce champ existe)
+                });
+            })
+            ->whereNotIn('name', ['Admin']) // Exclure le rôle 'Admin'
+            ->orderBy('created_at', 'desc') // Trier par date de création descendante
+            ->paginate(5); // Pagination des résultats (5 par page)
 
-        // Appliquer le filtrage si un terme de recherche est présent
-        $roles = Role::with('permissions')->when($search, function($query, $search) {
-            return $query->where('name', 'like', '%'.$search.'%')
-                         ->orWhere('guard_name', 'like', '%'.$search.'%')
-                         ->orWhere('translation', 'like', '%'.$search.'%');
-        })
-        ->whereNotIn('name', ['Admin'])
-        ->paginate(5); // Assurez-vous que vous paginez les résultats
-
+        // Retourner la vue avec les données
         return view('admin.roles.index', compact('roles', 'permissions'));
     }
+
 
     /**
      * Show the form for creating a new resource.

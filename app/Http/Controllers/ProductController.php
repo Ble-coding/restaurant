@@ -14,16 +14,20 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer la valeur de la recherche depuis la requête GET
-        $search = $request->get('search');
+        // Nettoyer l'entrée utilisateur pour éviter les espaces inutiles
+        $search = trim($request->get('search'));
 
-        // Appliquer le filtrage si un terme de recherche est présent
-        $products = Product::when($search, function ($query, $search) {
-            return $query->where('name', 'like', '%' . $search . '%')
-                         ->orWhere('description', 'like', '%' . $search . '%')
-                         ->orWhere('status', 'like', '%' . $search . '%'); // Exemple de champ supplémentaire
-        })
-        ->paginate(10); // Paginer les résultats (10 par page)
+        // Appliquer la recherche sur les produits
+        $products = Product::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', '%' . $search . '%') // Filtrer par nom
+                            ->orWhere('description', 'like', '%' . $search . '%') // Filtrer par description
+                            ->orWhere('status', 'like', '%' . $search . '%'); // Filtrer par statut
+                });
+            })
+            ->orderBy('created_at', 'desc') // Trier les résultats par date de création, le plus récent en premier
+            ->paginate(10); // Limiter les résultats à 10 par page
 
         return view('admin.products.index', compact('products'));
     }

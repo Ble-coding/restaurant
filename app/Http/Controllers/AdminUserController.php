@@ -18,28 +18,30 @@ class AdminUserController extends Controller
      */
     public function index(Request $request): View
     {
-        // Récupérer la valeur de la recherche depuis la requête GET
-        $search = $request->get('search');
+        // Nettoyer et récupérer le terme de recherche depuis la requête GET
+        $search = trim($request->get('search'));
 
-        // Appliquer le filtrage si un terme de recherche est présent
+        // Récupérer les utilisateurs avec leurs rôles, en excluant 'Admin' et 'Super Admin'
         $users = User::with('roles')
             ->whereHas('roles', function ($query) {
-                // Exclure les utilisateurs ayant les rôles 'Admin' et 'Super Admin'
-                $query->whereNotIn('name', ['Admin', 'Super Admin']);
+                $query->whereNotIn('name', ['Admin', 'Super Admin']); // Exclusion de certains rôles
             })
-            ->when($search, function ($query, $search) {
-                return $query->where('name', 'like', '%' . $search . '%')
+            ->when($search, function ($query) use ($search) {
+                // Appliquer la recherche sur les champs 'name' et 'email'
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', '%' . $search . '%')
                              ->orWhere('email', 'like', '%' . $search . '%');
+                });
             })
-            ->paginate(10); // Pagination des résultats
+            ->orderBy('created_at', 'desc') // Trier par date de création
+            ->paginate(10); // Paginer les résultats (10 par page)
 
-        // Récupérer tous les rôles disponibles
-        $roles = Role::all(); // Récupère les objets Rol
+        // Charger tous les rôles disponibles
+        $roles = Role::all();
 
+        // Retourner la vue avec les utilisateurs et les rôles
         return view('admin.users.index', compact('users', 'roles'));
     }
-
-
 
     /**
      * Show the form for creating a new resource.

@@ -22,9 +22,11 @@
     @include('layouts.footer')
 
 
-    @stack('scripts')
+
     @stack('scriptstoggle')
     @include('layouts.footer-scripts')
+    @stack('scripts')
+    @stack('scriptsPhone')
     @stack('scriptsCart')
     @stack('scriptsCheckout')
 
