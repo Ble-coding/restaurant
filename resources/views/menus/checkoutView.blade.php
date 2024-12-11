@@ -11,7 +11,9 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="./assets/css/menuCheckout.css">
+    <link rel="stylesheet"  href="{{ asset('assets/css/menuCheckout.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/idTel.css') }}">
 @endpush
 
 @section('content')
@@ -40,38 +42,94 @@
                         @csrf
                         <div class="mb-3">
                             <label for="firstName" class="form-label">Prénom</label>
-                            <input type="text" id="firstName" name="first_name" class="form-control form-custom" placeholder="Prénom">
+                            <input type="text" id="firstName" name="first_name" class="form-control form-custom @error('first_name') is-invalid @enderror" placeholder="Prénom" value="{{ old('first_name') }}">
+                            @error('first_name')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="lastName" class="form-label">Nom</label>
-                            <input type="text" id="lastName" name="last_name" class="form-control form-custom" placeholder="Nom">
+                            <input type="text" id="last_name" name="last_name" class="form-control form-custom @error('last_name') is-invalid @enderror" placeholder="Nom" value="{{ old('last_name')}}">
+                            @error('last_name')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="email" class="form-label">Adresse email</label>
-                            <input type="email" id="email" name="email" class="form-control form-custom" placeholder="Email">
+                            <input type="email" id="email" name="email" class="form-control form-custom @error('email') is-invalid @enderror" placeholder="Email" value="{{ old('email') }}">
+                            @error('email')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="phone" class="form-label">Téléphone</label>
-                            <input type="text" id="phone" name="phone" class="form-control form-custom" placeholder="Téléphone">
+                            {{-- <input type="text" id="phone" name="phone" class="form-control form-custom @error('phone') is-invalid @enderror" placeholder="Téléphone" value="{{ old('phone') }}"> --}}
+
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
+                            class="form-control form-custom @error('phone') is-invalid @enderror"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            >
+
+                            <input type="hidden" id="country_code" name="country_code">
+                            @error('phone')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="address" class="form-label">Adresse</label>
-                            <input type="text" id="address" name="address" class="form-control form-custom" placeholder="Rue et numéro">
+                            <input type="text" id="address" name="address" class="form-control form-custom @error('address') is-invalid @enderror" placeholder="Rue et numéro" value="{{ old('address') }}">
+                            @error('address')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="city" class="form-label">Ville</label>
-                            <input type="text" id="city" name="city" class="form-control form-custom" placeholder="Ville">
+                            <input type="text" id="city" name="city" class="form-control form-custom @error('city') is-invalid @enderror" placeholder="Ville" value="{{ old('city') }}">
+                            @error('city')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="zip" class="form-label">Code postal</label>
-                            <input type="text" id="zip" name="zip" class="form-control form-custom" placeholder="Code postal">
+                            <input type="text" id="zip" name="zip" class="form-control form-custom @error('zip') is-invalid @enderror" placeholder="Code postal" value="{{ old('zip') }}">
+                            @error('zip')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <div class="mb-3">
                             <label for="orderNotes" class="form-label">Notes de commande (facultatif)</label>
-                            <textarea id="orderNotes" name="order_notes" class="form-control form-custom" rows="5" placeholder="Notes sur la commande, par ex. instructions de livraison."></textarea>
+                            <textarea id="orderNotes" name="order_notes" class="form-control form-custom @error('order_notes') is-invalid @enderror" rows="5" placeholder="Notes sur la commande, par ex. instructions de livraison.">{{ old('order_notes') }}</textarea>
+                            @error('order_notes')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
+
                         <button type="submit" class="btn btn-orange mt-3">COMMANDER</button>
                     </form>
+
                 </div>
 
                <!-- Résumé de la commande -->
@@ -113,7 +171,8 @@
                     <p class="footer-text mt-3">
                         Vos données personnelles seront utilisées pour traiter votre commande, améliorer votre expérience sur ce site et pour d'autres fins décrites dans notre <a href="#">politique de confidentialité</a>.
                     </p>
-                    <img src="./assets/images/menu/images.jpg" class="reseaux" alt="reseaux">
+                    <img src="{{ asset('assets/images/menu/images.jpg') }}" class="reseaux" alt="reseaux">
+
 
                     <section id="faq">
                         <div class="container py-5">
@@ -184,6 +243,7 @@
 
 @push('scriptstoggle')
   <script src="{{ asset('assets/js/toggleCouponSection.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 @endpush
 
 
@@ -294,13 +354,13 @@
 
         // Charger la badge à la page initiale
         updateCartBadge();
+
+
     });
 </script>
 @endpush
 
 @push('scriptsCheckout')
-    <script>
-
-    </script>
+<script src="{{ asset('assets/js/global.js') }}"></script>
 @endpush
 

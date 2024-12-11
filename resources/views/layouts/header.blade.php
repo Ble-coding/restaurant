@@ -24,6 +24,11 @@
                         <li><a class="dropdown-item" href="{{ route('home') }}#services">Services</a></li>
                     </ul>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::currentRouteName() === 'customer.orders.index' ? 'active' : '' }}" href="{{ route('customer.orders.index') }}">Commandes</a>
+                </li>
+
               <!-- Vérification si vous êtes sur la page des blogs -->
                 <li class="nav-item">
                     <a class="nav-link {{ in_array(Route::currentRouteName(), ['blogs.index', 'blogs.show']) ? 'active' : '' }}" href="{{ route('blogs.index') }}">Blogs</a>
@@ -31,6 +36,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('home') }}#contact">Contact</a>
                 </li>
+
+
+                @if(Auth::guard('customer')->check())
                 <li class="nav-item" style="position: relative;">
                     <a class="nav-link" href="{{ route('cart.view') }}">
                         <span class="badge" id="cart-badge">0</span>
@@ -40,12 +48,10 @@
                     </a>
                 </li>
 
-
-                @if(Auth::guard('customer')->check())
                 {{-- Si le client est connecté --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ Auth::guard('customer')->user()->name }} {{-- Affiche le nom du client connecté --}}
+                        {{ Auth::guard('customer')->user()->last_name }} {{ Auth::guard('customer')->user()->first_name }} {{-- Affiche le nom du client connecté --}}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li>

@@ -16,8 +16,10 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/welcome', function () {
-    return view('welcome');
+Route::middleware(['exclude.customer'])->group(function () {
+    Route::get('/welcome', function () {
+        return view('welcome');
+    });
 });
 
 
@@ -34,6 +36,11 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::post('/register', [CustomerAuthController::class, 'register'])->name('register');
     Route::post('/login', [CustomerAuthController::class, 'login'])->name('login');
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->middleware('auth:customer')->name('logout');
+
+    Route::get('commandes', [OrderController::class, 'customerOrders'])->name('orders.index');
+    Route::get('commandes/{commande}', [OrderController::class, 'CustomerShowOrders'])->name('orders.show');
+    Route::delete('/commandes/{commande}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancelOrder');
+
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -41,7 +48,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::resource('blogs', BlogController::class);
 Route::post('/blogs/{blog}/comments', [BlogController::class, 'storeComment'])->name('blogs.storeComment');
 
-Route::get('/commandes', [OrderController::class, 'index'])->name('orders');
 
 Route::resource('menus', MenuController::class);
 Route::post('/cart/add', [MenuController::class, 'addToCart'])->name('cart.add');
@@ -52,8 +58,6 @@ Route::get('/cart', [MenuController::class, 'viewCart'])->name('cart.view');
 Route::get('/checkout', [MenuController::class, 'viewCheckout'])->name('checkout.view');
 // Route pour enregistrer la commande (POST)
 Route::post('/checkout', [MenuController::class, 'storeOrder'])->name('checkout.store');
-
-
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -72,6 +76,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Ressources pour les rôles
         Route::resource('products', ProductController::class);
+
+        Route::resource('commandes', OrderController::class);
+
         // Ressources pour les rôles
         Route::resource('roles', RoleController::class);
 
@@ -83,13 +90,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:Admin|SuperAdmin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', AdminUserController::class);
         Route::resource('coupons', CouponController::class);
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+
 
 require __DIR__.'/auth.php';

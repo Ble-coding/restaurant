@@ -13,33 +13,38 @@ class CouponController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer les paramètres de recherche depuis la requête GET
+        // Récupérer les paramètres de recherche
         $search = $request->get('search');
-        $expired = $request->get('expired'); // Filtrer selon l'état d'expiration
+        $expired = $request->get('expired');
 
-        // Appliquer le filtrage dynamique
-        $coupons = Coupon::when($search, function ($query, $search) {
-                // Recherche par code ou type
-                return $query->where('code', 'like', '%' . $search . '%')
-                             ->orWhere('type', 'like', '%' . $search . '%');
+        // Filtrer les coupons
+        $coupons = Coupon::query() // Inclure tous les coupons par défaut
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('code', 'like', '%' . $search . '%')
+                             ->orWhere('expires_at', 'like', '%' . $search . '%');
+                });
             })
             ->when($expired, function ($query, $expired) {
                 if ($expired === 'expired') {
-                    // Coupons expirés : Date d'expiration passée
+                    // Inclure uniquement les coupons expirés
                     return $query->whereNotNull('expires_at')
                                  ->where('expires_at', '<', now());
                 } elseif ($expired === 'active') {
-                    // Coupons actifs : Pas de date d'expiration ou date future
-                    return $query->whereNull('expires_at')
+                    // Inclure uniquement les coupons actifs
+                    return $query->where(function ($subQuery) {
+                        $subQuery->whereNull('expires_at')
                                  ->orWhere('expires_at', '>', now());
+                    });
                 }
             })
-            ->orderBy('created_at', 'desc') // Trier par date de création
-            ->paginate(5); // Pagination avec 5 résultats par page
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
 
-        // Retourner la vue avec les données filtrées
+        // Retourner la vue avec tous les coupons, y compris les inactifs
         return view('admin.coupons.index', compact('coupons'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -54,6 +59,7 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
+        // Validation des données envoyées par l'utilisateur
         $request->validate([
             'code' => 'required|string|unique:coupons,code',
             'discount' => 'required|numeric',
@@ -61,15 +67,17 @@ class CouponController extends Controller
             'expires_at' => 'nullable|date',
         ]);
 
-        // Créer un coupon
-        $coupon = Coupon::create($request->all());
+        // Création du coupon avec les données validées
+        $coupon = Coupon::create($request->only(['code', 'discount', 'type', 'expires_at']));
 
-        // Définir le statut du coupon après sa création
+        // Définir le statut du coupon en fonction de sa validité
         $coupon->status = $coupon->isValid() ? 'active' : 'inactive';
-        $coupon->save(); // Sauvegarder après la mise à jour du statut
+        $coupon->save(); // Sauvegarder après mise à jour
 
+        // Rediriger avec un message de succès
         return redirect()->route('admin.coupons.index')->with('success', 'Coupon créé avec succès.');
     }
+
 
 
     /**
@@ -93,6 +101,7 @@ class CouponController extends Controller
      */
     public function update(Request $request, Coupon $coupon)
     {
+        // Validation des données envoyées par l'utilisateur
         $request->validate([
             'code' => 'required|string|unique:coupons,code,' . $coupon->id,
             'discount' => 'required|numeric',
@@ -100,15 +109,17 @@ class CouponController extends Controller
             'expires_at' => 'nullable|date',
         ]);
 
-        // Mettre à jour les données du coupon
-        $coupon->update($request->all());
+        // Mettre à jour les champs du coupon avec les données validées
+        $coupon->fill($request->only(['code', 'discount', 'type', 'expires_at']));
 
-        // Mettre à jour le statut du coupon après modification
+        // Définir le statut du coupon après mise à jour
         $coupon->status = $coupon->isValid() ? 'active' : 'inactive';
-        $coupon->save(); // Sauvegarder après la mise à jour du statut
+        $coupon->save(); // Sauvegarder après mise à jour
 
+        // Rediriger avec un message de succès
         return redirect()->route('admin.coupons.index')->with('success', 'Coupon mis à jour avec succès.');
     }
+
 
 
     /**

@@ -51,7 +51,8 @@ class CustomerAuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
             'email' => 'required|email|unique:customers,email',
             'password' => 'required|string|min:6|confirmed',
             'country_code' => 'required|string|max:255',
@@ -59,7 +60,8 @@ class CustomerAuthController extends Controller
         ]);
 
         $customer = Customer::create([
-            'name' => $request->name,
+            'last_name' => $request->last_name,
+            'first_name' => $request->first_name,
             'email' => $request->email,
             'phone' => $request->phone,
             'country_code' => $request->country_code,

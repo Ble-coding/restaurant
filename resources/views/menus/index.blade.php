@@ -105,12 +105,10 @@
                             <p>Sous-total:</p>
                             <span id="cart-subtotal">£{{ $subtotal }}</span>
                         </div>
-
                         <div class="cart-actions">
                             <form action="{{ route('cart.view') }}" method="get">
                                 <button type="submit" class="view-cart">Panier</button>
                             </form>
-
                             <form action="{{ route('checkout.view') }}" method="get">
                                 <button type="submit" class="checkout">Commander</button>
                             </form>
@@ -118,6 +116,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 @endsection

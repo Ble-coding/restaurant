@@ -548,4 +548,13 @@ hr {
 
 .menu-item a{
     text-decoration: none;
-   }
+}
+
+
+.menu-item-products strong, .menu-item-products li{
+ color:#ddd;
+}
+
+.menu-item-products .compte{
+    color: #f7840d;
+}

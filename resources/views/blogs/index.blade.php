@@ -59,18 +59,20 @@
                                         </p>
                                     </a>
                                         <!-- Métadonnées statiques (laisser pour l'instant) -->
-                                        <div class="blog-meta">
 
-                                            <span class="like-btn" data-post-id="{{ $blog->id }}" style="cursor: pointer;">
-                                                <i class="bi {{ $blog->likes->contains('customer_id', auth('customer')->id()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
-                                                <span id="like-count-{{ $blog->id }}">
-                                                    {{ $blog->likes->count() }} {{ Str::plural('Like', $blog->likes->count()) }}
+                                        @if(Auth::guard('customer')->check())
+                                            <div class="blog-meta">
+                                                <span class="like-btn" data-post-id="{{ $blog->id }}" style="cursor: pointer;">
+                                                    <i class="bi {{ $blog->likes->contains('customer_id', auth('customer')->id()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                                                    <span id="like-count-{{ $blog->id }}">
+                                                        {{ $blog->likes->count() }} {{ Str::plural('Like', $blog->likes->count()) }}
+                                                    </span>
                                                 </span>
-                                            </span>
+                                                <span><i class="bi bi-chat"></i>  {{ $blog->comments_count }} {{ Str::plural('commentaire', $blog->comments_count) }}</span>
+                                            </div>
+                                        @else
+                                        @endif
 
-
-                                            <span><i class="bi bi-chat"></i>  {{ $blog->comments_count }} {{ Str::plural('commentaire', $blog->comments_count) }}</span>
-                                        </div>
                                     </div>
 
                             </article>

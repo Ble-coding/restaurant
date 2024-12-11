@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\Coupon;
+use App\Observers\CouponObserver;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Enregistrer l'Observer pour le modèle Coupon
+        Coupon::observe(CouponObserver::class);
+        Carbon::setLocale('fr');
     }
 }

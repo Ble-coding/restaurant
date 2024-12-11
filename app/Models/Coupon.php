@@ -16,18 +16,19 @@ class Coupon extends Model
         'expires_at' => 'datetime',
     ];
 
+     /**
+     * Vérifier si le coupon est valide.
+     */
+    public function isValid(): bool
+    {
+        return $this->status === 'active' && (!$this->expires_at || $this->expires_at > now());
+    }
 
-      // Vérifier si le coupon est valide
-      public function isValid(): bool
-      {
-          return $this->status === 'active' && (!$this->expires_at || $this->expires_at > now());
-      }
-
-      // Formatter expires_at
-      public function getFormattedExpiresAtAttribute()
-      {
-          return $this->expires_at ? $this->expires_at->format('d/m/Y') : 'Illimité';
-      }
+    // Formatter expires_at
+    public function getFormattedExpiresAtAttribute()
+    {
+        return $this->expires_at ? $this->expires_at->format('d/m/Y') : 'Illimité';
+    }
 
       public function getTranslatedTypeAttribute()
     {

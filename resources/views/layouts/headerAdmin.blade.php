@@ -54,10 +54,8 @@
 
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'orders' ? 'active' : '' }}" href="{{ route('orders') }}">Commandes</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'admin.commandes.index' ? 'active' : '' }}" href="{{ route('admin.commandes.index') }}">Commandes</a>
                 </li>
-
-
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['admin.articles.index', 'admin.articles.create', 'admin.articles.show']) ? 'active' : '' }}"
@@ -99,7 +97,7 @@
                         {{ Auth::user()->name }}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{{route('profile.edit')}}">{{ __('Profile') }}</a></li>
+                        <li><a class="dropdown-item" href="{{route('admin.profile.edit')}}">{{ __('Profile') }}</a></li>
                         <li>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf

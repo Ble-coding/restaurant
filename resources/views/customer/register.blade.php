@@ -56,11 +56,39 @@
 
                         <!-- Nom Complet et Email -->
                         <div class="row">
+
                             <div class="col-md-6 mb-3">
-                                <label for="name" class="form-label">Nom Complet</label>
-                                <input type="text" id="name" name="name" value="{{ old('name') }}"
-                                    class="form-control form-custom-user @error('name') is-invalid @enderror" required>
-                                @error('name')
+                                <label for="firstName" class="form-label">Nom</label>
+                                <input type="text" id="firstName" name="first_name" value="{{ old('first_name') }}"
+                                    class="form-control form-custom-user @error('first_name') is-invalid @enderror">
+                                @error('first_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Prénoms</label>
+                                <input type="text" id="lastName" name="last_name" value="{{ old('last_name') }}"
+                                    class="form-control form-custom-user @error('last_name') is-invalid @enderror">
+                                @error('last_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+
+                        </div>
+
+                        <!-- Téléphone et Rôle -->
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Numéro de téléphone</label>
+                                <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
+                                    class="form-control form-custom-user @error('phone') is-invalid @enderror"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    >
+
+                                    <input type="hidden" id="country_code" name="country_code">
+                                @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -70,23 +98,6 @@
                                 <input type="email" id="email" name="email" value="{{ old('email') }}"
                                     class="form-control form-custom-user @error('email') is-invalid @enderror" required>
                                 @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Téléphone et Rôle -->
-                        <div class="row">
-
-                            <div class="col-md-12 mb-3">
-                                <label for="phone" class="form-label">Numéro de téléphone</label>
-                                <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
-                                    class="form-control form-custom-user @error('phone') is-invalid @enderror"
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                    required>
-
-                                    <input type="hidden" id="country_code" name="country_code">
-                                @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -151,10 +162,6 @@
         });
 
 
-    </script>
-
-    {{-- <script src="{{ asset('assets/js/flag.js') }}"></script> --}}
-    <script>
         $(document).ready(function() {
             $('#role').select2({
                 theme: 'bootstrap4',

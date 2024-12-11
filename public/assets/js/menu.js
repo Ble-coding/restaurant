@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
     $(document).on("click", ".add_cart", function (e) {
         e.preventDefault();
@@ -73,7 +72,10 @@ $(document).ready(function () {
     }
 
     function loadCart() {
-        $("#cart-items").load(location.href + " #cart-items");
+        // Met à jour le contenu du panier sans recharger la page
+        $("#cart-items").load(location.href + " #cart-items", function() {
+            // Optionnel : actions après le chargement (ex. mise à jour de l'affichage dynamique)
+        });
     }
 
     updateCartBadge();

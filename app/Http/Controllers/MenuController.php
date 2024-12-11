@@ -7,6 +7,8 @@ use App\Models\Product; // Pour manipuler le modèle Product
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use App\Models\Coupon;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 
 class MenuController extends Controller
@@ -54,6 +56,7 @@ class MenuController extends Controller
 
     public function addToCart(Request $request)
     {
+
         $product = Product::findOrFail($request->product_id);
 
         // Obtenir le panier existant ou en créer un nouveau
@@ -146,10 +149,18 @@ class MenuController extends Controller
             'phone' => 'required|string|max:15',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
+            'country_code' => 'required|string|max:255', // Validation pour le code pays
             'zip' => 'required|string|max:10',
             'coupon_code' => 'nullable|string|exists:coupons,code',
             'order_notes' => 'nullable|string',
+            'customer_id' => 'nullable|exists:customers,id',
         ]);
+
+        $customerId = Auth::guard('customer')->id();
+        if ( !$customerId ) {
+            return redirect()->route('customer.login')->withErrors(['error' => 'Veuillez vous connecter pour passer une commande.']);
+        }
+
 
         // Vérification du coupon s'il est fourni
         $coupon = null;
@@ -174,18 +185,24 @@ class MenuController extends Controller
 
         // Créer la commande
         $order = Order::create([
+            'code' => Order::generateOrderCode(),
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
             'city' => $request->city,
+            'country_code' => $request->country_code,
             'zip' => $request->zip,
-            'total' => $this->calculateTotal($request, $discount), // Fonction pour calculer le total
+           'total' =>  $total, // Fonction pour calculer le total
             'coupon_id' => $coupon ? $coupon->id : null,  // Enregistrer l'ID du coupon
             'order_notes' => $request->input('order_notes', null),
+           'customer_id' => $customerId,
             'status' => 'pending', // statut initial
         ]);
+
+
+
         // Associer les produits à la commande
         $cart = session()->get('cart', []); // Récupérer le panier de la session
 
@@ -205,18 +222,27 @@ class MenuController extends Controller
         // Vider le panier
         session()->forget('cart');
 
-        return redirect()->route('checkout.success')->with('success', 'Commande passée avec succès.');
+        return redirect()->route('menus.index')->with('success', 'Commande passée avec succès.');
     }
 
+    private function calculateTotal(Request $request, $discount)
+    {
+        // Récupérer le panier de la session
+        $cart = session('cart', []);
 
-    private function calculateTotal(Request $request, $discount){
-        $subtotal = 100; // Remplacez par le calcul réel de votre panier.
+        // Calcul du sous-total
+        $subtotal = collect($cart)->sum(function ($item) {
+            return $item['price'] * $item['quantity'];
+        });
 
+        // Appliquer la remise si elle existe
         if ($discount > 0) {
             return $subtotal - ($subtotal * ($discount / 100));
         }
+
         return $subtotal;
     }
+
 
 
     /**

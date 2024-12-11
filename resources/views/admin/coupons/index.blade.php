@@ -31,36 +31,40 @@
 
      <!-- Formulaire de recherche -->
      <div class="search-wrapper">
-        <div class="search-container">
-            <form method="GET" action="{{ route('admin.coupons.index') }}">
-                <div class="d-flex align-items-center gap-2">
-                    <!-- Champ de recherche -->
-                    <input
-                        type="text"
-                        class="form-control form-custom-user"
-                        name="search"
-                        placeholder="Rechercher par code ou type..."
-                        value="{{ request('search') }}">
+        {{-- <div class="search-container"> --}}
+            <form method="GET" action="{{ route('admin.coupons.index') }}" id="search-form">
+                <div class="row">
+                    <!-- Recherche par mot-clé -->
+                    <div class="col-md-6 mb-3">
+                        <input
+                            type="text"
+                            id="search"
+                            class="form-control form-custom-user"
+                            name="search"
+                            placeholder="Rechercher par code..."
+                            value="{{ request()->get('search') }}"
+                        >
+                    </div>
 
-                    <!-- Sélecteur de statut -->
-                    <select
-                        class="form-select form-custom-user"
-                        name="expired">
-                        <option value="">-- Statut --</option>
-                        <option value="active" {{ request('expired') === 'active' ? 'selected' : '' }}>Actif</option>
-                        <option value="expired" {{ request('expired') === 'expired' ? 'selected' : '' }}>Expiré</option>
-                    </select>
+                    <!-- Filtrer par état (actif/expiré) -->
+                    <div class="col-md-4 mb-3">
+                        <select name="expired" id="expired" class="form-select form-custom-user">
+                            <option value="">-- Statut d'expiration --</option>
+                            <option value="active" {{ request()->get('expired') === 'active' ? 'selected' : '' }}>Actif</option>
+                            <option value="expired" {{ request()->get('expired') === 'expired' ? 'selected' : '' }}>Expiré</option>
+                        </select>
+                    </div>
 
-                    <!-- Bouton de filtrage -->
-                    <button
-                        class="btn view-cart"
-                        type="submit">
-                        Filtrer
-                    </button>
+                    <!-- Bouton de soumission -->
+                    <div class="col-md-2 mb-3 text-end">
+                        <button type="submit" class="btn view-cart">Rechercher</button>
+                    </div>
                 </div>
             </form>
-        </div>
+        {{-- </div> --}}
     </div>
+
+
 
 
         <!-- Début des items de menu -->
@@ -82,7 +86,7 @@
 
 
             @foreach ($coupons as $coupon)
-                @if (!$coupon->expires_at || $coupon->expires_at > now()) <!-- Affiche uniquement les coupons actifs -->
+                {{-- @if (!$coupon->expires_at || $coupon->expires_at > now())  --}}
                     <div class="col-md-3 col-lg-6 mb-4">
                         <div class="menu-item p-3">
                             <div class="menu-item-content">
@@ -99,9 +103,9 @@
                                             {{ $coupon->formatted_expires_at }}
                                         @else
                                             @if ($coupon->status === 'active')
-                                                <span class="badge bg-success">Actif</span>
+                                                <span class="menu-badge">Actif</span>
                                             @else
-                                                <span class="badge bg-warning">Inactif</span>
+                                                <span class="menu-badge">Inactif</span>
                                             @endif
                                         @endif
                                     </span>
@@ -124,41 +128,52 @@
                                     <form method="POST" action="{{ route('admin.coupons.update', $coupon->id) }}">
                                         @csrf
                                         @method('PUT')
-                                        <div class="mb-3">
-                                            <label for="code" class="form-label">Code</label>
-                                            <input type="text" class="form-control form-custom-user" name="code" value="{{ old('code', $coupon->code) }}">
-                                           @error('code')
+
+                                        <!-- Première ligne -->
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="code" class="form-label">Code</label>
+                                                <input type="text" class="form-control form-custom-user" name="code" value="{{ old('code', $coupon->code) }}">
+                                                @error('code')
                                                     <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="discount" class="form-label">Réduction (%)</label>
-                                            <input type="number" class="form-control form-custom-user" name="discount" value="{{ old('discount', $coupon->discount) }}">
-                                            @error('discount')
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="discount" class="form-label">Réduction (%)</label>
+                                                <input type="number" class="form-control form-custom-user" name="discount" value="{{ old('discount', $coupon->discount) }}">
+                                                @error('discount')
                                                     <span class="text-danger">{{ $message }}</span>
-                                            @enderror
+                                                @enderror
+                                            </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label for="type" class="form-label">Type</label>
-                                            <select name="type" class="form-select form-custom-user">
-                                                <option value="percent" {{ $coupon->type === 'percent' ? 'selected' : '' }}>Pourcentage</option>
-                                                <option value="fixed" {{ $coupon->type === 'fixed' ? 'selected' : '' }}>Montant Fixe</option>
-                                            </select>
-                                            @error('type')
+                                        <!-- Deuxième ligne -->
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="type" class="form-label">Type</label>
+                                                <select name="type" class="form-select form-custom-user">
+                                                    <option value="percent" {{ $coupon->type === 'percent' ? 'selected' : '' }}>Pourcentage</option>
+                                                    <option value="fixed" {{ $coupon->type === 'fixed' ? 'selected' : '' }}>Montant Fixe</option>
+                                                </select>
+                                                @error('type')
                                                     <span class="text-danger">{{ $message }}</span>
-                                            @enderror
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="expires_at" class="form-label">Date d'expiration</label>
+                                                <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ old('expires_at', $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : '') }}">
+                                            </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label for="expires_at" class="form-label">Date d'expiration</label>
-                                            <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ old('expires_at', $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : '') }}">
+                                        <!-- Bouton -->
+                                        <div class="row">
+                                            <div class="col-12 text-end">
+                                                <button type="submit" class="btn view-cart">Mettre à jour</button>
+                                            </div>
                                         </div>
-
-                                        <button type="submit" class="btn view-cart">Mettre à jour</button>
                                     </form>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -185,7 +200,7 @@
                             </div>
                         </div>
                     </div>
-                @endif
+                {{-- @endif  --}}
             @endforeach
 
 
@@ -258,7 +273,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('assets/js/search.js') }}"></script>
+    <script src="{{ asset('assets/js/searchCoupon.js') }}"></script>
     <script>
 
         window.addEventListener('DOMContentLoaded', (event) => {
