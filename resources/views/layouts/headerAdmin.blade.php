@@ -9,7 +9,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() === 'home' ? 'active' : '' }}" href="{{ route('home') }}">Accueil</a>
                 </li>
-                @role('Admin')
+                {{-- @role('super_admin') --}}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['admin.users.index', 'admin.roles.index', 'admin.permissions.index', 'admin.coupons.index']) ? 'active' : '' }}"
                            href="#"
@@ -46,16 +46,26 @@
                             </li>
                         </ul>
                     </li>
-                @endrole
+                {{-- @endrole --}}
 
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() === 'admin.products.index' ? 'active' : '' }}" href="{{ route('admin.products.index') }}">Menus</a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::currentRouteName() === 'admin.categories.index' ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">Catégorie</a>
+                </li>
 
+                {{-- @if (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')) --}}
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() === 'admin.commandes.index' ? 'active' : '' }}" href="{{ route('admin.commandes.index') }}">Commandes</a>
                 </li>
+                {{-- @elseif (auth()->user()->hasRole('manager') || auth()->user()->can('view-orders'))
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() === 'managers.index' ? 'active' : '' }}" href="{{ route('managers.index') }}">Commandes</a>
+                    </li>--}}
+                {{-- @endif --}}
+
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['admin.articles.index', 'admin.articles.create', 'admin.articles.show']) ? 'active' : '' }}"
@@ -77,13 +87,6 @@
                             <a class="dropdown-item {{ Route::currentRouteName() === 'admin.articles.create' ? 'active' : '' }}"
                                href="{{ route('admin.articles.create') }}">
                                 Créer un article
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item {{ Route::currentRouteName() === 'admin.categories.index' ? 'active' : '' }}"
-                               href="{{ route('admin.categories.index') }}">
-                                Catégorie
                             </a>
                         </li>
                     </ul>

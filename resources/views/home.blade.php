@@ -86,25 +86,25 @@
     <section id="menu">
         <div class="slider-container">
             <div class="section-title">
-                <h2>Nos Plats Disponibles</h2>
+                <h2>Nos Menus Disponibles</h2>
                 <p>Découvrez nos spécialités locales et savourez des repas faits avec passion et authenticité.</p>
             </div>
-            <div class="swiper">
+            <div class="swiper menu-swiper">
                 <div class="swiper-wrapper">
-                    @foreach ($products as $product)
+                    @foreach ($productsMenusPlats as $product)
                         <div class="swiper-slide">
                             <div class="content">
                                 <h3>{{ $product->name }}</h3>
                                 <p>{{ $product->description }}</p>
-                                <a class="{{ Route::currentRouteName() === 'menus.index' ? 'active' : '' }}" href="{{ route('menus.index') }}">Voir le Menu Complet</a>
+                                <a class="{{ Route::currentRouteName() === 'menus.index' && request('search') === 'plat' ? 'active' : '' }}" href="{{ route('menus.index') }}?search=plat">Voir le Menu Complet</a>
                             </div>
                             <img src="{{ asset('storage/' . $product->image) }}" width="555" height="400" alt="{{ $product->name }}">
                         </div>
                     @endforeach
                 </div>
                 <!-- Navigation buttons -->
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev menu-prev"></div>
+                <div class="swiper-button-next menu-next"></div>
             </div>
         </div>
     </section>
@@ -125,6 +125,33 @@
             <div class="modal-content">
                 <!-- Intégration de la vidéo YouTube -->
                 <iframe width="695" height="391" src="https://www.youtube.com/embed/4PYII8RFCHY" title="Dessert au chocolat 🍫 avec seulement 1 oeuf ! Recette facile et rapide" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="boisson" class="boisson-section">
+        <div class="slider-container">
+            <div class="section-title">
+                <h2>Boissons & Fruits</h2>
+                <p>Désaltérez-vous avec nos boissons naturelles, préparées avec soin pour votre bien-être et votre plaisir.</p>
+            </div>
+            <div class="swiper boisson-slider">
+                <div class="swiper-wrapper">
+                    @foreach ($productsMenusBoissons as $product)
+                        <div class="swiper-slide">
+                            <div class="content">
+                                <h3>{{ $product->name }}</h3>
+                                <p>{{ $product->description }}</p>
+                                <a class="{{ Route::currentRouteName() === 'menus.index' && request('search') === 'boisson' ? 'active' : '' }}" href="{{ route('menus.index') }}?search=boisson">Voir les Boissons</a>
+                            </div>
+                            <img src="{{ asset('storage/' . $product->image) }}" width="555" height="400" alt="{{ $product->name }}">
+                        </div>
+                    @endforeach
+                </div>
+                <!-- Navigation buttons -->
+                <div class="swiper-button-prev boisson-prev"></div>
+                <div class="swiper-button-next boisson-next"></div>
             </div>
         </div>
     </section>
@@ -323,10 +350,10 @@
                 <div class="col-md-6 bg-white p-4">
                     <form class="contact-form">
                         <div class="mb-3">
-                            <input type="text" class="form-control form-control-custom" placeholder="Enter your name" required>
+                            <input type="text" class="form-control form-control-custom" placeholder="Entrez votre nom" required>
                         </div>
                         <div class="mb-3">
-                            <input type="email" class="form-control form-control-custom" placeholder="Enter email address" required>
+                            <input type="email" class="form-control form-control-custom" placeholder="Email" required>
                         </div>
                         <div class="mb-3">
                             <textarea class="form-control form-control-custom" rows="4" placeholder="Message" required></textarea>

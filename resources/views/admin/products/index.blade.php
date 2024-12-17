@@ -13,10 +13,10 @@
 @section('content')
 
 <div class="container my-5">
-
     <div class="search-wrapper">
         <div class="search-container">
             <form method="GET" action="{{ route('admin.products.index') }}" id="search-form">
+                <!-- Champ de recherche -->
                 <input
                     type="text"
                     id="search"
@@ -56,14 +56,15 @@
 
                         <div class="menu-item-content">
                             <div class="menu-item-header">
-                                <h3 class="menu-item-title">{{ $product->name }}<span class="menu-badge">{{ $product->getStatusOptions()[$product->status] ?? 'Inconnu' }}</span>
+                                <h3 class="menu-item-title">{{ $product->name }}
                                 </h3>
+                                <span class="menu-badge">{{ $product->getStatusOptions()[$product->status] ?? 'Inconnu' }}</span>
                                 <div class="menu-item-dots"></div>
                                 <div class="menu-item-price">
-                                    @if (!empty($product->formatted_price))
-                                        {{ $product->formatted_price }}
-                                    @elseif (!empty($product->formatted_price_with_text))
+                                    @if (!empty($product->formatted_price_with_text))
                                         {{ $product->formatted_price_with_text }}
+                                    @elseif (!empty($product->formatted_price))
+                                        {{ $product->formatted_price }}
                                     @endif
                                 </div>
                             </div>
@@ -71,96 +72,18 @@
                                 <span class="texte">{{ $product->description }}</span>
 
                                 <!-- Bouton pour ouvrir le modal de modification -->
-                                <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $product->id }}">✏️</a>
+                                {{-- <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $product->id }}"></a> --}}
+                                <a class=" add_cart {{ Route::currentRouteName() === 'admin.products.edit' ? 'active' : '' }}" href="{{ route('admin.products.edit', $product->id) }}">✏️</a>
 
                                 <!-- Bouton pour ouvrir le modal de suppression -->
                                 <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $product->id }}">🗑️</a>
+
+                                <span class="texte categories">{{ $product->category->name }}</span>
                             </p>
                         </div>
                     </div>
                 </div>
-                <!-- Modal pour la modification -->
-                <div class="modal fade" id="editModal{{ $product->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $product->id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                {{-- <h5 class="modal-title" id="editModalLabel{{ $product->id }}">Modification du produit : {{ $product->name }}</h5> --}}
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form method="POST" action="{{ route('admin.products.update', $product->id) }}" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PUT')
 
-                                    <!-- Ligne 1 : Nom, Prix et Statut -->
-                                    <div class="row">
-                                        <!-- Champ Nom -->
-                                        <div class="col-md-4 mb-3">
-                                            <label for="name" class="form-label">Nom du produit</label>
-                                            <input type="text" class="form-control form-custom-user me-2" name="name" value="{{ old('name', $product->name) }}" placeholder="Nom du produit" required>
-                                            @error('name')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
-                                        <!-- Champ Prix -->
-                                        <div class="col-md-4 mb-3">
-                                            <label for="price" class="form-label">Prix du produit</label>
-                                            <input type="number" step="0.01" class="form-control mt-2" name="price" value="{{ old('price', $product->price) }}" placeholder="Prix" required>
-                                            @error('price')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
-                                        <!-- Champ Statut -->
-                                        <div class="col-md-4 mb-3">
-                                            <label for="status" class="form-label">Statut du produit</label>
-                                            <select id="statusUpdate" name="status" class="form-select select-product" required>
-                                                <option value="available" {{ old('status', $product->status) == 'available' ? 'selected' : '' }}>Disponible</option>
-                                                <option value="recommended" {{ old('status', $product->status) == 'recommended' ? 'selected' : '' }}>Recommandé</option>
-                                                <option value="seasonal" {{ old('status', $product->status) == 'seasonal' ? 'selected' : '' }}>Saisonnier</option>
-                                            </select>
-                                            @error('status')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <!-- Ligne 2 : Image et Description -->
-                                    <div class="row">
-                                        <!-- Champ Image -->
-                                        <div class="col-md-6 mb-3">
-                                            <label for="image" class="form-label">Image du produit</label>
-                                            <input type="file" class="form-control form-custom-user me-2" name="image" id="image" accept="image/*">
-                                            @if($product->image)
-                                                <div class="mt-2">
-                                                    <img src="{{ url('storage/' . $product->image) }}" alt="Image actuelle" style="max-width: 100px;">
-                                                </div>
-                                            @endif
-                                            @error('image')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
-                                        <!-- Champ Description -->
-                                        <div class="col-md-6 mb-3">
-                                            <label for="description" class="form-label">Description du produit</label>
-                                            <textarea class="form-control mt-2" name="description" placeholder="Description">{{ old('description', $product->description) }}</textarea>
-                                            @error('description')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <!-- Bouton Soumettre -->
-                                    <div class="cart-actions mt-4">
-                                        <button type="submit" class="view-cart">Modifier</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <!-- Modal pour la suppression -->
                 <div class="modal fade" id="deleteModal{{ $product->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $product->id }}" aria-hidden="true">
                     <div class="modal-dialog">
@@ -219,16 +142,46 @@
                         @enderror
                     </div>
 
-                    <!-- Champ Prix -->
-                    <div class="mb-3">
-                        <label for="price" class="form-label">Prix du produit</label>
-                        <input type="number" class="form-control form-custom-user me-2" name="price" id="price"
-                               step="0.01" min="0"
-                               value="{{ old('price', isset($product) ? $product->price : '') }}"
-                               placeholder="Prix" required>
-                        @error('price')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                    <!-- Champs Prix -->
+                    <div id="price-fields">
+                        <!-- Champ Prix Normal -->
+                        <div class="mb-3" id="price-normal">
+                            <label for="price" class="form-label">Prix du Produit</label>
+                            <input type="number" class="form-control form-custom-user" name="price" id="price"
+                                step="0.01" min="0"
+                                placeholder="Prix du Produit">
+                            @error('price')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <!-- Champs pour Boissons Naturelles -->
+                        <div id="price-boissons" style="display: none;">
+                            <!-- Prix pour 1/2 Litre ou 1 Tasse -->
+                            <div class="mb-3">
+                                <label for="price_half_litre" class="form-label">Prix pour un contenant de 1/2 litre ou une tasse standard</label>
+                                <input type="number" class="form-control form-custom-user" name="price_half_litre" id="price_half_litre"
+                                       step="0.01" min="0"
+                                       value="{{ old('price_half_litre', isset($product) ? $product->price_half_litre : '') }}"
+                                       placeholder="">
+                                @error('price_half_litre')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Prix pour 1 Litre ou 1 Paquet -->
+                            <div class="mb-3">
+                                <label for="price_litre" class="form-label">Prix pour un contenant de 1 litre ou un paquet standard</label>
+                                <input type="number" class="form-control form-custom-user" name="price_litre" id="price_litre"
+                                       step="0.01" min="0"
+                                       value="{{ old('price_litre', isset($product) ? $product->price_litre : '') }}"
+                                       placeholder="">
+                                @error('price_litre')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
                     </div>
 
 
@@ -237,6 +190,24 @@
                         <label for="image" class="form-label">Image du produit</label>
                         <input type="file" class="form-control  form-custom-user me-2 " name="image" id="image" accept="image/*">
                         @error('image')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Catégorie -->
+                    <div class="mb-3">
+                        <label for="category_id" class="form-label">Catégorie</label>
+                        <select name="category_id" id="category_id" class="form-select form-custom-user">
+                            <option value="">-- Sélectionnez une catégorie --</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    data-slug="{{ $category->slug }}"
+                                    {{ old('category_id', isset($product) ? $product->category_id : '') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
@@ -271,14 +242,9 @@
 @push('scripts')
     <!-- Inclure le fichier JS de select2 -->
     <script src="{{ asset('assets/js/search.js') }}"></script>
-    <script>
-
-        // Initialiser select2 avec un z-index personnalisé
-        $('.select-product').select2({
-            dropdownParent: $('#editModal{{ $product->id }}'), // Limite le dropdown au modal
-            width: '100%', // S'assure que le dropdown s'aligne bien avec l'input
-        });;
+    <script src="{{ asset('assets/js/price_boissons.js') }}"></script>
+    <script id="boissons-slugs" type="application/json">
+        @json($slugsBoissons)
     </script>
-
 @endpush
 

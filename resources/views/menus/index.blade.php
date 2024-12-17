@@ -19,6 +19,7 @@
         <div class="search-wrapper">
             <div class="search-container">
                 <form method="GET" action="{{ route('menus.index') }}" id="search-form">
+                    <!-- Champ de recherche -->
                     <input
                         type="text"
                         id="search"
@@ -27,9 +28,11 @@
                         placeholder="Rechercher..."
                         value="{{ request()->get('search') }}"
                     >
+
                 </form>
             </div>
         </div>
+
 
         <div class="row">
             @if(session('success'))
@@ -58,20 +61,30 @@
                             <div class="menu-item-header">
                                 <h3 class="menu-item-title">
                                     {{ $menu->name }}
-                                    <span class="menu-badge">{{ $menu->getStatusOptions()[$menu->status] ?? 'Inconnu' }}</span>
                                 </h3>
+                                <span class="menu-badge mt-md-0">{{ $menu->getStatusOptions()[$menu->status] ?? 'Inconnu' }}</span>
                                 <div class="menu-item-dots"></div>
                                 <div class="menu-item-price">
-                                    @if (!empty($menu->formatted_price))
-                                        {{ $menu->formatted_price }}
-                                    @elseif (!empty($menu->formatted_price_with_text))
+                                    @if (!empty($menu->formatted_price_with_text))
                                         {{ $menu->formatted_price_with_text }}
+                                    @elseif (!empty($menu->formatted_price))
+                                        {{ $menu->formatted_price }}
                                     @endif
                                 </div>
                             </div>
                             <p class="menu-item-description">
                                 <span class="texte">{{ $menu->description }}</span>
                                 <a class="add_cart m-3" href="#" data-id="{{ $menu->id }}">🛒</a>
+                                <span class="texte categories">{{ $menu->category->name }}</span>
+                                <div class="col-md-4">
+                                    @if ($menu->category->slug === 'boissons-naturelles')
+                                    <select class="form-select form-custom-user size-selector" data-id="{{ $menu->id }}">
+                                        <option value="half_litre">Demi-litre</option>
+                                        <option value="litre">Litre</option>
+                                    </select>
+                                @endif
+                                </div>
+
                             </p>
                         </div>
                     </div>
@@ -95,25 +108,37 @@
                             <div class="cart-item">
                                 <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}">
                                 <div class="cart-item-details">
-                                    <p>{{ $item['name'] }}</p>
-                                    <span>{{ $item['quantity'] }} × £{{ $item['price'] }}</span>
+                                    <p>{{ $item['name'] }}
+                                    </p>
+                                    <span>
+                                        {{ $item['quantity'] }} × £{{ number_format($item['price'], 2) }}
+                                        @php
+                                            // Calcul du total en fonction de la taille et de la quantité
+                                            $sizeValue = $item['size'] === 'half_litre' ? 0.5 : 1;
+                                            $totalSize = $sizeValue * $item['quantity'];
+                                        @endphp
+                                        = {{ $totalSize }} litre(s)
+                                    </span>
                                 </div>
                                 <button class="remove-item" data-id="{{ $id }}">×</button>
                             </div>
                         @endforeach
+
+
                         <div class="cart-subtotal">
                             <p>Sous-total:</p>
                             <span id="cart-subtotal">£{{ $subtotal }}</span>
                         </div>
-                        <div class="cart-actions">
-                            <form action="{{ route('cart.view') }}" method="get">
-                                <button type="submit" class="view-cart">Panier</button>
-                            </form>
-                            <form action="{{ route('checkout.view') }}" method="get">
-                                <button type="submit" class="checkout">Commander</button>
-                            </form>
-                        </div>
                     </div>
+                    <div class="cart-actions">
+                        <form action="{{ route('cart.view') }}" method="get">
+                            <button type="submit" class="view-cart">Panier</button>
+                        </form>
+                        <form action="{{ route('checkout.view') }}" method="get">
+                            <button type="submit" class="checkout">Commander</button>
+                        </form>
+                    </div>
+
                 </div>
             </div>
 
@@ -124,4 +149,22 @@
 @push('scriptsCart')
     <script src="{{ asset('assets/js/search.js') }}"></script>
     <script src="{{ asset('assets/js/menu.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryField = document.getElementById('category_id');
+            const priceSelection = document.getElementById('price-selection');
+
+            function togglePriceSelection() {
+                const selectedCategory = categoryField.options[categoryField.selectedIndex].text.toLowerCase();
+                if (selectedCategory.includes('boissons naturelles')) {
+                    priceSelection.style.display = 'block';
+                } else {
+                    priceSelection.style.display = 'none';
+                }
+            }
+
+            categoryField.addEventListener('change', togglePriceSelection);
+            togglePriceSelection(); // Initialiser l'état
+        });
+    </script>
 @endpush

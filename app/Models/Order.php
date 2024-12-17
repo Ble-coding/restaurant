@@ -23,13 +23,16 @@ class Order extends Model
 
     protected $fillable = [
         'first_name', 'last_name', 'email', 'phone', 'address', 'city','code',
-        'zip', 'total', 'status', 'coupon_id', 'order_notes', 'customer_id', 'country_code'
+        'zip', 'total', 'status', 'coupon_id', 'order_notes', 'customer_id', 'country_code',
+         'payment_id', 'zone_id', 'terms'
+         ,'shipping_cost'
+        //  ,'shipping_id'
     ];
 
     public function products()
     {
         return $this->belongsToMany(Product::class, 'order_product')
-                    ->withPivot('quantity', 'price');
+                    ->withPivot('quantity', 'price','size');
     }
 
     public function coupon()
@@ -42,11 +45,30 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-        // Méthode pour récupérer l'étiquette du statut
-        public function getStatusLabel()
+    // Relation avec le modèle Payment
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class, 'payment_id');
+    }
+
+    // Relation avec le modèle Zone
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class, 'zone_id');
+    }
+
+    // Méthode pour récupérer l'étiquette du statut
+    public function getStatusLabel()
     {
         return self::STATUSES[$this->status] ?? 'Statut inconnu';
     }
+
+
+    // Relation avec le modèle Shipping
+    // public function shipping()
+    // {
+    //     return $this->belongsTo(shipping::class);
+    // }
 
      // Générateur de code
      public static function generateOrderCode()

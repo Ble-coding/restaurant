@@ -14,8 +14,12 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-            // Supprimer toutes les permissions existantes
-            DB::table('permissions')->delete();
+
+            // Réinitialiser la table des permissions
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+        DB::table('permissions')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+
 
             $permissions = $this->getPermissionMapping();
 
@@ -26,48 +30,74 @@ class PermissionSeeder extends Seeder
                     'translation' => $attributes['translation'],
                 ]);
             }
-        // $permissions = [
-        //     'view_users',
-        //     'create_users',
-        //     'edit_users',
-        //     'delete_users',
-        //     'view_products',
-        //     'create_products',
-        //     'edit_products',
-        //     'delete_products',
-        //     'manage_orders',
-        //     'view_reports'
-        // ];
-
-        // foreach ($permissions as $permission) {
-        //     Permission::create(['name' => $permission, 'guard_name' => 'web']);
-        // }
     }
 
     private function getPermissionMapping(): array
     {
         return [
+            // Section Accueil
+            'access-dashboard' => ['guard' => 'web', 'translation' => 'Accéder au tableau de bord'],
+
+            // Section Utilisateurs
             'create-users' => ['guard' => 'web', 'translation' => 'Créer des utilisateurs'],
-            'read-users' => ['guard' => 'web', 'translation' => 'Voir les utilisateurs'],
+            'view-users' => ['guard' => 'web', 'translation' => 'Voir les utilisateurs'],
             'edit-users' => ['guard' => 'web', 'translation' => 'Modifier des utilisateurs'],
             'delete-users' => ['guard' => 'web', 'translation' => 'Supprimer des utilisateurs'],
 
+            // Section Rôles
             'create-roles' => ['guard' => 'web', 'translation' => 'Créer des rôles'],
-            'read-roles' => ['guard' => 'web', 'translation' => 'Voir les rôles'],
+            'view-roles' => ['guard' => 'web', 'translation' => 'Voir les rôles'],
             'edit-roles' => ['guard' => 'web', 'translation' => 'Modifier des rôles'],
             'delete-roles' => ['guard' => 'web', 'translation' => 'Supprimer des rôles'],
 
+            // Section Permissions
             'create-permissions' => ['guard' => 'web', 'translation' => 'Créer des permissions'],
-            'read-permissions' => ['guard' => 'web', 'translation' => 'Voir les permissions'],
+            'view-permissions' => ['guard' => 'web', 'translation' => 'Voir les permissions'],
             'edit-permissions' => ['guard' => 'web', 'translation' => 'Modifier des permissions'],
             'delete-permissions' => ['guard' => 'web', 'translation' => 'Supprimer des permissions'],
 
+            // Section Menus
+            'create-menus' => ['guard' => 'web', 'translation' => 'Créer des menus'],
+            'view-menus' => ['guard' => 'web', 'translation' => 'Voir les menus'],
+            'edit-menus' => ['guard' => 'web', 'translation' => 'Modifier des menus'],
+            'delete-menus' => ['guard' => 'web', 'translation' => 'Supprimer des menus'],
+
+            // Section Catégories
+            'create-categories' => ['guard' => 'web', 'translation' => 'Créer des catégories'],
+            'view-categories' => ['guard' => 'web', 'translation' => 'Voir les catégories'],
+            'edit-categories' => ['guard' => 'web', 'translation' => 'Modifier des catégories'],
+            'delete-categories' => ['guard' => 'web', 'translation' => 'Supprimer des catégories'],
+
+            // Section Commandes
+            'create-orders' => ['guard' => 'web', 'translation' => 'Créer des commandes'],
+            'view-orders' => ['guard' => 'web', 'translation' => 'Voir les commandes'],
+            'edit-orders' => ['guard' => 'web', 'translation' => 'Modifier des commandes'],
+            'delete-orders' => ['guard' => 'web', 'translation' => 'Supprimer des commandes'],
+
+            // Section Blogs
+            'create-blogs' => ['guard' => 'web', 'translation' => 'Créer des blogs'],
+            'view-blogs' => ['guard' => 'web', 'translation' => 'Voir les blogs'],
+            'edit-blogs' => ['guard' => 'web', 'translation' => 'Modifier des blogs'],
+            'delete-blogs' => ['guard' => 'web', 'translation' => 'Supprimer des blogs'],
+
+            // Section Coupons
+            'create-coupons' => ['guard' => 'web', 'translation' => 'Créer des coupons'],
+            'view-coupons' => ['guard' => 'web', 'translation' => 'Voir les coupons'],
+            'edit-coupons' => ['guard' => 'web', 'translation' => 'Modifier des coupons'],
+            'delete-coupons' => ['guard' => 'web', 'translation' => 'Supprimer des coupons'],
+
+            // Section Articles
+            'create-articles' => ['guard' => 'web', 'translation' => 'Créer des articles'],
+            'view-articles' => ['guard' => 'web', 'translation' => 'Voir les articles'],
+            'edit-articles' => ['guard' => 'web', 'translation' => 'Modifier des articles'],
+            'delete-articles' => ['guard' => 'web', 'translation' => 'Supprimer des articles'],
+
+            // Section Produits
             'create-products' => ['guard' => 'web', 'translation' => 'Créer des produits'],
-            'read-products' => ['guard' => 'web', 'translation' => 'Voir les produits'],
+            'view-products' => ['guard' => 'web', 'translation' => 'Voir les produits'],
             'edit-products' => ['guard' => 'web', 'translation' => 'Modifier des produits'],
             'delete-products' => ['guard' => 'web', 'translation' => 'Supprimer des produits'],
-
-            'access-dashboard' => ['guard' => 'web', 'translation' => 'Accéder au tableau de bord'],
         ];
     }
+
 }

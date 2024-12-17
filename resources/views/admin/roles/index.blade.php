@@ -61,8 +61,14 @@
                                         {{ $role->guard_name }}
                                     </span>
                                     <span class="menu-badge">
-                                        {{ $role->permissions->pluck('name')->join(', ') }}
+                                        {!! $role->permissions->pluck('name')
+                                            ->map(fn($p) => ucfirst($p)) // Capitalise les permissions
+                                            ->chunk(2) // Regroupe par paires
+                                            ->map(fn($chunk) => $chunk->join(', ')) // Joint les permissions dans chaque groupe
+                                            ->join('<br>') // Insère un saut de ligne après chaque groupe
+                                        !!}
                                     </span>
+
                                 </div>
                             </div>
                             {{--

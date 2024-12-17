@@ -61,7 +61,6 @@
                                 <div class="menu-item-header">
                                     <h3 class="menu-item-title">
                                         {{ $user->name }}
-
                                     </h3>
                                     <div class="menu-item-dots"></div>
                                     <div class="menu-item-price">
@@ -77,12 +76,15 @@
                                 </p>
                                 <span class="menu-badge">
                                     <strong>Rôles (permissions) :</strong>
-                                    {{ $user->roles->map(function($role) {
-                                        $permissions = $role->permissions->pluck('name')->map(fn($p) => ucfirst($p))->join(', ');
+                                    {!! $user->roles->map(function($role) {
+                                        $permissions = $role->permissions->pluck('name')
+                                            ->map(fn($p) => ucfirst($p))
+                                            ->chunk(2) // Regroupe les permissions par 2
+                                            ->map(fn($chunk) => $chunk->join(', ')) // Joint les permissions dans chaque groupe
+                                            ->join('<br>'); // Retour à la ligne après chaque groupe
                                         return ucfirst($role->name) . " ($permissions)";
-                                    })->join(', ') }}
+                                    })->join(', ') !!}
                                 </span>
-
 
                             </div>
                         </div>
@@ -103,18 +105,18 @@
                                                 <div class="col-md-4">
                                                     <label for="name" class="form-label">Nom complet</label>
                                                     <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" >
-                                                    @error('name') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    {{-- @error('name') <span class="text-danger">{{ $message }}</span> @enderror --}}
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="email" class="form-label">Email</label>
                                                     <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" >
-                                                    @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    {{-- @error('email') <span class="text-danger">{{ $message }}</span> @enderror --}}
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="phone" class="form-label">Téléphone</label>
                                                     <input type="text" id="phone{{ $user->id }}" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" >
                                                     <input type="hidden" id="country_code{{ $user->id }}" name="country_code" value="{{ $user->country_code }}">
-                                                    @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    {{-- @error('phone') <span class="text-danger">{{ $message }}</span> @enderror --}}
                                                 </div>
                                             </div>
 
@@ -130,30 +132,29 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    @error('roles') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    {{-- @error('roles') <span class="text-danger">{{ $message }}</span> @enderror --}}
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="password" class="form-label">Mot de passe</label>
                                                     <input type="password" name="password" class="form-control mb-1" placeholder="Nouveau mot de passe">
                                                     <span class="menu-badge">(laisser vide pour ne pas modifier)</span>
-                                                    @error('password') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    {{-- @error('password') <span class="text-danger">{{ $message }}</span> @enderror --}}
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="password_confirmation" class="form-label">Confirmer le mot de passe</label>
                                                     <input type="password" name="password_confirmation" class="form-control" placeholder="Confirmez le mot de passe">
-                                                    @error('password_confirmation') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    {{-- @error('password_confirmation') <span class="text-danger">{{ $message }}</span> @enderror --}}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-orange">Modifier</button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-orange">Modifier</button>
-                                        </div>
+
                                     </form>
                                 </div>
                             </div>
                         </div>
-
-
 
                         <!-- Modal pour la suppression -->
                         <div class="modal fade" id="deleteModal{{ $user->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $user->id }}" aria-hidden="true">

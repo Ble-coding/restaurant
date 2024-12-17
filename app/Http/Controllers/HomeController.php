@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Blog;
+use App\Models\Category;
 
 class HomeController extends Controller
 {
@@ -18,19 +19,53 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Récupérer les produits (tu peux ajouter des filtres si nécessaire)
-        $products = Product::all(); // Récupérer tous les produits
+         // Définir dynamiquement les mots-clés pour filtrer les catégories
+        $platKeywords = ['Plat', 'Menu'];
+        $boissonKeywords = ['Boisson', 'Naturelles','Portion', 'Accompagnement', 'Fruit'];
 
-        // Récupérer les 4 blogs récents ayant le statut "published"
-        $blogs = Blog::withCount('comments')
-             ->where('status', 'published')
-            ->orderBy('created_at', 'desc') // Trier par les plus récents
-            ->limit(4) // Limiter à 4 blogs
-            ->get();
+        // Récupérer dynamiquement les slugs des catégories correspondant à "Plats"
+        $slugsPlats = Category::where(function ($query) use ($platKeywords) {
+            foreach ($platKeywords as $keyword) {
+                $query->orWhere('name', 'LIKE', "%$keyword%");
+            }
+        })
+        ->pluck('slug')
+        ->toArray();
 
-        // Retourner la vue avec les données
-        return view('home', compact('products', 'blogs'));
-    }
+        // Récupérer dynamiquement les slugs des catégories correspondant à "Boissons"
+        $slugsBoissons = Category::where(function ($query) use ($boissonKeywords) {
+            foreach ($boissonKeywords as $keyword) {
+                $query->orWhere('name', 'LIKE', "%$keyword%");
+            }
+        })
+        ->pluck('slug')
+        ->toArray();
+
+        // Récupérer les produits associés aux catégories "Plats" avec pagination
+        $productsMenusPlats = Product::query()
+            ->whereHas('category', function ($query) use ($slugsPlats) {
+                $query->whereIn('slug', $slugsPlats);
+            })
+            ->paginate(10); // Pagination à 10 produits par page
+
+        // Récupérer les produits associés aux catégories "Boissons" avec pagination
+        $productsMenusBoissons = Product::query()
+            ->whereHas('category', function ($query) use ($slugsBoissons) {
+                $query->whereIn('slug', $slugsBoissons);
+            })
+            ->paginate(10); // Pagination à 10 produits par page
+
+
+            // Récupérer les 4 blogs récents ayant le statut "published"
+            $blogs = Blog::withCount('comments')
+                ->where('status', 'published')
+                ->orderBy('created_at', 'desc') // Trier par les plus récents
+                ->limit(4) // Limiter à 4 blogs
+                ->get();
+
+            // Retourner la vue avec les données
+            return view('home', compact('productsMenusPlats', 'blogs', 'productsMenusBoissons'));
+        }
 
 
     /**

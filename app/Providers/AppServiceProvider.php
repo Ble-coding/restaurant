@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Models\Coupon;
 use App\Observers\CouponObserver;
 use Carbon\Carbon;
+// use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        // Gate::define('view-orders', function ($user) {
+        //     return $user->hasPermissionTo('view-orders');
+        // });
+
+
+
         // Enregistrer l'Observer pour le modèle Coupon
         Coupon::observe(CouponObserver::class);
         Carbon::setLocale('fr');

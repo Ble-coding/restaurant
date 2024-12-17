@@ -24,7 +24,7 @@ class AdminUserController extends Controller
         // Récupérer les utilisateurs avec leurs rôles, en excluant 'Admin' et 'Super Admin'
         $users = User::with('roles')
             ->whereHas('roles', function ($query) {
-                $query->whereNotIn('name', ['Admin', 'Super Admin']); // Exclusion de certains rôles
+                $query->whereNotIn('name', ['super_admin']); // Exclusion de certains rôles
             })
             ->when($search, function ($query) use ($search) {
                 // Appliquer la recherche sur les champs 'name' et 'email'

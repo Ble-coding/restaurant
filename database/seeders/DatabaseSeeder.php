@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,15 +12,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Réinitialiser les identifiants des tables liées
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \DB::table('permissions')->truncate();
+        \DB::table('roles')->truncate();
+        \DB::table('model_has_permissions')->truncate();
+        \DB::table('model_has_roles')->truncate();
+        \DB::table('role_has_permissions')->truncate();
+        \DB::table('users')->truncate();
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-        // $this->call([
-        //     PermissionSeeder::class,
-        //     AdminUserSeeder::class,
-        // ]);
+        // Appeler les Seeders nécessaires
+        $this->call([
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            AdminUserSeeder::class,
+        ]);
     }
 }
+

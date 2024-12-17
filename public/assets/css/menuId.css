@@ -4,7 +4,7 @@ body, html {
 }
 
 .main-section{
-    background-image: url('../images/header/video-bg.jpg');
+    background-image: url('../images/header/arriere_plan.webp');
     color: white;
     padding: 100px 0;
     text-align: center;
@@ -491,6 +491,16 @@ hr {
   width: 100%;
   max-width: 600px;
 }
+
+.cart-container-edit {
+    background-color: #1c1c1c;
+    padding: 20px;
+    border-radius: 5px;
+    color: #fff;
+    width: 100%;
+    /* max-width: 800px; */
+}
+
 .iti__country-name, .iti__flag-box{
     color: #000!important;
 }
@@ -539,6 +549,50 @@ hr {
 /* Style général pour le menu mobile */
 @media (max-width: 768px) {
 
+    .menu-item-title {
+        font-size: 15px;
+        margin: 0;
+    }
+
+    .menu-item-dots {
+        background: repeating-linear-gradient(
+            to right,
+            transparent,
+            transparent 2px,
+            #555 2px,
+            #555 4px
+        );
+        margin: 0 5px;
+    }
+
+    .menu-item-price {
+        font-size: 12px;
+    }
+
+     /* Description du menu */
+    .menu-item-description {
+        font-size: 12px;
+    }
+
+    .menu-badge {
+        font-size: 10px;
+        padding: 3px 5px;
+        margin: 6px 7px;
+        border-radius: 2px;
+        font-weight: 400px;
+    }
+
+
+    .menu-item-description .categories
+    {
+      font-size: 12px;
+    }
+
+    .menu-item-content .add_cart{
+        font-size: 13px;
+    }
+
+
     .iti__country-list {
         width: 388px;
         overflow-x: hidden;
@@ -557,4 +611,10 @@ hr {
 
 .menu-item-products .compte{
     color: #f7840d;
+}
+
+
+.menu-item-description .categories{
+    color: #f7840d;
+    text-decoration:underline
 }

@@ -14,6 +14,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ZoneController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['exclude.customer'])->group(function () {
@@ -69,27 +72,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Routes spécifiques au tableau de bord avec CheckRole
-    Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('commandes', OrderController::class);
+
         Route::resource('categories', CategoryController::class);
         Route::resource('articles', ArticleController::class);
         Route::post('/articles/{article}/comments', [ArticleController::class, 'storeComment'])->name('articles.storeComment');
 
         // Ressources pour les rôles
         Route::resource('products', ProductController::class);
-
-        Route::resource('commandes', OrderController::class);
-
         // Ressources pour les rôles
         Route::resource('roles', RoleController::class);
 
         // Ressources pour les permissions
         Route::resource('permissions', PermissionController::class);
-    });
-
-    // Gestion des utilisateurs accessible à Admin et SuperAdmin
-    Route::middleware(['role:Admin|SuperAdmin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('users', AdminUserController::class);
         Route::resource('coupons', CouponController::class);
+    });
+    // Gestion des utilisateurs accessible à Admin et SuperAdmin
+    Route::middleware(['role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('users', AdminUserController::class);
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

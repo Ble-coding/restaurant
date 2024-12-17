@@ -7,18 +7,30 @@ use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\OrderLog;
-
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
 
 class OrderController extends Controller
 {
+
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:view-orders')->only('index');
+    //     $this->middleware('permission:create-orders')->only(['create', 'store']);
+    //     $this->middleware('permission:edit-orders')->only(['edit', 'update']);
+    //     $this->middleware('permission:delete-orders')->only('destroy');
+    // }
 
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+
+        // $this->authorize('view-orders');
 
         $search = trim($request->get('search'));
 
@@ -31,7 +43,7 @@ class OrderController extends Controller
                 });
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // Pagination
+            ->paginate(6); // Pagination
 
         return view('admin.orders.index', compact('orders'));
     }
@@ -71,34 +83,37 @@ class OrderController extends Controller
      */
     public function show(string $commandeId)
     {
+
+        // $this->authorize('view-orders');
         $order = Order::where('id', $commandeId)
-             ->with('orderLogs')
-                        ->first();
+            ->with('orderLogs')
+            ->first();
 
         if (!$order) {
+            // Redirection si la commande n'est pas trouvée
             return redirect()->route('admin.orders.index')->with('error', "Commande non trouvée.");
         }
 
-            // Récupérer la date du statut "delivered"
-            $deliveryLog = $order->orderLogs
-            ->where('status_after', 'delivered') // Filtrer les logs avec le statut 'delivered'
-            ->sortByDesc('created_at') // Trier par la date la plus récente (si plusieurs logs existent)
+        // Extraction des dates pour les statuts
+        $deliveryLog = $order->orderLogs
+            ->where('status_after', 'delivered')
+            ->sortByDesc('created_at')
             ->first();
 
         $deliveryDate = $deliveryLog ? $deliveryLog->created_at : null;
 
-        // Récupérer la date du statut "canceled"
         $cancelLog = $order->orderLogs
-        ->where('status_after', 'canceled') // Filtrer les logs avec le statut 'canceled'
-        ->sortByDesc('created_at') // Trier par la date la plus récente (si plusieurs logs existent)
-        ->first();
+            ->where('status_after', 'canceled')
+            ->sortByDesc('created_at')
+            ->first();
 
         $cancelDate = $cancelLog ? $cancelLog->created_at : null;
 
+        $shippingCost = $order->shipping_cost;
 
-        // Retourne la vue avec les données de la commande
-        return view('admin.orders.show', compact('order', 'deliveryDate','cancelDate'));
+        return view('admin.orders.show', compact('order', 'deliveryDate', 'cancelDate', 'shippingCost'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -113,6 +128,8 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
+
+        // $this->authorize('update-orders');
         $request->validate([
             'status' => 'required|in:pending,preparing,shipped,delivered,canceled',
         ]);
@@ -162,44 +179,47 @@ class OrderController extends Controller
 
     public function CustomerShowOrders($commandeId)
     {
-        // Vérification d'authentification
+        // Vérification de l'utilisateur connecté sous le guard 'customer'
         $customer = Auth::guard('customer')->user();
 
         if (!$customer) {
+            // Redirection si l'utilisateur n'est pas connecté
             return redirect()->route('login')->with('error', "Vous devez être connecté pour voir vos commandes.");
         }
 
-        // Récupération de la commande liée à l'utilisateur connecté
+        // Récupération de la commande associée à ce client spécifique
         $order = Order::where('id', $commandeId)
-         ->with('orderLogs')
-                        ->where('customer_id', $customer->id)
-                        ->first();
+            ->with('orderLogs') // Chargement des logs associés à la commande
+            ->where('customer_id', $customer->id) // Vérification que la commande appartient bien au client connecté
+            ->first();
 
         if (!$order) {
+            // Si la commande n'existe pas ou ne correspond pas à ce client
             return redirect()->route('customer.orders.index')->with('error', "Commande non trouvée.");
         }
 
-            // Récupérer la date du statut "delivered"
-            $deliveryLog = $order->orderLogs
-            ->where('status_after', 'delivered') // Filtrer les logs avec le statut 'delivered'
-            ->sortByDesc('created_at') // Trier par la date la plus récente (si plusieurs logs existent)
+        // Récupération de la date du statut "delivered"
+        $deliveryLog = $order->orderLogs
+            ->where('status_after', 'delivered') // Recherche du log avec statut 'delivered'
+            ->sortByDesc('created_at') // Tri pour prendre le plus récent
             ->first();
 
-        $deliveryDate = $deliveryLog ? $deliveryLog->created_at : null;
+        $deliveryDate = $deliveryLog ? $deliveryLog->created_at : null; // Extraction de la date si trouvée
 
+        // Récupération de la date du statut "canceled"
+        $cancelLog = $order->orderLogs
+            ->where('status_after', 'canceled')
+            ->sortByDesc('created_at')
+            ->first();
 
-             // Récupérer la date du statut "canceled"
-             $cancelLog = $order->orderLogs
-             ->where('status_after', 'canceled') // Filtrer les logs avec le statut 'canceled'
-             ->sortByDesc('created_at') // Trier par la date la plus récente (si plusieurs logs existent)
-             ->first();
+        $cancelDate = $cancelLog ? $cancelLog->created_at : null;
 
-             $cancelDate = $cancelLog ? $cancelLog->created_at : null;
+        // Extraction des frais de livraison
+        $shippingCost = $order->shipping_cost;
 
-        // Retourne la vue avec les données de la commande
-        return view('menus.orders.show', compact('order','cancelDate','deliveryDate'));
+        // Retourne la vue avec toutes les données nécessaires
+        return view('menus.orders.show', compact('order', 'cancelDate', 'deliveryDate', 'shippingCost'));
     }
-
 
     /**
      * Remove the specified resource from storage.

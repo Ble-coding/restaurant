@@ -48,6 +48,9 @@
                     {{-- <p><strong>Date de livraison :</strong> Non livré</p> --}}
                 @endif
 
+                <p><strong class="menu-item-title">Zone :</strong> {{ $order->zone->name ?? 'Non spécifiée' }}</p>
+                <p><strong class="menu-item-title">Mode de paiement :</strong> {{ $order->payment->name ?? 'Non spécifié' }}</p>
+
                 <span class="menu-badge">
                     effectuée depuis le compte {{ $order->customer->first_name }} {{ $order->customer->last_name }}
                 </span>
@@ -67,25 +70,67 @@
             </thead>
             <tbody>
                 @foreach ($order->products as $product)
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="{{ asset('storage/' . $product['image']) }}" alt="{{ $product['name'] }}" class="product-img" style="width: 80px; height: auto;">
-                            <span class="menu-item-title">{{ $product->name }}</span>
-                        </div>
-                    </td>
-                    <td>{{ $product->pivot->quantity }}</td>
-                    <td class="menu-item-price">£{{ number_format($product->pivot->price, 2) }}</td>
-                    <td>£{{ number_format($product->pivot->price * $product->pivot->quantity, 2) }}</td>
-                </tr>
+                    @php
+                        // Récupération de la taille depuis les données pivot
+                        $size = $product->pivot->size ?? '1_litre';
+                        $sizeValue = $size === 'half_litre' ? 0.5 : 1; // Valeur en litres
+                        $totalSize = $sizeValue * $product->pivot->quantity; // Quantité totale en litres
+                        $lineTotal = $product->pivot->price * $product->pivot->quantity; // Total par ligne
+                    @endphp
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ asset('storage/' . $product['image']) }}"
+                                     alt="{{ $product['name'] }}"
+                                     class="product-img"
+                                     style="width: 80px; height: auto;">
+                                <span class="menu-item-title">{{ $product->name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {{ $product->pivot->quantity }} ×
+                            @if ($size === 'half_litre')
+                                0.5
+                            @else
+                                1
+                            @endif
+                            = <strong>{{ $totalSize }}
+                                {{-- Litre(s) --}}
+                            </strong>
+                        </td>
+                        <td class="menu-item-price">£{{ number_format($product->pivot->price, 2) }}</td>
+                        <td>£{{ number_format($lineTotal, 2) }}</td>
+                    </tr>
                 @endforeach
             </tbody>
             <tfoot>
+                @php
+                    $subtotal = $order->products->sum(function($product) {
+                        return $product->pivot->price * $product->pivot->quantity;
+                    });
+
+                    $shippingCost = $order->shipping_cost;
+                    $total = $subtotal + $shippingCost; // Calcul total
+                    $deposit = $subtotal * 0.5; // Acompte (50%)
+                @endphp
                 <tr>
                     <th colspan="3">Sous-total</th>
-                    <th>£{{ number_format($order->total, 2) }}</th>
+                    <th>£{{ number_format($subtotal, 2) }}</th>
+                </tr>
+                <tr>
+                    <th colspan="3">Acompte (50%)</th>
+                    <th>£{{ number_format($deposit, 2) }}</th>
+                </tr>
+                <tr>
+                    <th colspan="3">Frais de livraison</th>
+                    <th>£{{ number_format($shippingCost, 2) }}</th>
+                </tr>
+                <tr>
+                    <th colspan="3">Total</th>
+                    <th>£{{ number_format($total, 2) }}</th>
                 </tr>
             </tfoot>
+
         </table>
         <p class="footer-text mt-3">
             Vos données personnelles seront utilisées pour traiter votre commande, améliorer votre expérience sur ce site et pour d'autres fins décrites dans notre <a href="#">politique de confidentialité</a>.

@@ -21,7 +21,7 @@ class CategoryController extends Controller
             ->orderBy('created_at', 'desc') // Optionnel : Trier les catégories par date
             ->paginate(6); // Pagination des résultats
 
-        return view('admin.articles.category.index', compact('categories'));
+        return view('admin.category.index', compact('categories'));
     }
 
 

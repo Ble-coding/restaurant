@@ -1,6 +1,6 @@
 .content-section {
     padding: 20px;
-    border-radius: 5px; 
+    border-radius: 5px;
 }
 
 
@@ -48,7 +48,7 @@
 /* Section principale avec fond rouge */
 .main-section {
 
-background-image: url('../images/header/video-bg.jpg') ;
+background-image: url('../images/header/arriere_plan.webp') ;
 color: white;
 padding: 100px 0;
 text-align: center;
@@ -282,6 +282,17 @@ padding: 20px;
     margin: 50px auto;
     padding: 20px;
   }
+
+  .content-section .blog-title {
+    font-size: 18px;
+    /* font-weight: bold;*/
+    margin: 80px 0;
+  }
+
+  .content-section .blog-category{
+    float: right;
+  }
+
 }
 
 .comment-title {

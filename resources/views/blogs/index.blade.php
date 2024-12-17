@@ -3,9 +3,20 @@
 @push('styles')
 
 <link rel="stylesheet" href="{{ asset('assets/css/menu.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/menuId.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/idTel.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/blog.css') }}">
 @endpush
+
+
+@section('headerContent')
+    <div class="main-section">
+        <div class="container text-center">
+            <h1>Nos Blogs</h1>
+            <p>Découvrez un blog soigneusement élaboré pour éveiller vos papilles et satisfaire toutes vos envies.</p>
+        </div>
+    </div>
+@endsection
 
 @section('content')
     <section id="blog">

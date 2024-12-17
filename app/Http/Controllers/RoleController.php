@@ -31,7 +31,7 @@ class RoleController extends Controller
                              ->orWhere('translation', 'like', '%' . $search . '%'); // Rechercher dans translation (si ce champ existe)
                 });
             })
-            ->whereNotIn('name', ['Admin']) // Exclure le rôle 'Admin'
+            ->whereNotIn('name', ['super_admin']) // Exclure le rôle 'Admin'
             ->orderBy('created_at', 'desc') // Trier par date de création descendante
             ->paginate(5); // Pagination des résultats (5 par page)
 

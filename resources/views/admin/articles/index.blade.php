@@ -48,62 +48,62 @@
             @endif
 
             @foreach ($articles as $article)
-            <div class="col-md-3 col-lg-6 mb-4">
-                <div class="menu-item p-3">
+                <div class="col-md-3 col-lg-6 mb-4">
+                    <div class="menu-item p-3">
 
-                        <div class="menu-item-image">
-                            <img src="{{ url('storage/' . $article->image) }}" alt="{{ $article->title }}">
-                        </div>
-
-                        <div class="menu-item-content">
-                            <div class="menu-item-header">
-                                <h3 class="menu-item-title"> {{ $article->title }} </h3>
-                                <div class="menu-item-dots"></div>
-                                <div class="menu-item-price">
-                                    {{ $article->getTranslatedStatus() }}
-                                </div>
+                            <div class="menu-item-image">
+                                <img src="{{ url('storage/' . $article->image) }}" alt="{{ $article->title }}">
                             </div>
-                            <p class="menu-item-description">
-                                <span class="texte">{{ Str::limit(strip_tags($article->content), 100) }}</span>
 
-                                <a class="{{ Route::currentRouteName() === 'admin.articles.index' ? 'active' : '' }}" href="{{ route('admin.articles.show', $article->id) }}">👀
-                                </a>
-                                <a href="{{ route('admin.articles.edit', $article->id) }}" class="add_cart m-3">
-                                    ✏️
-                                </a>
+                            <div class="menu-item-content">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-title"> {{ $article->title }} </h3>
+                                    <div class="menu-item-dots"></div>
+                                    <div class="menu-item-price">
+                                        {{ $article->getTranslatedStatus() }}
+                                    </div>
+                                </div>
+                                <p class="menu-item-description">
+                                    <span class="texte">{{ Str::limit(strip_tags($article->content), 100) }}</span>
 
-                                <!-- Bouton pour ouvrir le modal de suppression -->
-                                <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $article->id }}">🗑️</a>
-                                <span class="menu-badge">{{ $article->category->name }}</span>
-                            </p>
-                        </div>
+                                    <a class="{{ Route::currentRouteName() === 'admin.articles.index' ? 'active' : '' }}" href="{{ route('admin.articles.show', $article->id) }}">👀
+                                    </a>
+                                    <a href="{{ route('admin.articles.edit', $article->id) }}" class="add_cart m-3">
+                                        ✏️
+                                    </a>
 
+                                    <!-- Bouton pour ouvrir le modal de suppression -->
+                                    <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $article->id }}">🗑️</a>
+                                    <span class="menu-badge">{{ $article->category->name }}</span>
+                                </p>
+                            </div>
+
+                    </div>
                 </div>
-            </div>
 
-            <!-- Modal pour la suppression -->
-            <div class="modal fade" id="deleteModal{{ $article->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $article->id }}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteModalLabel{{ $article->id }}">Confirmer la suppression</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Êtes-vous sûr de vouloir supprimer l'article <strong>{{ $article->title }}</strong> ? Cette action est irréversible.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <form method="POST" action="{{ route('admin.articles.destroy', $article->id) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                <button type="submit" class="btn btn-danger">Supprimer</button>
-                            </form>
+                <!-- Modal pour la suppression -->
+                <div class="modal fade" id="deleteModal{{ $article->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $article->id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel{{ $article->id }}">Confirmer la suppression</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Êtes-vous sûr de vouloir supprimer l'article <strong>{{ $article->title }}</strong> ? Cette action est irréversible.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form method="POST" action="{{ route('admin.articles.destroy', $article->id) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
 
 
         </div>

@@ -117,124 +117,224 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label for="orderNotes" class="form-label">Notes de commande (facultatif)</label>
-                            <textarea id="orderNotes" name="order_notes" class="form-control form-custom @error('order_notes') is-invalid @enderror" rows="5" placeholder="Notes sur la commande, par ex. instructions de livraison.">{{ old('order_notes') }}</textarea>
-                            @error('order_notes')
-                            <div class="invalid-feedback">
-                                {{ $message }}
+                    <!-- Nouvelle section : Zone desservie -->
+                    <div class="mb-3">
+                        <label for="zone_id" class="form-label">Zone de livraison</label>
+                        <select id="zone_id" name="zone_id" class="form-control form-custom @error('zone_id') is-invalid @enderror">
+                            <option value="">Choisissez votre zone</option>
+                            @foreach($zones as $zone)
+                                <option value="{{ $zone->id }}" {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
+                                    {{ $zone->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('zone_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                   <!-- Nouvelle section : Mode de paiement -->
+                    <div class="mb-3">
+                        <label class="form-label">Mode de paiement</label>
+                        @foreach($payments as $payment)
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    id="payment_{{ $payment->id }}"
+                                    name="payment_id"
+                                    value="{{ $payment->id }}"
+                                    {{ old('payment_id') == $payment->id ? 'checked' : '' }}>
+                                <label class="form-check-label" for="payment_{{ $payment->id }}">
+                                    {{ $payment->name }}
+                                </label>
                             </div>
-                            @enderror
+                        @endforeach
+                        @error('payment_id')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderNotes" class="form-label">Notes de commande (facultatif)</label>
+                        <textarea id="orderNotes" name="order_notes" class="form-control form-custom @error('order_notes') is-invalid @enderror" rows="5" placeholder="Notes sur la commande, par ex. instructions de livraison.">{{ old('order_notes') }}</textarea>
+                        @error('order_notes')
+                        <div class="invalid-feedback">
+                            {{ $message }}
                         </div>
+                        @enderror
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        Un acompte de <strong>50%</strong> est requis pour confirmer votre commande. Le solde sera réglé à la livraison.
+                    </div>
+
+                    <!-- Case à cocher pour conditions générales -->
+                    <div class="form-check mb-3">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            value="1"
+                            {{ old('terms') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="terms">
+                            J'accepte les <a href="#" target="_blank">conditions générales</a> de vente.
+                        </label>
+                        @error('terms')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                         <button type="submit" class="btn btn-orange mt-3">COMMANDER</button>
                     </form>
-
                 </div>
-
                <!-- Résumé de la commande -->
-                <div class="col-md-7">
-                    <h4 class="mt-4">Votre commande</h4>
-                    <table class="table table-dark">
-                        <thead>
+               <div class="col-md-7">
+                <h4 class="mt-4">Votre commande</h4>
+                <table class="table table-dark mt-4">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Quantité</th>
+                            <th>Sous-total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($cart as $id => $item)
+                            @php
+                                // Calcul de la valeur en litres en fonction de la taille sélectionnée
+                                $sizeValue = $item['size'] === 'half_litre' ? 0.5 : 1;
+                                $totalSize = $sizeValue * $item['quantity'];
+                            @endphp
                             <tr>
-                                <th>Produit</th>
-                                <th>Quantité</th>
-                                <th>Sous-total</th>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" style="width: 80px; height: auto;">
+                                        <span>{{ $item['name'] }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ $item['quantity'] }} ×
+                                    @if ($item['size'] === 'half_litre')
+                                        0.5L
+                                    @else
+                                        1L
+                                    @endif
+                                    = <strong>{{ $totalSize }} Litre(s)</strong>
+                                </td>
+                                <td>£{{ number_format($item['price'] * $item['quantity'], 2) }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($cart as $id => $item)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" class="product-img" style="width: 80px; height: auto;">
-                                            <span>{{ $item['name'] }}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{ $item['quantity'] }}</td>
-                                    <td>{{ number_format($item['price'] * $item['quantity'], 2) }} €</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="2">Sous-total</th>
-                                <th>{{ number_format($subtotal, 2) }} €</th>
-                            </tr>
-                            <tr>
-                                <th colspan="2">Total</th>
-                                <th>{{ number_format($total, 2) }} €</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <p class="footer-text mt-3">
-                        Vos données personnelles seront utilisées pour traiter votre commande, améliorer votre expérience sur ce site et pour d'autres fins décrites dans notre <a href="#">politique de confidentialité</a>.
-                    </p>
-                    <img src="{{ asset('assets/images/menu/images.jpg') }}" class="reseaux" alt="reseaux">
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="2">Sous-total</th>
+                            <th>£{{ number_format($subtotal, 2) }}</th>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Acompte (50%)</th>
+                            <th>£{{ number_format($subtotal * 0.5, 2) }}</th>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Frais de livraison</th>
+                            <th>£{{ number_format($shipping_cost, 2) }}</th>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Total</th>
+                            <th>£{{ number_format($total, 2) }}</th>
+                        </tr>
+                    </tfoot>
+
+                </table>
+
+                <img src="{{ asset('assets/images/menu/images.jpg') }}" class="reseaux" alt="reseaux">
 
 
-                    <section id="faq">
-                        <div class="container py-5">
-                            <div class="section-title">
-                                <h2>FAQs</h2>
-                                <p class="faq">Découvrez les réponses aux questions les plus fréquentes concernant nos services.</p>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-2"></div>
-                                <div class="col-md-8">
-                                    <div class="accordion" id="accordionExample">
-                                        <!-- Question 1 -->
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="headingOne">
-                                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                                    Quels sont vos modes de paiement ?
-                                                </button>
-                                            </h2>
-                                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                                <div class="accordion-body">
-                                                    Nous acceptons les paiements en ligne (carte bancaire ou PayPal) et en espèces à la livraison.
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Question 2 -->
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="headingTwo">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                                    Comment fonctionne le paiement ?
-                                                </button>
-                                            </h2>
-                                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                                                <div class="accordion-body">
-                                                    Un acompte de 50% est requis à la commande. Le solde restant est à régler lors de la livraison.
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Question 3 -->
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="headingThree">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                                    Quels sont vos délais de livraison ?
-                                                </button>
-                                            </h2>
-                                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                                                <div class="accordion-body">
-                                                    Nos livraisons sont effectuées dans un délai de 1 à 2 heures après la confirmation de la commande.
-                                                </div>
+                <section id="faq">
+                    <div class="container py-5">
+                        <div class="section-title">
+                            <h2>FAQs</h2>
+                            <p class="faq">Découvrez les réponses aux questions les plus fréquentes concernant nos services.</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+                                <div class="accordion" id="accordionExample">
+                                     <!-- Question 1: Comment commander ? -->
+                                     <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingFour">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                                Comment commander ?
+                                            </button>
+                                        </h2>
+                                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                                            <div class="accordion-body">
+                                                <ol class="ps-3">
+                                                    <li>Parcourez notre menu et ajoutez vos plats et boissons préférés à votre panier.</li>
+                                                    <li>Confirmez votre commande en payant 50% à l'avance (solde à la livraison).</li>
+                                                    <li>Choisissez votre mode de paiement : en ligne ou en espèces.</li>
+                                                    <li>Recevez votre commande directement chez vous !</li>
+                                                </ol>
+                                                <p class="mt-2"><strong>Livraison rapide à Londres !</strong></p>
+                                                <ul>
+                                                    <li>Livraison gratuite pour les commandes de £30 ou plus.</li>
+                                                    <li><strong>Zones desservies :</strong> [Liste des zones locales].</li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Question 2 -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingOne">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                Quels sont vos modes de paiement ?
+                                            </button>
+                                        </h2>
+                                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                            <div class="accordion-body">
+                                                Nous acceptons les paiements en ligne (carte bancaire ou PayPal) et en espèces à la livraison.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 3 -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingTwo">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                Comment fonctionne le paiement ?
+                                            </button>
+                                        </h2>
+                                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                            <div class="accordion-body">
+                                                Un acompte de 50% est requis à la commande. Le solde restant est à régler lors de la livraison.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 4 -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingThree">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                                Quels sont vos délais de livraison ?
+                                            </button>
+                                        </h2>
+                                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                            <div class="accordion-body">
+                                                Nos livraisons sont effectuées dans un délai de 1 à 2 heures après la confirmation de la commande.
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                 </div>
-                                <div class="col-md-2"></div>
                             </div>
+                            <div class="col-md-2"></div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                </div>
-
-
+            </div>
             </div>
         </div>
     </div>

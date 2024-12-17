@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Storage;
 
 class ArticleController extends Controller
 {
+
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:read-blogs')->only('index');
+    //     $this->middleware('permission:create-blogs')->only('create', 'store');
+    //     $this->middleware('permission:edit-blogs')->only('edit', 'update');
+    //     $this->middleware('permission:delete-blogs')->only('destroy');
+    // }
+
     /**
      * Display a listing of the resource.
      */

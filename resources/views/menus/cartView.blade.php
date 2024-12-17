@@ -35,30 +35,42 @@
                             <th>Produit</th>
                             <th>Prix</th>
                             <th>Quantité</th>
-                            <th>Sous-total</th>
-                            <th>Action</th>
+                            {{-- <th>Sous-total</th>
+                            <th>Action</th> --}}
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($cart as $id => $item)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-center gap-3">
-                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" class="product-img" style="width: 80px; height: auto;">
-                                        <span>{{ $item['name'] }}</span>
-                                    </div>
-                                </td>
-                                <td>£{{ number_format($item['price'], 2) }}</td>
-                                <td>
-                                    <input type="number" class="form-control form-custom text-center update-quantity"
-                                        value="{{ $item['quantity'] }}" min="1" data-id="{{ $id }}" style="max-width: 80px;">
-                                </td>
-                                <td>£{{ number_format($item['subtotal'], 2) }}</td>
-                                <td>
-                                    <button class="btn btn-danger remove-from-cart" data-id="{{ $id }}">&times;</button>
-                                </td>
-                            </tr>
-                        @endforeach
+                        @php
+                            // Calcul de la valeur en litres en fonction de la taille sélectionnée
+                            $sizeValue = $item['size'] === 'half_litre' ? 0.5 : 1;
+                            $totalSize = $sizeValue * $item['quantity'];
+                            $itemSubtotal = $item['price'] * $item['quantity'];
+                        @endphp
+                        <tr>
+                            <!-- Colonne : Produit avec image -->
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" style="width: 80px; height: auto;">
+                                    <span>{{ $item['name'] }}</span>
+                                </div>
+                            </td>
+
+                            <!-- Colonne : Quantité et Taille -->
+                            <td>
+                                {{ $item['quantity'] }} ×
+                                @if ($item['size'] === 'half_litre')
+                                    0.5L
+                                @else
+                                    1L
+                                @endif
+                                = <strong>{{ $totalSize }} Litre(s)</strong>
+                            </td>
+
+                            <!-- Colonne : Sous-total -->
+                            <td>£{{ number_format($itemSubtotal, 2) }}</td>
+                        </tr>
+                    @endforeach
                     </tbody>
                 </table>
             </div>
@@ -69,6 +81,10 @@
                         <div class="totals-row d-flex justify-content-between">
                             <span>Sous-total</span>
                             <span id="cart-subtotal">£{{ number_format($subtotal, 2) }}</span>
+                        </div>
+                        <div class="totals-row d-flex justify-content-between mt-2">
+                            <span>Acompte (50%)</span>
+                            <span id="cart-final-total">£{{ number_format($subtotal * 0.5, 2) }}</span>
                         </div>
                         <div class="totals-row d-flex justify-content-between mt-2">
                             <span>Total</span>

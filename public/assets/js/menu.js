@@ -2,28 +2,35 @@ $(document).ready(function () {
     $(document).on("click", ".add_cart", function (e) {
         e.preventDefault();
         let productId = $(this).data("id");
+        let size = $(`.size-selector[data-id="${productId}"]`).val(); // Récupérer la taille sélectionnée
 
         $.ajax({
             url: "/cart/add",
             method: "POST",
             data: {
                 product_id: productId,
+                size: size,
                 _token: $("meta[name='csrf-token']").attr("content"),
             },
             success: function (response) {
                 if (response.status === "success") {
                     $('#success-alert').text(response.message).show();
-                    setTimeout(function() { $('#success-alert').fadeOut(); }, 3000);
+                    setTimeout(function () { $('#success-alert').fadeOut(); }, 3000);
                     updateCartBadge();
                     loadCart();
                 } else {
                     $('#error-alert').text("Erreur lors de l'ajout au panier.").show();
-                    setTimeout(function() { $('#error-alert').fadeOut(); }, 3000);
+                    setTimeout(function () { $('#error-alert').fadeOut(); }, 3000);
                 }
             },
-            error: function () {
-                $('#error-alert').text("Erreur lors de la requête.").show();
-                setTimeout(function() { $('#error-alert').fadeOut(); }, 3000);
+            error: function (xhr) {
+                if (xhr.status === 401) {
+                    // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+                    window.location.href = "/customer/login";
+                } else {
+                    $('#error-alert').text("Erreur lors de la requête.").show();
+                    setTimeout(function () { $('#error-alert').fadeOut(); }, 3000);
+                }
             },
         });
     });
