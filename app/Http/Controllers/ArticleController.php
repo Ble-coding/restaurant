@@ -23,6 +23,9 @@ class ArticleController extends Controller
      */
     public function index(Request $request)
     {
+        if (!auth()->user()->can('view-articles') && !auth()->user()->can('view-blogs')) {
+            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+        }
         $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
         $categories = Category::all(); // Récupérer toutes les catégories
 

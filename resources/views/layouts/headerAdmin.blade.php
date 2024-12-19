@@ -9,7 +9,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() === 'home' ? 'active' : '' }}" href="{{ route('home') }}">Accueil</a>
                 </li>
-                {{-- @role('super_admin') --}}
+                @hasanyrole('super_admin|admin')
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['admin.users.index', 'admin.roles.index', 'admin.permissions.index', 'admin.coupons.index']) ? 'active' : '' }}"
                            href="#"
@@ -44,9 +44,27 @@
                                     Coupons
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() === 'admin.payments.index' ? 'active' : '' }}"
+                                   href="{{ route('admin.payments.index') }}">
+                                    Paiement
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() === 'admin.gateways.index' ? 'active' : '' }}"
+                                   href="{{ route('admin.gateways.index') }}">
+                                    Passerelle
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() === 'admin.shippings.index' ? 'active' : '' }}"
+                                   href="{{ route('admin.shippings.index') }}">
+                                    Livraison
+                                </a>
+                            </li>
                         </ul>
                     </li>
-                {{-- @endrole --}}
+                @endhasanyrole
 
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() === 'admin.products.index' ? 'active' : '' }}" href="{{ route('admin.products.index') }}">Menus</a>
@@ -102,7 +120,7 @@
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{{route('admin.profile.edit')}}">{{ __('Profile') }}</a></li>
                         <li>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            <form id="logout-form" action="{{ route('dashboard.exit') }}" method="POST" style="display: none;">
                                 @csrf
                             </form>
                             <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

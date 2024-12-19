@@ -7,9 +7,9 @@ use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\OrderLog;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 
@@ -18,10 +18,10 @@ class OrderController extends Controller
 
     // public function __construct()
     // {
-    //     $this->middleware('permission:view-orders')->only('index');
-    //     $this->middleware('permission:create-orders')->only(['create', 'store']);
-    //     $this->middleware('permission:edit-orders')->only(['edit', 'update']);
-    //     $this->middleware('permission:delete-orders')->only('destroy');
+    //     $this->middleware('permission:view-commandes|view-orders')->only(['index', 'show']);
+    //     $this->middleware('permission:create-commandes|create-orders')->only(['create', 'store']);
+    //     $this->middleware('permission:edit-commandes|edit-orders')->only(['edit', 'update']);
+    //     $this->middleware('permission:delete-commandes|delete-orders')->only('destroy');
     // }
 
     /**
@@ -30,7 +30,6 @@ class OrderController extends Controller
     public function index(Request $request)
     {
 
-        // $this->authorize('view-orders');
 
         $search = trim($request->get('search'));
 
@@ -184,7 +183,7 @@ class OrderController extends Controller
 
         if (!$customer) {
             // Redirection si l'utilisateur n'est pas connecté
-            return redirect()->route('login')->with('error', "Vous devez être connecté pour voir vos commandes.");
+            return redirect()->route('customer.login')->with('error', "Vous devez être connecté pour voir vos commandes.");
         }
 
         // Récupération de la commande associée à ce client spécifique

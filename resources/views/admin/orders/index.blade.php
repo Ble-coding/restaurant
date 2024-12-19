@@ -80,12 +80,14 @@
 
                         <!-- Afficher le bouton de modification seulement pour les statuts modifiables -->
 
-                            @unless(in_array($order->status, ['shipped', 'delivered', 'canceled']))
-                                <a href="#" class="add_cart m-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $order->id }}">✏️</a>
-                            @endunless
-
-                            <a class="{{ Route::currentRouteName() === 'admin.commandes.show' ? 'active' : '' }}" href="{{ route('admin.commandes.show', $order->id) }}">👀</a>
-
+                            @canany(['edit-commandes', 'edit-orders'])
+                                @unless(in_array($order->status, ['shipped', 'delivered', 'canceled']))
+                                    <a href="#" class="add_cart m-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $order->id }}">✏️</a>
+                                @endunless
+                            @endcanany
+                            @canany(['view-commandes', 'view-orders'])
+                              <a class="{{ Route::currentRouteName() === 'admin.commandes.show' ? 'active' : '' }}" href="{{ route('admin.commandes.show', $order->id) }}">👀</a>
+                            @endcanany
                                     </p>
 
                                     <ul class="menu-item-products">

@@ -12,9 +12,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\Zone;
 use App\Models\Payment;
+use App\Models\PaymentGateway;
 use App\Models\Category;
 use App\Models\Shipping;
-
+use App\Services\Cinetpay;
+use Illuminate\Support\Facades\Log; // Ajoutez cette ligne
+use Exception;
 
 class MenuController extends Controller
 {
@@ -114,8 +117,6 @@ class MenuController extends Controller
 
     public function addToCart(Request $request)
     {
-
-
         $customerId = Auth::guard('customer')->id();
 
         // Vérifier si l'utilisateur est connecté
@@ -167,7 +168,6 @@ class MenuController extends Controller
             'cart' => $cart,
         ]);
     }
-
 
     // CartController
     public function viewCart()
@@ -241,7 +241,97 @@ class MenuController extends Controller
         return view('menus.checkoutView', compact('cart', 'subtotal', 'total','zones','payments','shipping_cost'));
     }
 
-    public function storeOrder(Request $request){
+    // public function storeOrder(Request $request)
+    // {
+    //     $request->validate([
+    //         'first_name' => 'required|string|max:255',
+    //         'last_name' => 'required|string|max:255',
+    //         'email' => 'required|email',
+    //         'phone' => 'required|string|max:15',
+    //         'address' => 'required|string|max:255',
+    //         'city' => 'required|string|max:255',
+    //         'country_code' => 'required|string|max:255',
+    //         'zip' => 'required|string|max:10',
+    //         'coupon_code' => 'nullable|string|exists:coupons,code',
+    //         'order_notes' => 'nullable|string',
+    //         'customer_id' => 'nullable|exists:customers,id',
+    //         'zone_id' => 'required|exists:zones,id',
+    //         'payment_id' => 'required|exists:payments,id',
+    //         'terms' => 'accepted',
+    //     ]);
+
+    //     $customerId = Auth::guard('customer')->id();
+    //     if (!$customerId) {
+    //         return redirect()->route('customer.login')->withErrors(['error' => 'Veuillez vous connecter pour passer une commande.']);
+    //     }
+
+    //     // Gestion des coupons
+    //     $coupon = null;
+    //     $discount = 0;
+    //     if ($request->filled('coupon_code')) {
+    //         $coupon = Coupon::where('code', $request->coupon_code)->first();
+    //         if ($coupon && $coupon->isValid()) {
+    //             $discount = $coupon->discount;
+    //         } else {
+    //             return back()->withErrors(['coupon_code' => 'Le coupon est invalide ou expiré.']);
+    //         }
+    //     }
+
+    //     // Calcul total
+    //     $cart = session('cart', []);
+    //     $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+    //     $total = $subtotal - ($subtotal * ($discount / 100));
+
+    //     // Frais de livraison
+    //     $shipping = Shipping::where('name', $total >= 30 ? 'Gratuit' : 'Standard')->first();
+    //     $shippingCost = $total >= 30 ? 0 : $shipping->price;
+    //     $total += $shippingCost;
+
+
+    //         // Création de la commande
+    //         $order = Order::create([
+    //             'code' => Order::generateOrderCode(),
+    //             'first_name' => $request->first_name,
+    //             'last_name' => $request->last_name,
+    //             'email' => $request->email,
+    //             'zone_id' => $request->zone_id,
+    //             'payment_id' => $request->payment_id,
+    //             'terms' => $request->terms,
+    //             'phone' => $request->phone,
+    //             'address' => $request->address,
+    //             'city' => $request->city,
+    //             'country_code' => $request->country_code,
+    //             'zip' => $request->zip,
+    //             'shipping_cost' => $shippingCost,
+    //             'total' => $total,
+    //             'coupon_id' => $coupon ? $coupon->id : null,
+    //             'order_notes' => $request->input('order_notes', null),
+    //             'customer_id' => $customerId,
+    //             'status' => 'pending',
+    //         ]);
+
+    //         // Ajout des produits à la commande
+    //         foreach ($cart as $key => $item) {
+    //             $productId = explode('-', $key)[0];
+    //             $product = Product::find($productId);
+    //             if ($product) {
+    //                 $order->products()->attach($productId, [
+    //                     'quantity' => $item['quantity'],
+    //                     'price' => $item['price'],
+    //                     'size' => $item['size'] ?? null,
+    //                 ]);
+    //             }
+    //         }
+    //         session()->forget('cart');
+
+
+    //     return redirect()->route('menus.index')->with('success', 'Commande passée avec succès.');
+    // }
+
+
+
+    public function storeOrder(Request $request)
+    {
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -249,7 +339,7 @@ class MenuController extends Controller
             'phone' => 'required|string|max:15',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
-            'country_code' => 'required|string|max:255', // Validation pour le code pays
+            'country_code' => 'required|string|max:255',
             'zip' => 'required|string|max:10',
             'coupon_code' => 'nullable|string|exists:coupons,code',
             'order_notes' => 'nullable|string',
@@ -260,48 +350,29 @@ class MenuController extends Controller
         ]);
 
         $customerId = Auth::guard('customer')->id();
-        if ( !$customerId ) {
+        if (!$customerId) {
             return redirect()->route('customer.login')->withErrors(['error' => 'Veuillez vous connecter pour passer une commande.']);
         }
 
-
-        // Vérification du coupon s'il est fourni
         $coupon = null;
         $discount = 0;
         if ($request->filled('coupon_code')) {
             $coupon = Coupon::where('code', $request->coupon_code)->first();
-
             if ($coupon && $coupon->isValid()) {
-                $discount = $coupon->discount; // Appliquer la remise
+                $discount = $coupon->discount;
             } else {
                 return back()->withErrors(['coupon_code' => 'Le coupon est invalide ou expiré.']);
             }
         }
 
-        // Calculer le total après la remise
         $cart = session('cart', []);
-        $subtotal = collect($cart)->sum(function ($item) {
-            return $item['price'] * $item['quantity'];
-        });
-
+        $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
         $total = $subtotal - ($subtotal * ($discount / 100));
 
-
-        // Gestion des frais de livraison
-        $standardShipping = Shipping::where('name', 'Standard')->first();
-        $freeShipping = Shipping::where('name', 'Gratuit')->first();
-
-        if ($total >= 30) {
-            $shipping = $freeShipping;
-            $shippingCost = 0;
-        } else {
-            $shipping = $standardShipping;
-            $shippingCost = $shipping->price;
-        }
-
+        $shipping = Shipping::where('name', $total >= 30 ? 'Gratuit' : 'Standard')->first();
+        $shippingCost = $total >= 30 ? 0 : $shipping->price;
         $total += $shippingCost;
 
-        // Créer la commande
         $order = Order::create([
             'code' => Order::generateOrderCode(),
             'first_name' => $request->first_name,
@@ -316,41 +387,74 @@ class MenuController extends Controller
             'country_code' => $request->country_code,
             'zip' => $request->zip,
             'shipping_cost' => $shippingCost,
-            'total' =>  $total, // Fonction pour calculer le total
-            'coupon_id' => $coupon ? $coupon->id : null,  // Enregistrer l'ID du coupon
+            'total' => $total,
+            'coupon_id' => $coupon ? $coupon->id : null,
             'order_notes' => $request->input('order_notes', null),
             'customer_id' => $customerId,
-            'status' => 'pending', // statut initial
+            'status' => 'pending',
         ]);
 
-
-
-        // Associer les produits à la commande
-        $cart = session()->get('cart', []); // Récupérer le panier de la session
-
-        if (!empty($cart)) {
-            foreach ($cart as $key => $item) {
-                // Extraire uniquement l'ID du produit à partir de la clé
-                $productId = explode('-', $key)[0]; // Récupère la partie avant le tiret
-
-                // Vérification que le produit existe avant l'association
-                $product = Product::find($productId);
-
-                if ($product) {
-                    $order->products()->attach($productId, [
-                        'quantity' => $item['quantity'],
-                        'price' => $item['price'],
-                        'size' => $item['size'], // Ajouter la taille si nécessaire
-                    ]);
-                }
+        foreach ($cart as $key => $item) {
+            $productId = explode('-', $key)[0];
+            $product = Product::find($productId);
+            if ($product) {
+                $order->products()->attach($productId, [
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'size' => $item['size'] ?? null,
+                ]);
             }
         }
 
-        // Vider le panier
         session()->forget('cart');
 
-        return redirect()->route('menus.index')->with('success', 'Commande passée avec succès.');
+
+
+        if ($order->payment->name === "Cinetpay") {
+            $paymentGateway = PaymentGateway::first();
+
+            if (!$paymentGateway) {
+                return back()->withErrors(['error' => 'Passerelle de paiement non configurée.']);
+            }
+
+            try {
+                $cinetPay = new CinetPay(
+                    $paymentGateway->site_id,
+                    $paymentGateway->api_key,
+                    'v2' // Vous pouvez adapter la version si nécessaire
+                );
+
+                $cinetPay->setTransaction(
+                    $order->code,
+                    $order->total,
+                    $order->email,
+                    $order->phone,
+                    "Paiement de la commande {$order->code}",
+                    $order->first_name,
+                    $order->last_name
+                );
+
+
+                // Définir les URL dynamiquement à partir de la configuration de votre passerelle
+                $cinetPay->transaction['notify_url'] = $paymentGateway->callback_url; // URL pour recevoir les notifications
+                $cinetPay->transaction['return_url'] = route('customer.orders.success'); // URL de redirection après paiement
+
+                $paymentUrl = $cinetPay->getPaymentUrl();
+
+                return redirect()->away($paymentUrl);
+
+            } catch (Exception $e) {
+                \Log::error("CinetPay Payment Error", ['error' => $e->getMessage()]);
+                return back()->withErrors(['error' => 'Erreur de paiement : ' . $e->getMessage()]);
+            }
+
+
+        }
+
+        // return redirect()->route('menus.index')->with('success', 'Paiement Réussi !. Votre commande a été confirmée avec succès. Merci pour votre achat');
     }
+
+
 
     private function calculateTotal(Request $request, $discount)
     {
@@ -368,6 +472,13 @@ class MenuController extends Controller
         }
 
         return $subtotal;
+    }
+
+
+    public function paymentSuccess()
+    {
+        return redirect()->route('customer.orders.index')
+            ->with('success', 'Paiement Réussi ! Votre commande a été confirmée avec succès. Merci pour votre achat');
     }
 
 

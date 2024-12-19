@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Permission;
 // use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Artisan;
 
 class PermissionController extends Controller
@@ -14,6 +15,10 @@ class PermissionController extends Controller
      */
     public function index(Request $request)
     {
+
+        if (!auth()->user()->can('view-permissions')) {
+            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+        }
         // Nettoyer et récupérer le terme de recherche depuis la requête GET
         $search = trim($request->get('search'));
 
@@ -48,7 +53,7 @@ class PermissionController extends Controller
     // {
     //     $validatedData = $request->validate([
     //         // 'name' => 'required|string|max:255|min:3|unique:roles,name',
-    //         'action' => 'required|string|in:create,read,edit,delete',
+    //         'action' => 'required|string|in:create,view,edit,delete',
     //         'resource' => 'required|string|in:' . implode(',', Permission::getResources()),
     //     ]);
 
@@ -91,7 +96,7 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'action' => 'required|string|in:create,read,edit,delete',
+            'action' => 'required|string|in:create,view,edit,delete',
             'resource' => 'required|string|in:' . implode(',', Permission::getResources()),
         ]);
 
@@ -183,7 +188,7 @@ class PermissionController extends Controller
     {
         // Valider les données de la requête
         $validatedData = $request->validate([
-            'action' => 'required|string|in:create,read,edit,delete',
+            'action' => 'required|string|in:create,view,edit,delete',
             'resource' => 'required|string|in:' . implode(',', Permission::getResources()),
         ]);
 
@@ -250,49 +255,49 @@ class PermissionController extends Controller
         return [
             // Utilisateurs
             'create-users' => ['guard' => 'web', 'translation' => 'Créer des utilisateurs'],
-            'read-users' => ['guard' => 'web', 'translation' => 'Voir les utilisateurs'],
+            'view-users' => ['guard' => 'web', 'translation' => 'Voir les utilisateurs'],
             'edit-users' => ['guard' => 'web', 'translation' => 'Modifier des utilisateurs'],
             'delete-users' => ['guard' => 'web', 'translation' => 'Supprimer des utilisateurs'],
 
             // Rôles
             'create-roles' => ['guard' => 'web', 'translation' => 'Créer des rôles'],
-            'read-roles' => ['guard' => 'web', 'translation' => 'Voir les rôles'],
+            'view-roles' => ['guard' => 'web', 'translation' => 'Voir les rôles'],
             'edit-roles' => ['guard' => 'web', 'translation' => 'Modifier des rôles'],
             'delete-roles' => ['guard' => 'web', 'translation' => 'Supprimer des rôles'],
 
             // Permissions
             'create-permissions' => ['guard' => 'web', 'translation' => 'Créer des permissions'],
-            'read-permissions' => ['guard' => 'web', 'translation' => 'Voir les permissions'],
+            'view-permissions' => ['guard' => 'web', 'translation' => 'Voir les permissions'],
             'edit-permissions' => ['guard' => 'web', 'translation' => 'Modifier des permissions'],
             'delete-permissions' => ['guard' => 'web', 'translation' => 'Supprimer des permissions'],
 
             // Coupons
             'create-coupons' => ['guard' => 'web', 'translation' => 'Créer des coupons'],
-            'read-coupons' => ['guard' => 'web', 'translation' => 'Voir les coupons'],
+            'view-coupons' => ['guard' => 'web', 'translation' => 'Voir les coupons'],
             'edit-coupons' => ['guard' => 'web', 'translation' => 'Modifier des coupons'],
             'delete-coupons' => ['guard' => 'web', 'translation' => 'Supprimer des coupons'],
 
             // Produits
             'create-products' => ['guard' => 'web', 'translation' => 'Créer des produits'],
-            'read-products' => ['guard' => 'web', 'translation' => 'Voir les produits'],
+            'view-products' => ['guard' => 'web', 'translation' => 'Voir les produits'],
             'edit-products' => ['guard' => 'web', 'translation' => 'Modifier des produits'],
             'delete-products' => ['guard' => 'web', 'translation' => 'Supprimer des produits'],
 
             // Commandes
             'create-orders' => ['guard' => 'web', 'translation' => 'Créer des commandes'],
-            'read-orders' => ['guard' => 'web', 'translation' => 'Voir les commandes'],
+            'view-orders' => ['guard' => 'web', 'translation' => 'Voir les commandes'],
             'edit-orders' => ['guard' => 'web', 'translation' => 'Modifier des commandes'],
             'delete-orders' => ['guard' => 'web', 'translation' => 'Supprimer des commandes'],
 
             // Blogs
             'create-blogs' => ['guard' => 'web', 'translation' => 'Créer des articles de blog'],
-            'read-blogs' => ['guard' => 'web', 'translation' => 'Voir les articles de blog'],
+            'view-blogs' => ['guard' => 'web', 'translation' => 'Voir les articles de blog'],
             'edit-blogs' => ['guard' => 'web', 'translation' => 'Modifier des articles de blog'],
             'delete-blogs' => ['guard' => 'web', 'translation' => 'Supprimer des articles de blog'],
 
             // Menus
             'create-menus' => ['guard' => 'web', 'translation' => 'Créer des menus'],
-            'read-menus' => ['guard' => 'web', 'translation' => 'Voir les menus'],
+            'view-menus' => ['guard' => 'web', 'translation' => 'Voir les menus'],
             'edit-menus' => ['guard' => 'web', 'translation' => 'Modifier des menus'],
             'delete-menus' => ['guard' => 'web', 'translation' => 'Supprimer des menus'],
 

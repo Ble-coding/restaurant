@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Gate;
 use App\Models\Coupon;
 
 class CouponController extends Controller
@@ -13,6 +13,9 @@ class CouponController extends Controller
      */
     public function index(Request $request)
     {
+        if (!auth()->user()->can('view-coupons')) {
+            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+        }
         // Récupérer les paramètres de recherche
         $search = $request->get('search');
         $expired = $request->get('expired');

@@ -41,7 +41,7 @@
             <div class="col-12 col-md-6">
                 <div class="login-box p-4">
                     <h3>S'inscrire</h3>
-                    <form method="POST" action="{{ route('register') }}">
+                    <form method="POST" action="{{ route('register.account') }}">
                         @csrf
 
                         @if ($errors->any())
@@ -127,7 +127,7 @@
                         <!-- Bouton S'inscrire -->
                         <div class="d-flex justify-content-between align-items-center mt-4">
                             <div class="view-cart">
-                                <a class="text-decoration-none" href="{{ route('login') }}">Déjà enregistré ?</a>
+                                <a class="text-decoration-none" href="{{ route('admin.login') }}">Déjà enregistré ?</a>
                             </div>
                             <button type="submit" class="btn btn-login">S'inscrire</button>
                         </div>

@@ -7,14 +7,21 @@ use App\Models\Product; // Pour manipuler le modèle Product
 use Illuminate\Support\Facades\Storage; // Pour gérer le stockage de fichiers (images)
 use Illuminate\Support\Facades\Validator; // Si tu utilises la validation manuelle
 use App\Models\Category;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+
+        // Vérifie si l'utilisateur possède les permissions
+        if (!auth()->user()->can('view-menus') && !auth()->user()->can('view-products')) {
+            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+        }
         // Nettoyer l'entrée utilisateur pour éviter les espaces inutiles
         $search = trim($request->get('search'));
 
@@ -59,7 +66,7 @@ class ProductController extends Controller
             })
             ->with('category')
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(6);
 
         // Récupérer toutes les catégories sauf celles associées aux "Livraisons"
         $categories = Category::whereNotIn('slug', $slugsLivraison)->get();

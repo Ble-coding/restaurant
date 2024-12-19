@@ -10,6 +10,7 @@ use Illuminate\View\View;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 
 class AdminUserController extends Controller
 {
@@ -18,19 +19,34 @@ class AdminUserController extends Controller
      */
     public function index(Request $request): View
     {
+        // Vérifie si l'utilisateur a la permission 'view-users'
+        if (!auth()->user()->can('view-users')) {
+            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+        }
+
+        // Détermine les rôles à exclure selon le rôle de l'utilisateur connecté
+        $excludedRoles = [];
+        if (auth()->user()->hasRole('super_admin')) {
+            $excludedRoles = ['super_admin'];
+        } elseif (auth()->user()->hasRole('admin')) {
+            $excludedRoles = ['admin', 'super_admin']; // Exclure admin et super_admin
+        }
+
         // Nettoyer et récupérer le terme de recherche depuis la requête GET
         $search = trim($request->get('search'));
 
-        // Récupérer les utilisateurs avec leurs rôles, en excluant 'Admin' et 'Super Admin'
+        // Récupérer les utilisateurs avec leurs rôles, en excluant les rôles déterminés
         $users = User::with('roles')
-            ->whereHas('roles', function ($query) {
-                $query->whereNotIn('name', ['super_admin']); // Exclusion de certains rôles
+            ->whereHas('roles', function ($query) use ($excludedRoles) {
+                if (!empty($excludedRoles)) {
+                    $query->whereNotIn('name', $excludedRoles);
+                }
             })
             ->when($search, function ($query) use ($search) {
                 // Appliquer la recherche sur les champs 'name' et 'email'
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', '%' . $search . '%')
-                             ->orWhere('email', 'like', '%' . $search . '%');
+                            ->orWhere('email', 'like', '%' . $search . '%');
                 });
             })
             ->orderBy('created_at', 'desc') // Trier par date de création
@@ -42,6 +58,7 @@ class AdminUserController extends Controller
         // Retourner la vue avec les utilisateurs et les rôles
         return view('admin.users.index', compact('users', 'roles'));
     }
+
 
     /**
      * Show the form for creating a new resource.

@@ -7,3 +7,4 @@
 <link rel="stylesheet" href="{{ asset('assets/css/blog.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/contact.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/footer.css') }}">
+

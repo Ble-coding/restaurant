@@ -73,10 +73,14 @@
 
                                 <!-- Bouton pour ouvrir le modal de modification -->
                                 {{-- <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $product->id }}"></a> --}}
+                                @canany(['edit-menus', 'edit-products'])
                                 <a class=" add_cart {{ Route::currentRouteName() === 'admin.products.edit' ? 'active' : '' }}" href="{{ route('admin.products.edit', $product->id) }}">✏️</a>
+                                @endcanany
 
+                                @canany(['delete-menus', 'delete-products'])
                                 <!-- Bouton pour ouvrir le modal de suppression -->
                                 <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $product->id }}">🗑️</a>
+                                @endcanany
 
                                 <span class="texte categories">{{ $product->category->name }}</span>
                             </p>
@@ -117,6 +121,7 @@
                 {{ $products->links('vendor.pagination.custom') }}
             </div>
         </div>
+        @canany(['create-menus', 'create-products'])
         <div class="col-md-6">
             <div class="cart-container-width">
                 <h3>Ajouter un produit</h3>
@@ -233,6 +238,8 @@
                 </form>
             </div>
         </div>
+        @endcanany
+
 
     </div>
 </div>

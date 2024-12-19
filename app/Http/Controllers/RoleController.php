@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 // use App\Models\Permission;
+use Illuminate\Support\Facades\Gate;
 
 
 class RoleController extends Controller
@@ -16,8 +17,20 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+
+        if (!auth()->user()->can('view-roles')) {
+            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+        }
         // Nettoyer et récupérer le terme de recherche depuis la requête GET
         $search = trim($request->get('search'));
+
+        // Détermine les rôles à exclure selon le rôle de l'utilisateur connecté
+        $excludedRoles = [];
+        if (auth()->user()->hasRole('super_admin')) {
+            $excludedRoles = ['super_admin'];
+        } elseif (auth()->user()->hasRole('admin')) {
+            $excludedRoles = ['admin', 'super_admin']; // Exclure admin et super_admin
+        }
 
         // Récupérer tous les permissions disponibles
         $permissions = Permission::all();
@@ -31,7 +44,7 @@ class RoleController extends Controller
                              ->orWhere('translation', 'like', '%' . $search . '%'); // Rechercher dans translation (si ce champ existe)
                 });
             })
-            ->whereNotIn('name', ['super_admin']) // Exclure le rôle 'Admin'
+            ->whereNotIn('name', $excludedRoles)
             ->orderBy('created_at', 'desc') // Trier par date de création descendante
             ->paginate(5); // Pagination des résultats (5 par page)
 
@@ -70,7 +83,7 @@ class RoleController extends Controller
 
         // Créer le rôle
         $role = Role::create([
-            'name' => ucfirst($name), // Capitaliser
+            'name' => $name,
             'guard_name' => $guardName,
             'translation' => $translation,
         ]);
@@ -162,7 +175,7 @@ class RoleController extends Controller
 
         // Mettre à jour les données du rôle
         $role->update([
-            'name' => ucfirst($name), // Capitaliser
+            'name' => $name,
             'guard_name' => $guardName,
             'translation' => $translation,
         ]);

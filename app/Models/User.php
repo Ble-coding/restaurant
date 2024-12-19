@@ -52,6 +52,20 @@ class User extends Authenticatable
     }
 
 
+    /**
+     * Relation avec le modèle PaymentGateway.
+     *
+     * Un utilisateur peut avoir plusieurs passerelles de paiement.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function paymentGateways(): HasMany
+    {
+        return $this->hasMany(PaymentGateway::class);
+    }
+
+
     // public function hasRole(string $role): bool
     // {
     //     return $this->roles->contains('name', $role);

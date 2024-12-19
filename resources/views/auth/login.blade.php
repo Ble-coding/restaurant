@@ -32,7 +32,7 @@
             <div class="col-12 col-md-6">
               <div class="login-box p-4">
                 <h3>Se connecter</h3>
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('admin.login') }}">
                     @csrf
                     @if ($errors->any())
                         <div class="alert alert-danger">
@@ -86,7 +86,7 @@
                 </form>
 
                 <p class="register-link mt-4 text-center">
-                    Pas encore de compte ? <a href="{{ route('register') }}">Inscrivez-vous ici</a>
+                    Pas encore de compte ? <a href="{{ route('register.account') }}">Inscrivez-vous ici</a>
                 </p>
                 </div>
             </div>

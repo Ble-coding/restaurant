@@ -50,7 +50,7 @@ class AuthenticatedSessionController extends Controller
 
         // Si la tentative échoue
         return back()->withErrors([
-            'login' => 'Les informations de connexion sont incorrectes.',
+            'admin.login' => 'Les informations de connexion sont incorrectes.',
         ])->withInput();
     }
 
@@ -65,6 +65,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // return redirect('/');
+        return redirect()->route('home.welcome');
     }
 }

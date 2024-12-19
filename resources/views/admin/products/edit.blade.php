@@ -115,7 +115,9 @@
                         </div>
 
                     </div>
-                    <button type="submit" class="btn view-cart">Mettre à jour</button>
+                    @canany(['edit-menus', 'edit-products'])
+                      <button type="submit" class="btn view-cart">Mettre à jour</button>
+                    @endcanany
 
                 </form>
             </div>

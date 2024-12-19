@@ -109,8 +109,12 @@
                                             @endif
                                         @endif
                                     </span>
-                                    <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $coupon->id }}">✏️</a>
-                                    <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $coupon->id }}">🗑️</a>
+                                    @can('edit-coupons')
+                                     <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $coupon->id }}">✏️</a>
+                                    @endcan
+                                    @can('delete-coupons')
+                                     <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $coupon->id }}">🗑️</a>
+                                    @endcan
                                 </p>
                             </div>
                         </div>
@@ -213,60 +217,62 @@
                 {{ $coupons->links('vendor.pagination.custom') }}
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="cart-container-width">
-                <h3>Créer un Coupon</h3>
-                <hr>
-                <form method="POST" action="{{ route('admin.coupons.store') }}">
-                    @csrf
+        @can('create-coupons')
+            <div class="col-md-6">
+                <div class="cart-container-width">
+                    <h3>Créer un Coupon</h3>
+                    <hr>
+                    <form method="POST" action="{{ route('admin.coupons.store') }}">
+                        @csrf
 
-                    <!-- Champ Code -->
-                    <div class="mb-3">
-                        <label for="code" class="form-label">Code</label>
-                        <input type="text" class="form-control form-custom-user" name="code" placeholder="Code du coupon" value="{{ old('code') }}" >
-                        @error('code')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        <!-- Champ Code -->
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Code</label>
+                            <input type="text" class="form-control form-custom-user" name="code" placeholder="Code du coupon" value="{{ old('code') }}" >
+                            @error('code')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <!-- Champ Réduction -->
-                    <div class="mb-3">
-                        <label for="discount" class="form-label">Réduction (%)</label>
-                        <input type="number" class="form-control form-custom-user" name="discount" placeholder="Pourcentage de réduction" value="{{ old('discount') }}" >
-                        @error('discount')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        <!-- Champ Réduction -->
+                        <div class="mb-3">
+                            <label for="discount" class="form-label">Réduction (%)</label>
+                            <input type="number" class="form-control form-custom-user" name="discount" placeholder="Pourcentage de réduction" value="{{ old('discount') }}" >
+                            @error('discount')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <!-- Champ Type -->
-                    <div class="mb-3">
-                        <label for="type" class="form-label">Type</label>
-                        <select name="type" class="form-select" >
-                            <option value="percent" {{ old('type') === 'percent' ? 'selected' : '' }}>Pourcentage</option>
-                            <option value="fixed" {{ old('type') === 'fixed' ? 'selected' : '' }}>Montant Fixe</option>
-                        </select>
-                        @error('type')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        <!-- Champ Type -->
+                        <div class="mb-3">
+                            <label for="type" class="form-label">Type</label>
+                            <select name="type" class="form-select" >
+                                <option value="percent" {{ old('type') === 'percent' ? 'selected' : '' }}>Pourcentage</option>
+                                <option value="fixed" {{ old('type') === 'fixed' ? 'selected' : '' }}>Montant Fixe</option>
+                            </select>
+                            @error('type')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <!-- Champ Date d'expiration -->
-                    <div class="mb-3">
-                        <label for="expires_at" class="form-label">Date d'expiration</label>
-                        <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ old('expires_at') }}">
-                        @error('expires_at')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        <!-- Champ Date d'expiration -->
+                        <div class="mb-3">
+                            <label for="expires_at" class="form-label">Date d'expiration</label>
+                            <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ old('expires_at') }}">
+                            @error('expires_at')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <!-- Bouton Soumettre -->
-                    <div class="cart-actions mt-4">
-                        <button type="submit" class="view-cart">Soumettre</button>
-                    </div>
-                </form>
+                        <!-- Bouton Soumettre -->
+                        <div class="cart-actions mt-4">
+                            <button type="submit" class="view-cart">Soumettre</button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
-
-        </div>
+        @endcan
     </div>
 </div>
 

@@ -66,14 +66,20 @@
                                 <p class="menu-item-description">
                                     <span class="texte">{{ Str::limit(strip_tags($article->content), 100) }}</span>
 
+                                    @canany(['view-articles', 'view-blogs'])
                                     <a class="{{ Route::currentRouteName() === 'admin.articles.index' ? 'active' : '' }}" href="{{ route('admin.articles.show', $article->id) }}">👀
                                     </a>
+                                    @endcanany
+                                    @canany(['edit-articles', 'edit-blogs'])
                                     <a href="{{ route('admin.articles.edit', $article->id) }}" class="add_cart m-3">
                                         ✏️
                                     </a>
+                                    @endcanany
 
                                     <!-- Bouton pour ouvrir le modal de suppression -->
+                                    @canany(['delete-articles', 'delete-blogs'])
                                     <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $article->id }}">🗑️</a>
+                                    @endcanany
                                     <span class="menu-badge">{{ $article->category->name }}</span>
                                 </p>
                             </div>

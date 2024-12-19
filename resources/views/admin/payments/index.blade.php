@@ -4,7 +4,7 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Catégorie</h1>
+            <h1>Paiements</h1>
             <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
         </div>
     </div>
@@ -14,9 +14,11 @@
 
 <div class="container my-5">
 
-    <div class="search-wrapper">
+
+     <!-- Formulaire de recherche -->
+     <div class="search-wrapper">
         <div class="search-container">
-            <form method="GET" action="{{ route('admin.categories.index') }}" id="search-form">
+            <form method="GET" action="{{ route('admin.payments.index') }}" id="search-form">
                 <input
                     type="text"
                     id="search"
@@ -28,6 +30,10 @@
             </form>
         </div>
     </div>
+
+
+
+
 
         <!-- Début des items de menu -->
         <div class="row">
@@ -47,22 +53,35 @@
             @endif
 
 
-            @foreach ($categories as $category)
-
+            @foreach ($payments as $payment)
+                {{-- @if (!$coupon->expires_at || $coupon->expires_at > now())  --}}
                     <div class="col-md-3 col-lg-6 mb-4">
                         <div class="menu-item p-3">
                             <div class="menu-item-content">
                                 <div class="menu-item-header">
-                                    <h3 class="menu-item-title">{{ $category->name }}</h3>
+                                    <h3 class="menu-item-title">{{ $payment->name }}</h3>
                                     <div class="menu-item-dots"></div>
+                                    <div class="menu-item-price">
+                                        {{-- <span class="menu-badge">{{ $coupon->discount }}% ({{ $coupon->translated_type }})</span> --}}
+                                    </div>
                                 </div>
                                 <p class="menu-item-description">
-                                    <span class="texte">
-                                    @can('edit-categories')
-                                      <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $category->id }}">✏️</a>
+                                    {{-- <span class="texte">
+                                        @if ($coupon->expires_at && $coupon->expires_at < now())
+                                            {{ $coupon->formatted_expires_at }}
+                                        @else
+                                            @if ($coupon->status === 'active')
+                                                <span class="menu-badge">Actif</span>
+                                            @else
+                                                <span class="menu-badge">Inactif</span>
+                                            @endif
+                                        @endif
+                                    </span> --}}
+                                    @can('edit-payments')
+                                      <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $payment->id }}">✏️</a>
                                     @endcan
-                                    @can('delete-categories')
-                                      <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $category->id }}">🗑️</a>
+                                    @can('delete-payments')
+                                      <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $payment->id }}">🗑️</a>
                                     @endcan
                                 </p>
                             </div>
@@ -70,44 +89,55 @@
                     </div>
 
                     <!-- Modal pour la modification -->
-                    <div class="modal fade" id="editModal{{ $category->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $category->id }}" aria-hidden="true">
+                    <div class="modal fade" id="editModal{{ $payment->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $payment->id }}" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel{{ $category->id }}">Modifier la catégorie : {{ $category->code }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="{{ route('admin.categories.update', $category->id) }}">
+                                    <form method="POST" action="{{ route('admin.payments.update', $payment->id) }}">
                                         @csrf
                                         @method('PUT')
-                                        <div class="mb-3">
-                                            <label for="name" class="form-label">Libellé</label>
-                                            <input type="text" class="form-control" name="name" value="{{ old('name', $category->name) }}">
-                                            @error('name')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
+
+                                        <!-- Première ligne -->
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="payment" class="form-label">Libellé</label>
+                                                <input type="text" class="form-control form-custom-user" name="name" value="{{ old('name', $payment->name) }}">
+                                                @error('name')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
                                         </div>
-                                        <button type="submit" class="btn view-cart">Mettre à jour</button>
+
+                                        <!-- Bouton -->
+                                        <div class="row">
+                                            <div class="col-12 text-end">
+                                                <button type="submit" class="btn view-cart">Mettre à jour</button>
+                                            </div>
+                                        </div>
                                     </form>
+
                                 </div>
+
                             </div>
                         </div>
                     </div>
 
                     <!-- Modal pour la suppression -->
-                    <div class="modal fade" id="deleteModal{{ $category->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $category->id }}" aria-hidden="true">
+                    <div class="modal fade" id="deleteModal{{ $payment->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $payment->id }}" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ $category->id }}">Supprimer la catégorie</h5>
+                                    <h5 class="modal-title" id="deleteModalLabel{{ $payment->id }}">Supprimer le paiement</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Êtes-vous sûr de vouloir supprimer la catégorie <strong>{{ $category->name }}</strong> ?</p>
+                                    <p>Êtes-vous sûr de vouloir supprimer le paiement <strong>{{ $payment->name }}</strong> ?</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}">
+                                    <form method="POST" action="{{ route('admin.payments.destroy', $payment->id) }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -117,7 +147,7 @@
                             </div>
                         </div>
                     </div>
-
+                {{-- @endif  --}}
             @endforeach
 
 
@@ -127,26 +157,25 @@
     <div class="row">
         <div class="col-md-6">
             <div class="pagination-container">
-                {{ $categories->links('vendor.pagination.custom') }}
+                {{ $payments->links('vendor.pagination.custom') }}
             </div>
         </div>
-        @can('create-categories')
+        @can('create-payments')
             <div class="col-md-6">
                 <div class="cart-container-width">
-                    <h3>Créer une catégorie de blog</h3>
+                    <h3>Créer un paiement</h3>
                     <hr>
-                    <form method="POST" action="{{ route('admin.categories.store') }}">
+                    <form method="POST" action="{{ route('admin.payments.store') }}">
                         @csrf
 
-                        <!-- Champ Code -->
+                        <!-- Champ name -->
                         <div class="mb-3">
-                            <label for="name" class="form-label">Catégorie</label>
-                            <input type="text" class="form-control form-custom-user" name="name" placeholder="Libellé" value="{{ old('name') }}">
+                            <label for="name" class="form-label">Libellé</label>
+                            <input type="text" class="form-control form-custom-user" name="name" placeholder="libellé" value="{{ old('name') }}" >
                             @error('name')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
-
                         <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
                             <button type="submit" class="view-cart">Soumettre</button>
@@ -162,28 +191,7 @@
 @endsection
 
 @push('scripts')
-
-    <script>
-
-        window.addEventListener('DOMContentLoaded', (event) => {
-        let successAlert = document.getElementById('success-alert');
-        if (successAlert) {
-            console.log('Success alert found'); // Pour déboguer
-            setTimeout(() => {
-                successAlert.style.display = 'none';
-            }, 5000);
-        }
-
-        let errorAlert = document.getElementById('error-alert');
-        if (errorAlert) {
-            console.log('Error alert found'); // Pour déboguer
-            setTimeout(() => {
-                errorAlert.style.display = 'none';
-            }, 5000);
-        }
-     });
-    </script>
-
-    <script src="{{ asset('assets/js/search.js') }}"></script>
+     <script src="{{ asset('assets/js/search.js') }}"></script>
+     <script src="{{ asset('assets/js/global.js') }}"></script>
 @endpush
 

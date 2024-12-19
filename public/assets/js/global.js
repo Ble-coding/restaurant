@@ -13,6 +13,13 @@
                 width: '100%'                        // Largeur adaptative
             });
 
+
+        $('#user_id').select2({
+            placeholder: "Choisir un utilisateur", // Texte du placeholder
+            allowClear: true,                    // Permet de désélectionner
+            theme: 'bootstrap4',                // Thème à utiliser
+            width: '100%'                        // Largeur adaptative
+        });
                   // Initialisation de Select2
         $('#status').select2({
                 placeholder: "Choisissez un statut...", // Placeholder pour le champ
@@ -55,4 +62,20 @@
     phoneInput.addEventListener("input", function() {
         countryCodeInput.value = iti.getSelectedCountryData().dialCode; // Capture le code du pays sélectionné
     });
+
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(`toggle-${inputId}`);
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = "password";
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
 

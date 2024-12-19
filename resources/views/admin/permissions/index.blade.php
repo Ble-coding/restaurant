@@ -59,11 +59,15 @@
                             <p class="menu-item-description">
                                 <span class="texte">{{ $permission->translation }}</span>
 
-                                <!-- Bouton pour ouvrir le modal de modification -->
-                                <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $permission->id }}">✏️</a>
 
-                                <!-- Bouton pour ouvrir le modal de suppression -->
-                                <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $permission->id }}">🗑️</a>
+                                <!-- Bouton pour ouvrir le modal de modification -->
+                                @can('edit-permissions')
+                                  <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $permission->id }}">✏️</a>
+                                @endcan
+                                @can('delete-permissions')
+                                    <!-- Bouton pour ouvrir le modal de suppression -->
+                                    <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $permission->id }}">🗑️</a>
+                                @endcan
                             </p>
                         </div>
                     </div>
@@ -115,7 +119,7 @@
                                                 $currentAction = $parts[0] ?? ''; // Récupérer l'action actuelle
                                             @endphp
                                             <option value="create" {{ old('action', $currentAction) == 'create' ? 'selected' : '' }}>Create</option>
-                                            <option value="read" {{ old('action', $currentAction) == 'read' ? 'selected' : '' }}>Read</option>
+                                            <option value="view" {{ old('action', $currentAction) == 'view' ? 'selected' : '' }}>View</option>
                                             <option value="edit" {{ old('action', $currentAction) == 'edit' ? 'selected' : '' }}>Edit</option>
                                             <option value="delete" {{ old('action', $currentAction) == 'delete' ? 'selected' : '' }}>Delete</option>
                                         </select>
@@ -179,45 +183,47 @@
                 {{ $permissions->links('vendor.pagination.custom') }}
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="cart-container-width">
-                <h3>Permission</h3>
-                <hr>
-                {{-- <form method="POST" action="{{ route('admin.permissions.store') }}">
-                    @csrf
-                    <input type="text" class="form-control form-custom-user me-2" name="name" placeholder="Libellé">
-                    @error('name')
-                        <span class="text-danger">{{ $message }}</span>
-                    @enderror
-                    <div class="cart-actions mt-4">
-                        <button type="submit" class="view-cart">Soumettre</button>
-                    </div>
-                </form> --}}
-                <form method="POST" action="{{ route('admin.permissions.store') }}">
-                    @csrf
-                    <div class="m-1" >
-                        <label for="action">Action</label>
-                        <select name="action" id="action" class="form-select form-custom-user me-2" >
-                            <option value="create">Create</option>
-                            <option value="read">Read</option>
-                            <option value="edit">Edit</option>
-                            <option value="delete">Delete</option>
-                        </select>
-                    </div>
-                    <div class="m-1">
-                        <label for="resource">Resource</label>
-                        <select id="permissions" name="resource" id="resource" class="form-select form-custom-user me-2">
-                            @foreach (App\Models\Permission::getResources() as $resource)
-                                <option value="{{ $resource }}">{{ ucfirst($resource) }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="cart-actions mt-4">
-                        <button type="submit" class="view-cart">Soumettre</button>
-                    </div>
-                </form>
+        @can('create-permissions')
+            <div class="col-md-6">
+                <div class="cart-container-width">
+                    <h3>Permission</h3>
+                    <hr>
+                    {{-- <form method="POST" action="{{ route('admin.permissions.store') }}">
+                        @csrf
+                        <input type="text" class="form-control form-custom-user me-2" name="name" placeholder="Libellé">
+                        @error('name')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                        <div class="cart-actions mt-4">
+                            <button type="submit" class="view-cart">Soumettre</button>
+                        </div>
+                    </form> --}}
+                    <form method="POST" action="{{ route('admin.permissions.store') }}">
+                        @csrf
+                        <div class="m-1" >
+                            <label for="action">Action</label>
+                            <select name="action" id="action" class="form-select form-custom-user me-2" >
+                                <option value="create">Create</option>
+                                <option value="view">View</option>
+                                <option value="edit">Edit</option>
+                                <option value="delete">Delete</option>
+                            </select>
+                        </div>
+                        <div class="m-1">
+                            <label for="resource">Resource</label>
+                            <select id="permissions" name="resource" id="resource" class="form-select form-custom-user me-2">
+                                @foreach (App\Models\Permission::getResources() as $resource)
+                                    <option value="{{ $resource }}">{{ ucfirst($resource) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="cart-actions mt-4">
+                            <button type="submit" class="view-cart">Soumettre</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        @endcan
     </div>
 </div>
 

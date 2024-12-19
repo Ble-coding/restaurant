@@ -89,7 +89,9 @@
 
                         <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
+                            @canany(['create-articles', 'create-blogs'])
                             <button type="submit" class="btn btn-primary view-cart">Soumettre</button>
+                            @endcanany
                         </div>
                     </div>
                 </form>

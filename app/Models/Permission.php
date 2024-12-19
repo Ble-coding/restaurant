@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Permission as SpatiePermission;
+// use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory; // Ajoutez cette ligne
-use Spatie\Permission\Models\Role as SpatiePermission;
-
-class Permission extends Model
+// use Spatie\Permission\Models\Role as SpatiePermission;
+// use Spatie\Permission\Models\Permission as SpatiePermission;
+// extends Model
+class Permission extends SpatiePermission
 {
     use HasFactory, SoftDeletes;
 
@@ -27,7 +28,12 @@ class Permission extends Model
             'coupons',
             'products',
             'orders',
+            'menus',
             'blogs',
+            'commandes',
+            'payments',
+            'gateways',
+            'shippings',
         ];
     }
 }

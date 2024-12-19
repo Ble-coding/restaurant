@@ -82,11 +82,19 @@
                                 <span class="texte">{{ $role->translation }}</span>
 
                                 <!-- Bouton pour ouvrir le modal de modification -->
-                                <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $role->id }}">✏️</a>
+                                @can('edit-roles')
+
+                                       <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $role->id }}">✏️</a>
+
+                                @endcan
 
 
                                 <!-- Bouton pour ouvrir le modal de suppression -->
-                                <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $role->id }}">🗑️</a>
+                                @can('edit-roles')
+
+                                      <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $role->id }}">🗑️</a>
+
+                                @endcan
                             </p>
 
 
@@ -168,6 +176,7 @@
                 {{ $roles->links('vendor.pagination.custom') }}
             </div>
         </div>
+        @can('create-roles')
         <div class="col-md-6">
             <div class="cart-container-width">
                 <h3>Role</h3>
@@ -198,6 +207,7 @@
                 </form>
             </div>
         </div>
+        @endcan
     </div>
 </div>
 

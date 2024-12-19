@@ -102,7 +102,9 @@
 
                     <!-- Bouton Soumettre -->
                     <div class="cart-actions mt-4">
+                        @canany(['edit-articles', 'edit-blogs'])
                         <button type="submit" class="btn btn-primary view-cart">Mettre à jour</button>
+                        @endcanany
                     </div>
                 </div>
             </form>
