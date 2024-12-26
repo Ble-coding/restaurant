@@ -17,6 +17,7 @@ use App\Models\PaymentGateway;
 use App\Models\Category;
 use App\Models\Shipping;
 use App\Services\Cinetpay;
+use App\Services\Stripe;
 use Illuminate\Support\Facades\Log; // Ajoutez cette ligne
 use Exception;
 
@@ -120,14 +121,17 @@ class MenuController extends Controller
     {
         $customerId = Auth::guard('customer')->id();
 
-        // Vérifier si l'utilisateur est connecté
+       // Vérifier si l'utilisateur est connecté
         if (!$customerId) {
+            // Sauvegarder l'URL actuelle dans la session
+            session()->put('intended_url', url()->previous());
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Veuillez vous connecter pour passer une commande.'
-            ], 401); // Retourner une erreur 401 Unauthorized
+                'message' => 'Veuillez vous connecter pour passer une commande.',
+                'redirect' => route('customer.login') // URL de connexion
+            ], 401);
         }
-
         $product = Product::findOrFail($request->product_id);
 
         // Vérifier si une taille a été fournie pour les boissons naturelles
@@ -242,94 +246,6 @@ class MenuController extends Controller
         return view('menus.checkoutView', compact('cart', 'subtotal', 'total','zones','payments','shipping_cost'));
     }
 
-    // public function storeOrder(Request $request)
-    // {
-    //     $request->validate([
-    //         'first_name' => 'required|string|max:255',
-    //         'last_name' => 'required|string|max:255',
-    //         'email' => 'required|email',
-    //         'phone' => 'required|string|max:15',
-    //         'address' => 'required|string|max:255',
-    //         'city' => 'required|string|max:255',
-    //         'country_code' => 'required|string|max:255',
-    //         'zip' => 'required|string|max:10',
-    //         'coupon_code' => 'nullable|string|exists:coupons,code',
-    //         'order_notes' => 'nullable|string',
-    //         'customer_id' => 'nullable|exists:customers,id',
-    //         'zone_id' => 'required|exists:zones,id',
-    //         'payment_id' => 'required|exists:payments,id',
-    //         'terms' => 'accepted',
-    //     ]);
-
-    //     $customerId = Auth::guard('customer')->id();
-    //     if (!$customerId) {
-    //         return redirect()->route('customer.login')->withErrors(['error' => 'Veuillez vous connecter pour passer une commande.']);
-    //     }
-
-    //     // Gestion des coupons
-    //     $coupon = null;
-    //     $discount = 0;
-    //     if ($request->filled('coupon_code')) {
-    //         $coupon = Coupon::where('code', $request->coupon_code)->first();
-    //         if ($coupon && $coupon->isValid()) {
-    //             $discount = $coupon->discount;
-    //         } else {
-    //             return back()->withErrors(['coupon_code' => 'Le coupon est invalide ou expiré.']);
-    //         }
-    //     }
-
-    //     // Calcul total
-    //     $cart = session('cart', []);
-    //     $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-    //     $total = $subtotal - ($subtotal * ($discount / 100));
-
-    //     // Frais de livraison
-    //     $shipping = Shipping::where('name', $total >= 30 ? 'Gratuit' : 'Standard')->first();
-    //     $shippingCost = $total >= 30 ? 0 : $shipping->price;
-    //     $total += $shippingCost;
-
-
-    //         // Création de la commande
-    //         $order = Order::create([
-    //             'code' => Order::generateOrderCode(),
-    //             'first_name' => $request->first_name,
-    //             'last_name' => $request->last_name,
-    //             'email' => $request->email,
-    //             'zone_id' => $request->zone_id,
-    //             'payment_id' => $request->payment_id,
-    //             'terms' => $request->terms,
-    //             'phone' => $request->phone,
-    //             'address' => $request->address,
-    //             'city' => $request->city,
-    //             'country_code' => $request->country_code,
-    //             'zip' => $request->zip,
-    //             'shipping_cost' => $shippingCost,
-    //             'total' => $total,
-    //             'coupon_id' => $coupon ? $coupon->id : null,
-    //             'order_notes' => $request->input('order_notes', null),
-    //             'customer_id' => $customerId,
-    //             'status' => 'pending',
-    //         ]);
-
-    //         // Ajout des produits à la commande
-    //         foreach ($cart as $key => $item) {
-    //             $productId = explode('-', $key)[0];
-    //             $product = Product::find($productId);
-    //             if ($product) {
-    //                 $order->products()->attach($productId, [
-    //                     'quantity' => $item['quantity'],
-    //                     'price' => $item['price'],
-    //                     'size' => $item['size'] ?? null,
-    //                 ]);
-    //             }
-    //         }
-    //         session()->forget('cart');
-
-
-    //     return redirect()->route('menus.index')->with('success', 'Commande passée avec succès.');
-    // }
-
-
 
     public function storeOrder(Request $request)
     {
@@ -412,7 +328,10 @@ class MenuController extends Controller
 
 
         if ($order->payment->name === "Cinetpay") {
-            $paymentGateway = PaymentGateway::first();
+            $paymentGateway = PaymentGateway::whereHas('payment', function ($query) {
+                $query->where('name', 'Cinetpay');
+            })->first();
+
 
             if (!$paymentGateway) {
                 return back()->withErrors(['error' => 'Passerelle de paiement non configurée.']);
@@ -460,33 +379,53 @@ class MenuController extends Controller
             }
 
 
-        } else if ($order->payment->name === "Stripe") {
-            $paymentGateway = PaymentGateway::where('name', 'Stripe')->first();
+        }else if ($order->payment->name === "Stripe") {
+            \Log::info("Début du traitement Stripe pour la commande", ['order_code' => $order->code]);
+
+            // Vérifiez si la passerelle de paiement Stripe est configurée
+            $paymentGateway = PaymentGateway::whereHas('payment', function ($query) {
+                $query->where('name', 'Stripe');
+            })->first();
+
 
             if (!$paymentGateway) {
-                return back()->withErrors(['error' => 'Passerelle de paiement non configurée.']);
+                \Log::error("Passerelle de paiement Stripe non configurée.");
+                return back()->withErrors(['error' => 'Passerelle de paiement Stripe non configurée.']);
             }
 
-            // Conversion GBP -> USD (ou toute autre devise prise en charge par Stripe)
-            $conversionRate = $this->getConversionRate('GBP', 'USD'); // Exemple de conversion
+            // Optionnel : Conversion de devise si nécessaire (GBP -> USD, par exemple)
+            \Log::info("Tentative de récupération du taux de conversion pour Stripe", ['from' => 'GBP', 'to' => 'USD']);
+            $conversionRate = $this->getConversionRate('GBP', 'USD');
+
             if ($conversionRate <= 0) {
-                return back()->withErrors(['error' => 'Impossible de récupérer le taux de conversion.']);
+                \Log::error("Taux de conversion invalide ou non disponible pour Stripe", ['conversionRate' => $conversionRate]);
+                return back()->withErrors(['error' => 'Impossible de récupérer le taux de conversion pour Stripe.']);
             }
 
-            // Calcul du montant total en USD (en centimes)
-            $totalUSD = (int) round($total * $conversionRate * 100); // Multiplier par 100 pour les centimes
+            // Calculer le montant total en centimes (Stripe requiert des montants en centimes)
+            $totalUSD = (int) round($total * $conversionRate * 100);
+            \Log::info("Montant total calculé pour Stripe", ['totalUSD' => $totalUSD]);
 
             try {
+                // Initialisation de Stripe avec les clés API
+                \Log::info("Initialisation de Stripe", ['api_key' => $paymentGateway->api_key]);
+
                 $stripe = new Stripe(
                     $paymentGateway->api_key,
-                    $paymentGateway->api_secret
+                    $paymentGateway->secret_key
                 );
 
-                // Créer le paiement Stripe
+                // Création de l'intention de paiement Stripe
+                \Log::info("Création de l'intention de paiement Stripe", [
+                    'amount' => $totalUSD,
+                    'currency' => 'usd',
+                    'order_code' => $order->code,
+                ]);
+
                 $paymentIntent = $stripe->initiatePayment([
                     'amount' => $totalUSD,
-                    'currency' => 'usd', // Changez la devise si nécessaire
-                    'description' => "Paiement de la commande {$order->code}",
+                    'currency' => 'usd', // Assurez-vous que la devise correspond à votre paramétrage Stripe
+                    'description' => "Paiement pour la commande {$order->code}",
                     'metadata' => [
                         'order_code' => $order->code,
                         'email' => $order->email,
@@ -494,22 +433,40 @@ class MenuController extends Controller
                     ],
                 ]);
 
-                // Récupérer l'URL de confirmation Stripe
+                // Vérifiez si l'intention de paiement contient une URL de redirection
                 $paymentUrl = $paymentIntent['next_action']['redirect_to_url']['url'] ?? null;
 
                 if (!$paymentUrl) {
-                    return back()->withErrors(['error' => 'Erreur : URL de paiement non disponible.']);
+                    \Log::error("URL de redirection Stripe non disponible", ['paymentIntent' => $paymentIntent]);
+                    return back()->withErrors(['error' => 'Erreur : URL de redirection Stripe non disponible.']);
                 }
 
+                // Mettre à jour le statut de la commande
+                \Log::info("Mise à jour de la commande avec l'intention de paiement Stripe", [
+                    'order_code' => $order->code,
+                    'payment_intent_id' => $paymentIntent['id'],
+                ]);
+
+                $order->update([
+                    'status' => 'pending_payment', // Exemple de statut
+                    'payment_intent_id' => $paymentIntent['id'], // Enregistrez l'identifiant Stripe pour suivi
+                ]);
+
+                // Redirigez l'utilisateur vers l'URL de paiement Stripe
+                \Log::info("Redirection vers Stripe", ['paymentUrl' => $paymentUrl]);
                 return redirect()->away($paymentUrl);
 
-            } catch (Exception $e) {
-                \Log::error("Stripe Payment Error", ['error' => $e->getMessage()]);
-                return back()->withErrors(['error' => 'Erreur de paiement : ' . $e->getMessage()]);
+            } catch (\Exception $e) {
+                \Log::error("Erreur Stripe lors du paiement", [
+                    'order_code' => $order->code,
+                    'error' => $e->getMessage(),
+                    'stack_trace' => $e->getTraceAsString(),
+                ]);
+
+                // Retournez une erreur à l'utilisateur
+                return back()->withErrors(['error' => 'Erreur de paiement Stripe : ' . $e->getMessage()]);
             }
         }
-
-        // return redirect()->route('menus.index')->with('success', 'Paiement Réussi !. Votre commande a été confirmée avec succès. Merci pour votre achat');
     }
 
     public function getConversionRate($fromCurrency, $toCurrency)
@@ -552,6 +509,35 @@ class MenuController extends Controller
         return redirect()->route('customer.orders.index')
             ->with('success', 'Paiement Réussi ! Votre commande a été confirmée avec succès. Merci pour votre achat');
     }
+
+        public function createPaymentIntent(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'currency' => 'required|string',
+        ]);
+
+        try {
+            // Récupérer les informations de configuration Stripe
+            $paymentGateway = PaymentGateway::where('name', 'Stripe')->firstOrFail();
+
+            $stripe = new Stripe($paymentGateway->api_key, $paymentGateway->secret_key);
+            $paymentIntent = $stripe->initiatePayment([
+                'amount' => $request->amount,
+                'currency' => $request->currency,
+                'description' => 'Commande #12345',
+            ]);
+
+            return response()->json([
+                'payment_intent_id' => $paymentIntent['id'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la création de l’intention de paiement : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
 

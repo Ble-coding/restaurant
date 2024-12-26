@@ -11,6 +11,12 @@ class Stripe
     protected string $apiSecret;
     protected string $baseUrl;
 
+    /**
+     * Constructeur de la classe Stripe.
+     *
+     * @param string $apiKey
+     * @param string $apiSecret
+     */
     public function __construct(string $apiKey, string $apiSecret)
     {
         $this->apiKey = $apiKey;
@@ -19,7 +25,7 @@ class Stripe
     }
 
     /**
-     * Initialise un paiement et retourne l'URL de paiement ou les détails de la transaction.
+     * Initialise un paiement et retourne l'intention de paiement.
      *
      * @param array $params
      * @return array
@@ -27,30 +33,33 @@ class Stripe
      */
     public function initiatePayment(array $params): array
     {
+        // Valider les paramètres nécessaires
         $this->validateParams($params);
 
+        // Préparer le payload pour Stripe
         $payload = [
-            'amount' => $params['amount'] * 100, // Montant en centimes pour Stripe
+            'amount' => $params['amount'], // Montant en centimes
             'currency' => $params['currency'] ?? 'usd',
             'description' => $params['description'],
             'payment_method_types' => ['card'],
             'metadata' => $params['metadata'] ?? [],
         ];
 
-        // Création d'un intent de paiement
+        // Envoyer la requête à Stripe
         $response = Http::withBasicAuth($this->apiKey, $this->apiSecret)
             ->post("{$this->baseUrl}/payment_intents", $payload);
 
+        // Gestion des erreurs de l'API Stripe
         if ($response->failed()) {
             \Log::error("Stripe API error", ['response' => $response->json()]);
-            throw new Exception("Erreur Stripe: " . $response->json('error.message', 'Une erreur est survenue.'));
+            throw new Exception("Erreur Stripe: " . ($response->json('error.message') ?? 'Une erreur est survenue.'));
         }
 
         return $response->json();
     }
 
     /**
-     * Récupère les détails d'une transaction Stripe.
+     * Récupère les détails d'une intention de paiement Stripe.
      *
      * @param string $paymentIntentId
      * @return array
@@ -58,11 +67,13 @@ class Stripe
      */
     public function getPaymentStatus(string $paymentIntentId): array
     {
+        // Envoyer une requête pour obtenir les détails de l'intention
         $response = Http::withBasicAuth($this->apiKey, $this->apiSecret)
             ->get("{$this->baseUrl}/payment_intents/{$paymentIntentId}");
 
+        // Gestion des erreurs de l'API Stripe
         if ($response->failed()) {
-            throw new Exception("Erreur Stripe: " . $response->json('error.message', 'Une erreur est survenue.'));
+            throw new Exception("Erreur Stripe: " . ($response->json('error.message') ?? 'Une erreur est survenue.'));
         }
 
         return $response->json();
@@ -76,15 +87,16 @@ class Stripe
      */
     protected function validateParams(array $params): void
     {
-        $requiredFields = [
-            'amount',
-            'description',
-        ];
+        $requiredFields = ['amount', 'description'];
 
         foreach ($requiredFields as $field) {
             if (empty($params[$field])) {
                 throw new Exception("Erreur: Champ requis manquant - $field");
             }
+        }
+
+        if (!is_numeric($params['amount']) || $params['amount'] <= 0) {
+            throw new Exception("Erreur: Le montant doit être un nombre positif.");
         }
     }
 }

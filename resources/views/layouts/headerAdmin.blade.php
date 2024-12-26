@@ -7,7 +7,7 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'home' ? 'active' : '' }}" href="{{ route('home') }}">Accueil</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">Accueil</a>
                 </li>
                 @hasanyrole('super_admin|admin')
                     <li class="nav-item dropdown">

@@ -21,17 +21,17 @@
    <!-- resources/views/checkoutView.blade.php -->
    <div class="container my-5">
         <div class="checkout-container">
-            <!-- Coupon -->
-            <div class="coupon-box" onclick="toggleCouponSection()">
-                Vous avez un coupon ? Cliquez ici pour entrer votre code
-            </div>
-
-            <div class="coupon-section" id="couponSection">
-                <div class="d-flex gap-2 mt-3 mb-4">
-                    <input type="text" name="coupon_code" class="form-control form-custom" placeholder="Code du coupon">
-                    <button type="submit" class="btn btn-orange">Appliquer le coupon</button>
+                <!-- Coupon -->
+                <div class="coupon-box" onclick="toggleCouponSection()">
+                    Vous avez un coupon ? Cliquez ici pour entrer votre code
                 </div>
-            </div>
+
+                <div class="coupon-section" id="couponSection">
+                    <div class="d-flex gap-2 mt-3 mb-4">
+                        <input type="text" name="coupon_code" class="form-control form-custom" placeholder="Code du coupon">
+                        <button type="submit" class="btn btn-orange">Appliquer le coupon</button>
+                    </div>
+                </div>
 
 
             <!-- Formulaire de facturation -->
@@ -117,73 +117,77 @@
                             @enderror
                         </div>
 
-                    <!-- Nouvelle section : Zone desservie -->
-                    <div class="mb-3">
-                        <label for="zone_id" class="form-label">Zone de livraison</label>
-                        <select id="zone_id" name="zone_id" class="form-control form-custom @error('zone_id') is-invalid @enderror">
-                            <option value="">Choisissez votre zone</option>
-                            @foreach($zones as $zone)
-                                <option value="{{ $zone->id }}" {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
-                                    {{ $zone->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('zone_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                   <!-- Nouvelle section : Mode de paiement -->
-                    <div class="mb-3">
-                        <label class="form-label">Mode de paiement</label>
-                        @foreach($payments as $payment)
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="radio"
-                                    id="payment_{{ $payment->id }}"
-                                    name="payment_id"
-                                    value="{{ $payment->id }}"
-                                    {{ old('payment_id') == $payment->id ? 'checked' : '' }}>
-                                <label class="form-check-label" for="payment_{{ $payment->id }}">
-                                    {{ $payment->name }}
-                                </label>
-                            </div>
-                        @endforeach
-                        @error('payment_id')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label for="orderNotes" class="form-label">Notes de commande (facultatif)</label>
-                        <textarea id="orderNotes" name="order_notes" class="form-control form-custom @error('order_notes') is-invalid @enderror" rows="5" placeholder="Notes sur la commande, par ex. instructions de livraison.">{{ old('order_notes') }}</textarea>
-                        @error('order_notes')
-                        <div class="invalid-feedback">
-                            {{ $message }}
+                        <!-- Nouvelle section : Zone desservie -->
+                        <div class="mb-3">
+                            <label for="zone_id" class="form-label">Zone de livraison</label>
+                            <select id="zone_id" name="zone_id" class="form-control form-custom @error('zone_id') is-invalid @enderror">
+                                <option value="">Choisissez votre zone</option>
+                                @foreach($zones as $zone)
+                                    <option value="{{ $zone->id }}" {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
+                                        {{ $zone->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('zone_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-                        @enderror
-                    </div>
 
-                    <div class="alert alert-info mt-3">
-                        Un acompte de <strong>50%</strong> est requis pour confirmer votre commande. Le solde sera réglé à la livraison.
-                    </div>
+                     <!-- Nouvelle section : Mode de paiement -->
+                        <div class="mb-3">
+                            <label class="form-label">Mode de paiement</label>
+                            @foreach($payments as $payment)
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        id="payment_{{ $payment->id }}"
+                                        name="payment_id"
+                                        value="{{ $payment->id }}"
+                                        {{ old('payment_id') == $payment->id ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="payment_{{ $payment->id }}">
+                                        {{ $payment->name }}
+                                    </label>
+                                </div>
+                            @endforeach
+                            @error('payment_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                    <!-- Case à cocher pour conditions générales -->
-                    <div class="form-check mb-3">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="terms"
-                            name="terms"
-                            value="1"
-                            {{ old('terms') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="terms">
-                            J'accepte les <a href="#" target="_blank">conditions générales</a> de vente.
-                        </label>
-                        @error('terms')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <!-- Champ caché pour la gestion Stripe -->
+                        <input type="hidden" id="stripe_payment_intent_id" name="stripe_payment_intent_id">
+
+                        <div class="mb-3">
+                            <label for="orderNotes" class="form-label">Notes de commande (facultatif)</label>
+                            <textarea id="orderNotes" name="order_notes" class="form-control form-custom @error('order_notes') is-invalid @enderror" rows="5" placeholder="Notes sur la commande, par ex. instructions de livraison.">{{ old('order_notes') }}</textarea>
+                            @error('order_notes')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            Un acompte de <strong>50%</strong> est requis pour confirmer votre commande. Le solde sera réglé à la livraison.
+                        </div>
+
+                        <!-- Case à cocher pour conditions générales -->
+                        <div class="form-check mb-3">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="terms"
+                                name="terms"
+                                value="1"
+                                {{ old('terms') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="terms">
+                                J'accepte les <a href="#" target="_blank">conditions générales</a> de vente.
+                            </label>
+                            @error('terms')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
 
                         <button type="submit" class="btn btn-orange mt-3">COMMANDER</button>
                     </form>
@@ -462,5 +466,47 @@
 
 @push('scriptsCheckout')
 <script src="{{ asset('assets/js/global.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const paymentInputs = document.querySelectorAll('input[name="payment_id"]');
+    const stripeIntentInput = document.getElementById('stripe_payment_intent_id');
+
+    let stripe = null;
+
+    // Écoute les changements du mode de paiement
+    paymentInputs.forEach(input => {
+        input.addEventListener('change', async function () {
+            if (this.dataset.paymentName === 'Stripe') {
+                if (!stripe) {
+                    stripe = Stripe('VOTRE_PUBLIC_KEY_STRIPE'); // Clé publique Stripe
+                }
+
+                // Appeler l'API pour créer une intention de paiement
+                const response = await fetch('/api/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        amount: 5000, // Exemple de montant, remplacez par le montant réel
+                        currency: 'usd',
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    stripeIntentInput.value = data.payment_intent_id;
+                } else {
+                    alert(data.message || 'Une erreur est survenue avec Stripe.');
+                }
+            } else {
+                stripeIntentInput.value = '';
+            }
+        });
+    });
+});
+
+</script>
 @endpush
 

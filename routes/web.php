@@ -9,6 +9,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
@@ -70,9 +71,12 @@ Route::get('/orders/success', function () {
     return redirect()->route('customer.orders.index')
         ->with('success', 'Paiement Réussi ! Votre commande a été confirmée avec succès. Merci pour votre achat');
 })->name('customer.orders.success');
+Route::post('/api/create-payment-intent', [MenuController::class, 'createPaymentIntent']);
 
 
 
+
+// Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
 
 Route::middleware(['auth', 'verified','exclude.customer'])->group(function () {
