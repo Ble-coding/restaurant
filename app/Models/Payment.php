@@ -21,4 +21,9 @@ class Payment extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function paymentGateway(): HasMany
+    {
+        return $this->hasMany(PaymentGateway::class);
+    }
 }

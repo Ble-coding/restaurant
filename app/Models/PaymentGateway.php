@@ -29,10 +29,16 @@ class PaymentGateway extends Model
      {
          parent::boot();
 
-         static::creating(function ($gateway) {
-             $gateway->callback_url = url('/payment/cinetpay/callback');
+         static::creating(function ($paymentGateway) {
+             if (Auth::check()) {
+                 $paymentGateway->user_id = Auth::id();
+             }
+
+             // Générer l'URL de retour de paiement
+             $paymentGateway->callback_url = url('/payment/cinetpay/callback');
          });
      }
+
 
     /**
      * Relation avec le modèle User.
@@ -40,6 +46,11 @@ class PaymentGateway extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class);
     }
 }
 

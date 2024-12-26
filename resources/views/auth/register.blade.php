@@ -127,7 +127,7 @@
                         <!-- Bouton S'inscrire -->
                         <div class="d-flex justify-content-between align-items-center mt-4">
                             <div class="view-cart">
-                                <a class="text-decoration-none" href="{{ route('admin.login') }}">Déjà enregistré ?</a>
+                                <a class="text-decoration-none" href="{{ route('login') }}">Déjà enregistré ?</a>
                             </div>
                             <button type="submit" class="btn btn-login">S'inscrire</button>
                         </div>

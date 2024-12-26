@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\Zone;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Http;
 use App\Models\PaymentGateway;
 use App\Models\Category;
 use App\Models\Shipping;
@@ -417,6 +418,16 @@ class MenuController extends Controller
                 return back()->withErrors(['error' => 'Passerelle de paiement non configurée.']);
             }
 
+            // Conversion GBP -> XOF
+            $conversionRate = $this->getConversionRate('GBP', 'XOF');
+            if ($conversionRate <= 0) {
+                return back()->withErrors(['error' => 'Impossible de récupérer le taux de conversion.']);
+            }
+
+            // Calcul du montant total en XOF (entier)
+            $totalXOF = (int) round($total * $conversionRate * 100); // Multiplier par 100 pour les centimes et convertir en entier
+
+
             try {
                 $cinetPay = new CinetPay(
                     $paymentGateway->site_id,
@@ -426,7 +437,7 @@ class MenuController extends Controller
 
                 $cinetPay->setTransaction(
                     $order->code,
-                    $order->total,
+                    $totalXOF,
                     $order->email,
                     $order->phone,
                     "Paiement de la commande {$order->code}",
@@ -449,12 +460,73 @@ class MenuController extends Controller
             }
 
 
+        } else if ($order->payment->name === "Stripe") {
+            $paymentGateway = PaymentGateway::where('name', 'Stripe')->first();
+
+            if (!$paymentGateway) {
+                return back()->withErrors(['error' => 'Passerelle de paiement non configurée.']);
+            }
+
+            // Conversion GBP -> USD (ou toute autre devise prise en charge par Stripe)
+            $conversionRate = $this->getConversionRate('GBP', 'USD'); // Exemple de conversion
+            if ($conversionRate <= 0) {
+                return back()->withErrors(['error' => 'Impossible de récupérer le taux de conversion.']);
+            }
+
+            // Calcul du montant total en USD (en centimes)
+            $totalUSD = (int) round($total * $conversionRate * 100); // Multiplier par 100 pour les centimes
+
+            try {
+                $stripe = new Stripe(
+                    $paymentGateway->api_key,
+                    $paymentGateway->api_secret
+                );
+
+                // Créer le paiement Stripe
+                $paymentIntent = $stripe->initiatePayment([
+                    'amount' => $totalUSD,
+                    'currency' => 'usd', // Changez la devise si nécessaire
+                    'description' => "Paiement de la commande {$order->code}",
+                    'metadata' => [
+                        'order_code' => $order->code,
+                        'email' => $order->email,
+                        'phone' => $order->phone,
+                    ],
+                ]);
+
+                // Récupérer l'URL de confirmation Stripe
+                $paymentUrl = $paymentIntent['next_action']['redirect_to_url']['url'] ?? null;
+
+                if (!$paymentUrl) {
+                    return back()->withErrors(['error' => 'Erreur : URL de paiement non disponible.']);
+                }
+
+                return redirect()->away($paymentUrl);
+
+            } catch (Exception $e) {
+                \Log::error("Stripe Payment Error", ['error' => $e->getMessage()]);
+                return back()->withErrors(['error' => 'Erreur de paiement : ' . $e->getMessage()]);
+            }
         }
 
         // return redirect()->route('menus.index')->with('success', 'Paiement Réussi !. Votre commande a été confirmée avec succès. Merci pour votre achat');
     }
 
+    public function getConversionRate($fromCurrency, $toCurrency)
+    {
+        try {
+            // Appel à une API de conversion monétaire
+            $response = Http::get("https://api.exchangerate-api.com/v4/latest/{$fromCurrency}");
 
+            if ($response->successful() && isset($response['rates'][$toCurrency])) {
+                return $response['rates'][$toCurrency];
+            }
+            return 0; // Taux invalide ou non disponible
+        } catch (Exception $e) {
+            \Log::error("Erreur lors de la récupération du taux de conversion : " . $e->getMessage());
+            return 0; // Retourner un taux invalide en cas d'échec
+        }
+    }
 
     private function calculateTotal(Request $request, $discount)
     {

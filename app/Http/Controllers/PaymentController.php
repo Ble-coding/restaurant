@@ -122,6 +122,7 @@ class PaymentController extends Controller
         // Recherche et pagination
         $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
 
+        $payments = Payment::all();
         $gateways = PaymentGateway::query()
             ->when($search, function ($query) use ($search) {
                 $query->where('api_key', 'like', '%' . $search . '%')
@@ -136,24 +137,18 @@ class PaymentController extends Controller
             $query->whereIn('name', ['admin', 'super_admin']);
         })->get();
 
-        return view('admin.payments.gateway', compact('gateways','users'));
+        return view('admin.payments.gateway', compact('gateways','users','payments'));
     }
 
     public function storeGateway(Request $request)
     {
         $validated = $request->validate([
-            'user_id'    => 'required|exists:users,id',
+            'payment_id' => 'required|exists:payments,id',
             'api_key'    => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('payment_gateways', 'api_key'),
-            ],
-            'site_id'    => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('payment_gateways', 'site_id'),
             ],
             'secret_key' => [
                 'required',
@@ -164,16 +159,32 @@ class PaymentController extends Controller
         ]);
 
         try {
-            DB::beginTransaction(); // Démarre la transaction
+            DB::beginTransaction();  // Démarre la transaction
 
-            PaymentGateway::create(array_merge($validated, [
-                'callback_url' => config('app.url') . '/payment/cinetpay/callback',
-            ]));
+            // Récupère le paiement associé
+            $payment = Payment::findOrFail($validated['payment_id']);
 
-            DB::commit(); // Valide la transaction
+            // Vérifie le paiement et ajuste site_id
+            if ($payment->name === "Stripe") {
+                $validated['site_id'] = "0";
+            } else {
+                $validated['site_id'] = $request->validate([
+                    'site_id' => [
+                        'required',
+                        'string',
+                        'max:255',
+                        Rule::unique('payment_gateways', 'site_id'),
+                    ],
+                ])['site_id'];
+            }
+
+            // Crée la passerelle de paiement
+            PaymentGateway::create($validated);
+
+            DB::commit();  // Valide la transaction
             return back()->with('success', 'Passerelle ajoutée avec succès.');
         } catch (\Exception $e) {
-            DB::rollBack(); // Annule la transaction en cas d'erreur
+            DB::rollBack();  // Annule la transaction en cas d'erreur
             return back()->with('error', 'Une erreur est survenue : ' . $e->getMessage());
         }
     }
@@ -184,19 +195,14 @@ class PaymentController extends Controller
      */
     public function updateGateway(Request $request, PaymentGateway $gateway)
     {
+        // Validation des champs de la requête
         $validated = $request->validate([
-            'user_id'    => 'required|exists:users,id',
+            'payment_id' => 'required|exists:payments,id',
             'api_key'    => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('payment_gateways', 'api_key')->ignore($gateway->id),
-            ],
-            'site_id'    => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('payment_gateways', 'site_id')->ignore($gateway->id),
             ],
             'secret_key' => [
                 'required',
@@ -209,6 +215,24 @@ class PaymentController extends Controller
         try {
             DB::beginTransaction(); // Démarre la transaction
 
+            // Récupère le paiement associé
+            $payment = Payment::findOrFail($validated['payment_id']);
+
+            // Vérifie le paiement et ajuste le site_id
+            if ($payment->name === "Stripe") {
+                $validated['site_id'] = "0";
+            } else {
+                $validated['site_id'] = $request->validate([
+                    'site_id' => [
+                        'required',
+                        'string',
+                        'max:255',
+                        Rule::unique('payment_gateways', 'site_id')->ignore($gateway->id),
+                    ],
+                ])['site_id'];
+            }
+
+            // Met à jour la passerelle de paiement
             $gateway->update($validated);
 
             DB::commit(); // Valide la transaction

@@ -50,7 +50,7 @@ class AuthenticatedSessionController extends Controller
 
         // Si la tentative échoue
         return back()->withErrors([
-            'admin.login' => 'Les informations de connexion sont incorrectes.',
+            'login' => 'Les informations de connexion sont incorrectes.',
         ])->withInput();
     }
 
