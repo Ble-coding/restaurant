@@ -167,6 +167,7 @@ class PaymentController extends Controller
             // Vérifie le paiement et ajuste site_id
             if ($payment->name === "Stripe") {
                 $validated['site_id'] = "0";
+                $validated['callback_url'] = url('/payment/stripe/callback');
             } else {
                 $validated['site_id'] = $request->validate([
                     'site_id' => [
@@ -176,10 +177,11 @@ class PaymentController extends Controller
                         Rule::unique('payment_gateways', 'site_id'),
                     ],
                 ])['site_id'];
+                $validated['callback_url'] = url('/payment/cinetpay/callback');
             }
 
             // Crée la passerelle de paiement
-            PaymentGateway::create($validated);
+            $paymentGateway = PaymentGateway::create($validated);
 
             DB::commit();  // Valide la transaction
             return back()->with('success', 'Passerelle ajoutée avec succès.');
@@ -188,7 +190,6 @@ class PaymentController extends Controller
             return back()->with('error', 'Une erreur est survenue : ' . $e->getMessage());
         }
     }
-
 
     /**
      * Met à jour une passerelle de paiement existante.
@@ -218,18 +219,20 @@ class PaymentController extends Controller
             // Récupère le paiement associé
             $payment = Payment::findOrFail($validated['payment_id']);
 
-            // Vérifie le paiement et ajuste le site_id
+            // Vérifie le paiement et ajuste site_id et callback_url
             if ($payment->name === "Stripe") {
                 $validated['site_id'] = "0";
+                $validated['callback_url'] = url('/payment/stripe/callback');
             } else {
-                $validated['site_id'] = $request->validate([
+                $validated = array_merge($validated, $request->validate([
                     'site_id' => [
                         'required',
                         'string',
                         'max:255',
                         Rule::unique('payment_gateways', 'site_id')->ignore($gateway->id),
                     ],
-                ])['site_id'];
+                ]));
+                $validated['callback_url'] = url('/payment/cinetpay/callback');
             }
 
             // Met à jour la passerelle de paiement
@@ -242,6 +245,7 @@ class PaymentController extends Controller
             return back()->with('error', 'Une erreur est survenue : ' . $e->getMessage());
         }
     }
+
 
      /**
      * Supprime une passerelle de paiement.

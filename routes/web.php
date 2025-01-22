@@ -42,8 +42,8 @@ Route::middleware(['auth:customer'])->group(function () {
 Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('login'); // Affiche le formulaire de connexion
     Route::get('/register', [CustomerAuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [CustomerAuthController::class, 'register'])->name('register');
-    Route::post('/login', [CustomerAuthController::class, 'login'])->name('login');
+    Route::post('/register', [CustomerAuthController::class, 'register'])->name('registerStore');
+    Route::post('/login', [CustomerAuthController::class, 'login'])->name('loginStore');
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->middleware('auth:customer')->name('logout');
 
     Route::get('commandes', [OrderController::class, 'customerOrders'])->name('orders.index');

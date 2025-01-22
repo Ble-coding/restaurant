@@ -144,22 +144,23 @@
 
 
                                         <!-- Champ Secret Key -->
-                                        <div class="col-md-4 mb-3">
-                                            <label for="secret_key" class="form-label">SECRET KEY</label>
-                                            <input type="password"
-                                                   class="form-control form-custom-user"
-                                                   id="secret_key"
-                                                   name="secret_key"
-                                                   value="{{ old('secret_key', $gateway->secret_key) }}">
-                                                   <button type="button"
-                                                        class="btn btn-outline-secondary toggle-visibility"
-                                                        onclick="togglePasswordVisibility('secret_key')">
-                                                    <i class="bi bi-eye" id="toggle-secret_key"></i>
-                                                </button>
-                                            @error('secret_key')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
+                                       <!-- Champ Secret Key -->
+                        <div class="col-md-4 mb-3">
+                            <label for="secret_key_gateway_{{ $gateway->id }}" class="form-label">SECRET KEY</label>
+                            <input type="password"
+                                   class="form-control form-custom-user"
+                                   id="secret_key_gateway_{{ $gateway->id }}"
+                                   name="secret_key"
+                                   value="{{ old('secret_key', $gateway->secret_key) }}">
+                            <button type="button"
+                                    class="btn btn-outline-secondary toggle-visibility"
+                                    onclick="togglePasswordVisibility('secret_key_gateway_{{ $gateway->id }}')">
+                                <i class="bi bi-eye" id="toggle-secret_key_gateway_{{ $gateway->id }}"></i>
+                            </button>
+                            @error('secret_key')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
 
 
@@ -225,6 +226,7 @@
                             <input type="text"
                                    class="form-control form-custom-user me-2"
                                    name="api_key"
+                                   id="api_key_input"
                                    placeholder="API KEY"
                                    value="{{ old('api_key') }}">
                             @error('api_key')
@@ -267,6 +269,12 @@
                             @enderror
                         </div>
 
+                        <!-- Placeholder pour Stripe Elements -->
+                    <div id="stripe_elements_container" style="display: none;">
+                        <label for="card-element" class="form-label">Stripe Payment</label>
+                        <div id="card-element"></div>
+                    </div>
+
 
                         <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
@@ -284,42 +292,113 @@
 
 @push('scripts')
      <script src="{{ asset('assets/js/search.js') }}"></script>
-     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-    // Fonction pour gérer la visibilité d'un champ Site ID
-    const toggleSiteIdVisibility = (paymentSelect, siteIdContainer, stripePaymentId) => {
-        const selectedValue = paymentSelect.value;
-        if (selectedValue === stripePaymentId) {
-            siteIdContainer.style.display = 'none';
-        } else {
-            siteIdContainer.style.display = 'block';
+     {{-- <script>
+     document.addEventListener('DOMContentLoaded', function () {
+            // Fonction pour gérer la visibilité des champs
+            const toggleFieldVisibility = (paymentSelect, siteIdContainer, stripeContainer, stripePaymentId) => {
+                const selectedValue = paymentSelect.value;
+
+                if (selectedValue === stripePaymentId) {
+                    siteIdContainer.style.display = 'none';
+                    stripeContainer.style.display = 'block';
+                } else {
+                    siteIdContainer.style.display = 'block';
+                    stripeContainer.style.display = 'none';
+                }
+            };
+
+            // Gérer le formulaire de création
+            const createFormStripePaymentId = '{{ $payments->firstWhere("name", "Stripe")->id ?? "" }}'; // ID Stripe
+            const createPaymentSelect = document.getElementById('create_payment_id');
+            const createSiteIdContainer = document.getElementById('create_site_id_container');
+            const createStripeContainer = document.getElementById('stripe_elements_container');
+
+            if (createPaymentSelect) {
+                toggleFieldVisibility(
+                    createPaymentSelect,
+                    createSiteIdContainer,
+                    createStripeContainer,
+                    createFormStripePaymentId
+                );
+
+                createPaymentSelect.addEventListener('change', () => {
+                    toggleFieldVisibility(
+                        createPaymentSelect,
+                        createSiteIdContainer,
+                        createStripeContainer,
+                        createFormStripePaymentId
+                    );
+                });
+            }
+
+            // Gérer le formulaire de mise à jour (similaire au formulaire de création)
+            const updateFormStripePaymentId = '{{ $payments->firstWhere("name", "Stripe")->id ?? "" }}'; // ID Stripe
+            const updatePaymentSelect = document.getElementById('update_payment_id');
+            const updateSiteIdContainer = document.getElementById('update_site_id_container');
+            const updateStripeContainer = document.getElementById('update_stripe_elements_container');
+
+            if (updatePaymentSelect) {
+                toggleFieldVisibility(
+                    updatePaymentSelect,
+                    updateSiteIdContainer,
+                    updateStripeContainer,
+                    updateFormStripePaymentId
+                );
+
+                updatePaymentSelect.addEventListener('change', () => {
+                    toggleFieldVisibility(
+                        updatePaymentSelect,
+                        updateSiteIdContainer,
+                        updateStripeContainer,
+                        updateFormStripePaymentId
+                    );
+                });
+            }
+        });
+
+      </script>
+
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stripeApiKey = "{{ $stripeGateway->api_key ?? '' }}";
+        if (!stripeApiKey) {
+            console.error('Stripe API Key manquante');
+            return;
         }
-    };
 
-    // Gérer le formulaire de création
-    const createFormStripePaymentId = '{{ $payments->firstWhere("name", "Stripe")->id ?? "" }}'; // ID Stripe
-    const createPaymentSelect = document.getElementById('create_payment_id');
-    const createSiteIdContainer = document.getElementById('create_site_id_container');
-    if (createPaymentSelect) {
-        toggleSiteIdVisibility(createPaymentSelect, createSiteIdContainer, createFormStripePaymentId);
-        createPaymentSelect.addEventListener('change', () => {
-            toggleSiteIdVisibility(createPaymentSelect, createSiteIdContainer, createFormStripePaymentId);
+        const stripe = Stripe(stripeApiKey);
+        const elements = stripe.elements();
+        const cardElement = elements.create('card', {
+            classes: {
+                base: 'form-control my-2 rounded',
+            },
         });
-    }
+        cardElement.mount('#card-element');
 
-    // Gérer le formulaire de mise à jour
-    const updateFormStripePaymentId = '{{ $payments->firstWhere("name", "Stripe")->id ?? "" }}'; // ID Stripe
-    const updatePaymentSelect = document.getElementById('update_payment_id');
-    const updateSiteIdContainer = document.getElementById('update_site_id_container');
-    if (updatePaymentSelect) {
-        toggleSiteIdVisibility(updatePaymentSelect, updateSiteIdContainer, updateFormStripePaymentId);
-        updatePaymentSelect.addEventListener('change', () => {
-            toggleSiteIdVisibility(updatePaymentSelect, updateSiteIdContainer, updateFormStripePaymentId);
+        const form = document.getElementById('checkout-form');
+        const cardButton = document.getElementById('submit-button');
+
+        cardButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const { paymentMethod, error } = await stripe.createPaymentMethod('card', cardElement);
+
+            if (error) {
+                alert(error.message);
+            } else {
+                const paymentMethodInput = document.createElement('input');
+                paymentMethodInput.type = 'hidden';
+                paymentMethodInput.name = 'payment_method';
+                paymentMethodInput.value = paymentMethod.id;
+                form.appendChild(paymentMethodInput);
+
+                form.submit();
+            }
         });
-    }
-});
+    });
+</script> --}}
 
-     </script>
      <script src="{{ asset('assets/js/global.js') }}"></script>
 @endpush
 

@@ -5,6 +5,7 @@ namespace App\Services;
 use Exception;
 use Illuminate\Support\Facades\Http;
 
+
 class Stripe
 {
     protected string $apiKey;
@@ -24,6 +25,16 @@ class Stripe
         $this->baseUrl = 'https://api.stripe.com/v1';
     }
 
+    public static function fromPaymentGateway($gateway): self
+    {
+        if (!$gateway || !$gateway->api_key || !$gateway->secret_key) {
+            throw new Exception('Configuration Stripe invalide.');
+        }
+
+        return new self($gateway->api_key, $gateway->secret_key);
+    }
+
+
     /**
      * Initialise un paiement et retourne l'intention de paiement.
      *
@@ -31,28 +42,25 @@ class Stripe
      * @return array
      * @throws Exception
      */
-    public function initiatePayment(array $params): array
+     public function initiatePayment(array $params): array
     {
-        // Valider les paramètres nécessaires
+        // Validation des paramètres
         $this->validateParams($params);
 
-        // Préparer le payload pour Stripe
         $payload = [
-            'amount' => $params['amount'], // Montant en centimes
+            'amount' => $params['amount'],
             'currency' => $params['currency'] ?? 'usd',
             'description' => $params['description'],
             'payment_method_types' => ['card'],
-            'metadata' => $params['metadata'] ?? [],
+            'payment_method' => $params['payment_method'] ?? null,
         ];
 
-        // Envoyer la requête à Stripe
-        $response = Http::withBasicAuth($this->apiKey, $this->apiSecret)
+        $response = Http::withBasicAuth($this->apiSecret, '')
+            ->asForm()
             ->post("{$this->baseUrl}/payment_intents", $payload);
 
-        // Gestion des erreurs de l'API Stripe
         if ($response->failed()) {
-            \Log::error("Stripe API error", ['response' => $response->json()]);
-            throw new Exception("Erreur Stripe: " . ($response->json('error.message') ?? 'Une erreur est survenue.'));
+            throw new Exception("Erreur Stripe: " . $response->json('error.message'));
         }
 
         return $response->json();

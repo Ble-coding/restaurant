@@ -21,16 +21,34 @@
                     </li>
                 @endif
 
-                {{-- Pages numérotées --}}
+                {{-- Pages numérotées avec ellipses --}}
                 @if (is_array($element))
                     @foreach ($element as $page => $url)
-                        @if ($page == $paginator->currentPage())
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">{{ $page }}</span>
+                        {{-- Toujours afficher la première et la dernière page --}}
+                        @if ($page == 1 || $page == $paginator->lastPage())
+                            <li class="page-item {{ $page == $paginator->currentPage() ? 'active' : '' }}">
+                                @if ($page == $paginator->currentPage())
+                                    <span class="page-link">{{ $page }}</span>
+                                @else
+                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                @endif
                             </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                        {{-- Afficher les pages autour de la page active --}}
+                        @elseif (
+                            $page >= $paginator->currentPage() - 1 &&
+                            $page <= $paginator->currentPage() + 1
+                        )
+                            <li class="page-item {{ $page == $paginator->currentPage() ? 'active' : '' }}">
+                                @if ($page == $paginator->currentPage())
+                                    <span class="page-link">{{ $page }}</span>
+                                @else
+                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                @endif
+                            </li>
+                        {{-- Ajouter des ellipses si nécessaire --}}
+                        @elseif ($page == 2 || $page == $paginator->lastPage() - 1)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
                             </li>
                         @endif
                     @endforeach

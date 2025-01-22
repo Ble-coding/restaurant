@@ -41,7 +41,7 @@
             <div class="col-12 col-md-6">
                 <div class="login-box p-4">
                     <h3>S'inscrire</h3>
-                    <form method="POST" action="{{ route('customer.register') }}">
+                    <form method="POST" action="{{ route('customer.registerStore') }}">
                         @csrf
 
                         @if ($errors->any())

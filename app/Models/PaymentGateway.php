@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Auth;
+
 
 class PaymentGateway extends Model
 {
@@ -18,6 +20,7 @@ class PaymentGateway extends Model
     protected $fillable = [
         'user_id',
         'api_key',
+        'payment_id',
         'site_id',
         'secret_key',
         'callback_url'
@@ -35,7 +38,8 @@ class PaymentGateway extends Model
              }
 
              // Générer l'URL de retour de paiement
-             $paymentGateway->callback_url = url('/payment/cinetpay/callback');
+            //  $paymentGateway->callback_url = url('/payment/cinetpay/callback');
+
          });
      }
 

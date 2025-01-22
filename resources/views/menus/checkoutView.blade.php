@@ -38,7 +38,7 @@
             <div class="row">
                 <div class="col-md-5">
                     <h4 class="mt-3 mb-3">Détails de facturation</h4>
-                    <form action="{{ route('checkout.store') }}" method="POST">
+                    <form id="checkout-form"  action="{{ route('checkout.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="firstName" class="form-label">Prénom</label>
@@ -133,30 +133,37 @@
                             @enderror
                         </div>
 
-                     <!-- Nouvelle section : Mode de paiement -->
-                        <div class="mb-3">
-                            <label class="form-label">Mode de paiement</label>
-                            @foreach($payments as $payment)
-                                <div class="form-check">
-                                    <input
-                                        class="form-check-input"
-                                        type="radio"
-                                        id="payment_{{ $payment->id }}"
-                                        name="payment_id"
-                                        value="{{ $payment->id }}"
-                                        {{ old('payment_id') == $payment->id ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="payment_{{ $payment->id }}">
-                                        {{ $payment->name }}
-                                    </label>
-                                </div>
-                            @endforeach
-                            @error('payment_id')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    <!-- Mode de paiement -->
+                    <div class="mb-3">
+                        <label for="create_payment_id" class="form-label">Mode de paiement</label>
+                        @foreach($payments as $payment)
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input payment-option"
+                                    type="radio"
+                                    id="payment_{{ $payment->id }}"
+                                    name="payment_id"
+                                    value="{{ $payment->id }}"
+                                    data-payment-name="{{ $payment->name }}"
+                                    {{ old('payment_id') == $payment->id ? 'checked' : '' }}>
+                                <label class="form-check-label" for="payment_{{ $payment->id }}">
+                                    {{ $payment->name }}
+                                </label>
+                            </div>
+                        @endforeach
+                        @error('payment_id')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <input type="hidden" id="payment_method" name="payment_method" class="form-control">
 
-                        <!-- Champ caché pour la gestion Stripe -->
-                        <input type="hidden" id="stripe_payment_intent_id" name="stripe_payment_intent_id">
+                    <!-- Conteneur Stripe -->
+                    <div id="stripe_elements_container" style="display: none;">
+                        <label for="card-element" class="form-label">Paiement Stripe</label>
+                        <div id="card-element"></div>
+                    </div>
+
+
 
                         <div class="mb-3">
                             <label for="orderNotes" class="form-label">Notes de commande (facultatif)</label>
@@ -189,7 +196,7 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-orange mt-3">COMMANDER</button>
+                        <button type="submit" id="submit-button" class="btn btn-orange mt-3">COMMANDER</button>
                     </form>
                 </div>
                <!-- Résumé de la commande -->
@@ -468,45 +475,71 @@
 <script src="{{ asset('assets/js/global.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    const paymentInputs = document.querySelectorAll('input[name="payment_id"]');
-    const stripeIntentInput = document.getElementById('stripe_payment_intent_id');
+        const stripeContainer = document.getElementById('stripe_elements_container');
+        const paymentOptions = document.querySelectorAll('.payment-option');
 
-    let stripe = null;
-
-    // Écoute les changements du mode de paiement
-    paymentInputs.forEach(input => {
-        input.addEventListener('change', async function () {
-            if (this.dataset.paymentName === 'Stripe') {
-                if (!stripe) {
-                    stripe = Stripe('VOTRE_PUBLIC_KEY_STRIPE'); // Clé publique Stripe
-                }
-
-                // Appeler l'API pour créer une intention de paiement
-                const response = await fetch('/api/create-payment-intent', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        amount: 5000, // Exemple de montant, remplacez par le montant réel
-                        currency: 'usd',
-                    })
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    stripeIntentInput.value = data.payment_intent_id;
+        paymentOptions.forEach(option => {
+            option.addEventListener('change', function () {
+                // Vérifiez si la méthode de paiement est Stripe
+                if (this.dataset.paymentName === 'Stripe') {
+                    stripeContainer.style.display = 'block'; // Affiche le conteneur Stripe
                 } else {
-                    alert(data.message || 'Une erreur est survenue avec Stripe.');
+                    stripeContainer.style.display = 'none'; // Masque le conteneur Stripe
                 }
-            } else {
-                stripeIntentInput.value = '';
-            }
+            });
         });
+
+        // Si un choix est pré-sélectionné au chargement de la page
+        const selectedOption = document.querySelector('.payment-option:checked');
+        if (selectedOption && selectedOption.dataset.paymentName === 'Stripe') {
+            stripeContainer.style.display = 'block';
+        }
+    });
+</script>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const stripeApiKey = "{{ $stripeGateway->api_key }}"; // Clé API Stripe
+    const stripe = Stripe(stripeApiKey);
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+        classes: {
+            base: 'form-control my-2 rounded',
+        }
+    });
+    cardElement.mount('#card-element');
+
+    const cardButton = document.getElementById('submit-button');
+    cardButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const selectedPaymentOption = document.querySelector('.payment-option:checked');
+        if (selectedPaymentOption && selectedPaymentOption.dataset.paymentName === 'Stripe') {
+            try {
+                // Créer le PaymentMethod avec Stripe
+                const { paymentMethod, error } = await stripe.createPaymentMethod('card', cardElement);
+
+                if (error) {
+                    alert(error.message);
+                    return;
+                }
+
+                // Ajouter l'ID de payment_method à un champ caché
+                document.getElementById('payment_method').value = paymentMethod.id;
+
+                // Soumettre le formulaire au backend
+                document.getElementById('checkout-form').submit();
+            } catch (err) {
+                console.error("Erreur lors de la création du PaymentMethod", err);
+                alert("Une erreur est survenue. Veuillez réessayer.");
+            }
+        } else {
+            alert("Veuillez sélectionner une méthode de paiement valide.");
+        }
     });
 });
-
 </script>
+
+
 @endpush
 

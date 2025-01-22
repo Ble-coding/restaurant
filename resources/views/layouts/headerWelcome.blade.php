@@ -6,32 +6,33 @@
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
-                @if (Route::has('admin.login'))
-                    @auth
-                        <!-- Lien pour les utilisateurs authentifiés -->
-                        <li class="nav-item">
-                            <a class="nav-link {{ Route::currentRouteName() === 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                                Dashboard
-                            </a>
-                        </li>
-                    @else
-                        <!-- Lien pour la connexion -->
-                        <li class="nav-item">
-                            <a class="nav-link {{ Route::currentRouteName() === 'admin.login' ? 'active' : '' }}" href="{{ route('admin.login') }}">
-                                Accès
-                            </a>
-                        </li>
+                @if (Route::has('login'))
+                @auth
+                    <!-- Lien pour les utilisateurs authentifiés -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() === 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                            Dashboard
+                        </a>
+                    </li>
+                @else
+                    <!-- Lien pour la connexion -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() === 'login' ? 'active' : '' }}" href="{{ route('login') }}">
+                            Accès
+                        </a>
+                    </li>
 
-                        <!-- Lien pour l'inscription, si disponible -->
-                        @if (Route::has('register.account'))
-                            <li class="nav-item">
-                                <a class="nav-link {{ Route::currentRouteName() === 'register.account' ? 'active' : '' }}" href="{{ route('register.account') }}">
-                                    Inscription
-                                </a>
-                            </li>
-                        @endif
-                    @endauth
-                @endif
+                    <!-- Lien pour l'inscription, si disponible -->
+                    @if (Route::has('register.account'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::currentRouteName() === 'register.account' ? 'active' : '' }}" href="{{ route('register.account') }}">
+                                Inscription
+                            </a>
+                        </li>
+                    @endif
+                @endauth
+            @endif
+
             </ul>
         </div>
 
