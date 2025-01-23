@@ -95,10 +95,16 @@
                         <div class="swiper-slide">
                             <div class="content">
                                 <h3>{{ $product->name }}</h3>
-                                <p>{{ $product->description }}</p>
+                                <p>
+                                    {{-- {{ $product->description }} --}}
+                                    {{ Str::limit($product->description, 150, '...') }}
+                                </p>
                                 <a class="{{ Route::currentRouteName() === 'menus.index' && request('search') === 'plat' ? 'active' : '' }}" href="{{ route('menus.index') }}?search=plat">Voir le Menu Complet</a>
                             </div>
-                            <img src="{{ asset('storage/' . $product->image) }}" width="555" height="400" alt="{{ $product->name }}">
+                            <img src="{{ asset('storage/' . $product->image) }}"
+                            class="img-fluid"
+                            {{-- width="555" height="400" --}}
+                            alt="{{ $product->name }}">
                         </div>
                     @endforeach
                 </div>
@@ -142,10 +148,17 @@
                         <div class="swiper-slide">
                             <div class="content">
                                 <h3>{{ $product->name }}</h3>
-                                <p>{{ $product->description }}</p>
+                                <p>
+                                    {{-- {{ $product->description }} --}}
+                                    {{ Str::limit($product->description, 150, '...') }}
+                                </p>
+
                                 <a class="{{ Route::currentRouteName() === 'menus.index' && request('search') === 'boisson' ? 'active' : '' }}" href="{{ route('menus.index') }}?search=boisson">Voir les Boissons</a>
                             </div>
-                            <img src="{{ asset('storage/' . $product->image) }}" width="555" height="400" alt="{{ $product->name }}">
+                            <img src="{{ asset('storage/' . $product->image) }}"
+                            class="img-fluid"
+                            {{-- width="555" height="400"  --}}
+                            alt="{{ $product->name }}">
                         </div>
                     @endforeach
                 </div>

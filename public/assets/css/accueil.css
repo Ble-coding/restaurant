@@ -130,6 +130,9 @@ body, html {
     max-height: 40px;
      z-index: 30; /* Place le logo au-dessus de la navbar */
 }
+
+
+
 .hero-section {
     background: url('../images/header/header-gb-back.webp') center/cover no-repeat;
     height: 100vh;

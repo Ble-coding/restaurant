@@ -73,7 +73,10 @@
                                 </div>
                             </div>
                             <p class="menu-item-description">
-                                <span class="texte">{{ $menu->description }}</span>
+                                <span class="texte">
+                                    {{-- {{ $menu->description }} --}}
+                                    {!! nl2br(e($menu->description)) !!}
+                                </span>
                                 <a class="add_cart m-3" href="#" data-id="{{ $menu->id }}">🛒</a>
                                 <span class="texte categories">{{ $menu->category->name }}</span>
                                 <div class="col-md-4">

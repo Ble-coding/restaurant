@@ -69,7 +69,10 @@
                                 </div>
                             </div>
                             <p class="menu-item-description">
-                                <span class="texte">{{ $product->description }}</span>
+                                <span class="texte">
+                                    {!! nl2br(e($product->description)) !!}
+                                    {{-- {{ $product->description }} --}}
+                                </span>
 
                                 <!-- Bouton pour ouvrir le modal de modification -->
                                 {{-- <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $product->id }}"></a> --}}
