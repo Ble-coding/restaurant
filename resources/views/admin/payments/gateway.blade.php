@@ -245,7 +245,8 @@
 
                         <div class="mb-3">
                             <label for="create_payment_id" class="form-label">Paiement Type</label>
-                            <select name="payment_id" id="create_payment_id" class="form-control">
+                            <select name="payment_id" id="create_payment_id" class="form-control
+                            form-custom-user">
                                 @foreach($payments as $payment)
                                     <option value="{{ $payment->id }}" {{ old('payment_id') == $payment->id ? 'selected' : '' }}>
                                         {{ $payment->name }}

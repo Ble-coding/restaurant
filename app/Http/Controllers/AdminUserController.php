@@ -29,7 +29,7 @@ class AdminUserController extends Controller
         if (auth()->user()->hasRole('super_admin')) {
             $excludedRoles = ['super_admin'];
         } elseif (auth()->user()->hasRole('admin')) {
-            $excludedRoles = ['admin', 'super_admin']; // Exclure admin et super_admin
+            $excludedRoles = ['admin', 'super_admin'];
         }
 
         // Nettoyer et récupérer le terme de recherche depuis la requête GET

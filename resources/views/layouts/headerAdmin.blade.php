@@ -62,6 +62,18 @@
                                     Livraison
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() === 'admin.translations.index' ? 'active' : '' }}"
+                                   href="{{ route('admin.translations.index') }}">
+                                    Clé API de Traduction
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ Route::currentRouteName() === 'admin.services.index' ? 'active' : '' }}"
+                                   href="{{ route('admin.services.index') }}">
+                                    Service Clé API Traduction
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 @endhasanyrole

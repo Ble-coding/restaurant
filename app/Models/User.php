@@ -66,6 +66,15 @@ class User extends Authenticatable
         return $this->hasMany(PaymentGateway::class);
     }
 
+    public function translationSettings(): HasMany
+    {
+        return $this->hasMany(TranslationSetting::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(TranslationSetting::class);
+    }
 
     // public function hasRole(string $role): bool
     // {

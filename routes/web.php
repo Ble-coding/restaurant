@@ -18,6 +18,8 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ZoneController;
+use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -89,6 +91,50 @@ Route::middleware(['auth', 'verified','exclude.customer'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // Routes spécifiques au tableau de bord avec CheckRole
     Route::middleware(['role:admin|super_admin|manager|editor|viewer|exclude.customer'])->prefix('admin')->name('admin.')->group(function () {
+
+
+
+    Route::get('translations', [TranslationController::class, 'index'])
+        ->name('translations.index')
+        ->middleware(['permission:view-translations']);
+    Route::post('translations', [TranslationController::class, 'store'])
+        ->name('translations.store')
+        ->middleware(['permission:create-translations']);
+
+
+        Route::get('translations/{translation}/edit', [TranslationController::class, 'edit'])
+        ->name('translations.edit')
+        ->middleware(['permission:edit-translations']);
+
+    Route::put('translations/{translation}', [TranslationController::class, 'update'])
+        ->name('translations.update')
+        ->middleware(['permission:edit-translations']);
+
+
+    Route::delete('translations/{translation}', [TranslationController::class, 'destroy'])
+        ->name('translations.destroy')
+        ->middleware(['permission:delete-translations']);
+
+        // Fonctionnalité de traduction
+        // Route::post('translations/translate', [TranslationController::class, 'translate'])
+        //     ->name('translations.translate')
+        //     ->middleware(['permission:create-translations']);
+
+
+
+            Route::get('services', [ServiceController::class, 'index'])
+                ->name('services.index')
+                ->middleware(['permission:view-services']);
+            Route::post('services', [ServiceController::class, 'store'])
+                ->name('services.store')
+                ->middleware(['permission:create-services']);
+                Route::put('services/{service}', [ServiceController::class, 'update'])
+                ->name('services.update')
+                ->middleware(['permission:edit-services']);
+            Route::delete('services/{service}', [ServiceController::class, 'destroy'])
+                ->name('services.destroy')
+                ->middleware(['permission:delete-services']);
+
 
         Route::get('shippings', [ShippingController::class, 'index'])
             ->name('shippings.index')

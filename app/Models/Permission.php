@@ -34,6 +34,8 @@ class Permission extends SpatiePermission
             'payments',
             'gateways',
             'shippings',
+            'translations',
+            'services',
         ];
     }
 }
