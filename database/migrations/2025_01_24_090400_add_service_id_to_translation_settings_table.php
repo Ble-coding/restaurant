@@ -35,6 +35,6 @@ return new class extends Migration
              // Restaurer la colonne type_id et définir une clé étrangère
              $table->unsignedBigInteger('type_id')->nullable()->after('user_id');
              $table->foreign('type_id')->references('id')->on('services')->onDelete('set null');
-         });
+        });
     }
 };

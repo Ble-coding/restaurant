@@ -121,6 +121,38 @@
                         </li>
                     </ul>
                 </li>
+                <li class="nav-item dropdown menu-item-has-children">
+                    <a class="nav-link fw-medium dropdown-toggle"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        @php
+                            $locale = app()->getLocale();
+                            $languageLabel = $locale === 'fr' ? 'Français' : 'English';
+                            $flagIcon = $locale === 'fr' ? 'fr.png' : 'us.png';
+                        @endphp
+                        <img src="{{ asset('assets/images/header/' . $flagIcon) }}" class="me-1" alt="{{ $languageLabel }}">
+                        {{ $languageLabel }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ route('set.locale', ['locale' => 'fr']) }}">
+                                <img src="{{ asset('assets/images/header/fr.png') }}" class="me-1" alt="Français">
+                                {{ $locale === 'fr' ? __('Français') : __('French') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ route('set.locale', ['locale' => 'en']) }}">
+                                <img src="{{ asset('assets/images/header/us.png') }}" class="me-1" alt="English">
+                                {{ $locale === 'fr' ? __('Anglais') : __('English') }}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
 
 
               <!-- Vérification si vous êtes sur la page des blogs -->

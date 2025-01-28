@@ -19,9 +19,14 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
+
+
+
+Route::get('locale\{lang}', [LocaleController::class, 'setLocale']);
 
 
 // Gestion des erreurs 404

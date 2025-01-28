@@ -9,8 +9,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Blog ID</h1>
-            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
+            <h1>{{ __('blog.show_blog_id') }}</h1>
+            <p>{{ __('blog.show_welcome_message') }}</p>
         </div>
     </div>
 @endsection
@@ -19,6 +19,11 @@
     <div class="container my-5">
         <div class="row">
 
+            @php
+                $locale = app()->getLocale(); // Langue actuelle
+                $title = $locale === 'fr' ? $article->title_fr : $article->title_en;
+                $content = $locale === 'fr' ? $article->content_fr : $article->content_en;
+            @endphp
             <!-- Section principale (texte principal) -->
             <div class="col-md-8">
                 <div class="content-section">
@@ -29,22 +34,22 @@
 
                     <!-- Titre du blog -->
                     <h1 class="blog-title">
-                        {{ $article->title }}
+                        {{ $title }}
                     </h1>
 
                     <!-- Métadonnées -->
                     <div class="blog-meta">
-                        Publié le {{ $article->created_at->format('d M Y') }}  <i class="bi bi-chat"></i> {{ $commentsCount }} {{ Str::plural('commentaire', $commentsCount) }}
+                        {{ __('blog.published_on') }} {{ $article->created_at->format('d M Y') }}  <i class="bi bi-chat"></i> {{ $commentsCount }} {{ trans_choice('blog.comments', $commentsCount) }}
                             <span id="like-count-{{ $article->id }}">
                                 <i class="bi bi-heart-fill"></i>
-                                {{ $article->likes->count() }} {{ Str::plural('Like', $article->likes->count()) }}
+                                {{ $article->likes->count() }} {{ trans_choice('blog.likes', $article->likes->count()) }}
                             </span>
                     </div>
 
                     <!-- Image principale -->
                     <div class="blog-image">
                         @if ($article->image)
-                            <img src="{{ url('storage/' . $article->image) }}" alt="{{ $article->title }}" class="img-fluid">
+                            <img src="{{ url('storage/' . $article->image) }}" alt="{{ __('blog.alt_image', ['title' => $title]) }}" class="img-fluid">
                         @else
                             <img src="{{ asset('assets/images/default-blog.jpg') }}" alt="Image par défaut" class="img-fluid">
                         @endif
@@ -52,7 +57,7 @@
 
                     <!-- Contenu -->
                     <div class="blog-content">
-                        {!! $article->content !!}
+                        {!! $content !!}
                     </div>
                 </div>
 
@@ -61,10 +66,10 @@
                 <!-- Section des commentaires -->
 
                 <div class="comments-section">
-                    <h3 class="comment-title">Commentaires pour cet article</h3>
+                    <h3 class="comment-title">{{ __('blog.comment_section_title') }}</h3>
 
                     @if ($article->comments->isEmpty())
-                        <p  class="comment-item">Aucun commentaire n'a encore été ajouté pour cet article.</p>
+                        <p  class="comment-item">{{ __('blog.no_comments') }}</p>
                     @else
                         <div class="row">
                             @foreach ($article->comments as $comment)
@@ -78,7 +83,7 @@
                                             {{ $comment->content }}
                                         </p>
                                         <p class="comment-date">
-                                            Posté le {{ $comment->created_at->format('d/m/Y à H:i') }}
+                                            {{ __('blog.posted_on') }} {{ $comment->created_at->format('d/m/Y à H:i') }}
                                         </p>
                                     </div>
                                 </div>
@@ -94,20 +99,19 @@
 
                     <!-- Section About -->
                     <div class="about-section mb-5">
-                        <div class="section-titre">À PROPOS</div>
+                        <div class="section-titre">{{ __('blog.about_title') }}</div>
                         <div class="about-image">
-                            <img src="{{ asset('assets/images/team/image1.png') }}" alt="About" class="img-fluid">
+                            <img src="{{ asset('assets/images/team/image1.png') }}" alt="{{ __('blog.about_title') }}" class="img-fluid">
                         </div>
-                        <p class="about-text"> Découvrez nos plats traditionnels, nos boissons naturelles et notre passion pour partager un bout de culture ivoirienne avec vous. Rejoignez-nous pour un voyage culinaire unique et savoureux !
-                        </p>
+                        <p class="about-text">{{ __('blog.about_text') }}</p>
                         <div class="contenu-btn">
-                            <a class="read-more" href="{{ route('home') }}#apropos">Savoir plus</a>
+                            <a class="read-more" href="{{ route('home') }}#apropos">{{ __('blog.about_button') }}</a>
                         </div>
                     </div>
 
                     <!-- Section Connect & Follow -->
                     <div class="connect-section mb-5">
-                        <div class="section-titre">CONNECTEZ-VOUS ET SUIVEZ-VOUS</div>
+                        <div class="section-titre">{{ __('blog.connect_follow_title') }}</div>
                         <div class="social-icons-sidebar">
                             <a href="#"><i class="bi bi-facebook"></i></a>
                             <a href="#"><i class="bi bi-twitter"></i></a>
@@ -121,19 +125,23 @@
 
                     <!-- Section Newsletter -->
                     <div class="newsletter-section mb-5">
-                        <div class="section-titre">NEWSLETTER</div>
-                        <p>Entrez votre adresse email ci-dessous pour vous abonner à ma newsletter</p>
+                        <div class="section-titre">{{ __('blog.newsletter_title') }}</div>
+                        <p>{{ __('blog.newsletter_text') }}</p>
                         <form class="newsletter-form">
-                            <input type="email" class="form-control form-custom-newsletter" placeholder="Votre adresse email...">
+                            <input
+                                type="email"
+                                class="form-control form-custom-newsletter"
+                                placeholder="{{ __('blog.newsletter_placeholder') }}">
                             <div class="contenu-btn">
-                                <button type="submit" class="btn subscribe-btn">S'ABONNER</button>
+                                <button type="submit" class="btn subscribe-btn">{{ __('blog.newsletter_button') }}</button>
                             </div>
                         </form>
                     </div>
 
+
                     <!-- Derniers Blogs -->
                     <div class="latest-posts mb-5">
-                        <div class="section-titre">Derniers Blogs</div>
+                        <div class="section-titre">{{ __('blog.latest_blogs_title') }}</div>
                         @foreach ($latestBlogs as $latestBlog)
                             <a href="{{ route('admin.articles.show', $latestBlog->id) }}">
                                 <div class="post">
@@ -141,7 +149,10 @@
                                     <img src="{{ url('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->title }}">
                                     <div class="post-info">
                                         <!-- Titre dynamique -->
-                                        <h4>{{ $latestBlog->title }}</h4>
+                                        @php
+                                            $title = app()->getLocale() === 'fr' ? $latestBlog->title_fr : $latestBlog->title_en;
+                                        @endphp
+                                        <h4>{{ $title }}</h4>
                                         <!-- Date formatée -->
                                         <p>{{ $latestBlog->created_at->format('d M Y') }}</p>
                                     </div>

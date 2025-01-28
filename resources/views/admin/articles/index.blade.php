@@ -12,6 +12,9 @@
 
 @section('content')
 
+
+
+
 <div class="container my-5">
 
     <div class="search-wrapper">
@@ -48,7 +51,13 @@
             @endif
 
             @foreach ($articles as $article)
-                <div class="col-md-3 col-lg-6 mb-4">
+
+              @php
+                    $locale = app()->getLocale(); // Récupère la langue actuelle (fr ou en)
+                    $title = $locale === 'fr' ? $article->title_fr : $article->title_en;
+                    $content = $locale === 'fr' ? $article->content_fr : $article->content_en;
+                @endphp
+                    <div class="col-md-3 col-lg-6 mb-4">
                     <div class="menu-item p-3">
 
                             <div class="menu-item-image">
@@ -57,14 +66,14 @@
 
                             <div class="menu-item-content">
                                 <div class="menu-item-header">
-                                    <h3 class="menu-item-title"> {{ $article->title }} </h3>
+                                    <h3 class="menu-item-title"> {{ $title}} </h3>
                                     <div class="menu-item-dots"></div>
                                     <div class="menu-item-price">
                                         {{ $article->getTranslatedStatus() }}
                                     </div>
                                 </div>
                                 <p class="menu-item-description">
-                                    <span class="texte">{{ Str::limit(strip_tags($article->content), 100) }}</span>
+                                    <span class="texte">{{ Str::limit(strip_tags($content), 100) }}</span>
 
                                     @canany(['view-articles', 'view-blogs'])
                                     <a class="{{ Route::currentRouteName() === 'admin.articles.index' ? 'active' : '' }}" href="{{ route('admin.articles.show', $article->id) }}">👀

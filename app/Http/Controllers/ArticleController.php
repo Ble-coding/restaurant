@@ -66,29 +66,37 @@ class ArticleController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title_fr' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'content' => 'required|string',
+            'content_fr' => 'required|string',
+            'content_en' => 'required|string',
             'status' => 'required|in:' . implode(',', array_keys(Blog::STATUSES)),
         ]);
 
         // Gérer le téléchargement de l'image
-          $imagePath = $this->handleImageUpload($request);
+        $imagePath = $this->handleImageUpload($request);
 
-        $slug = Blog::generateSlug($validated['title']);
+        // Créer le slug
+        $slug = Blog::generateSlug($validated['title_en']);
+
         // Créer l'article
         Blog::create([
-            'title' => $validated['title'],
+            'title_fr' => $validated['title_fr'],
+            'title_en' => $validated['title_en'],
+            'content_fr' => $validated['content_fr'],
+            'content_en' => $validated['content_en'],
             'category_id' => $validated['category_id'],
-            'content' => $validated['content'],
+            'slug' => $slug,
+            'status' => $validated['status'],
             'image' => $imagePath,
-           'slug' => $slug,
-           'status' => $validated['status'],
         ]);
 
-        return redirect()->route('admin.articles.index')->with('success', 'Article créé avec succès!');
+        return redirect()->route('admin.articles.index')
+        ->with('success', __('blog.article_created'));
     }
+
 
 
     /**
@@ -113,43 +121,83 @@ class ArticleController extends Controller
     // Méthode pour afficher le formulaire d'édition d'un article
     public function edit(Blog $article)
     {
+         // Charger les statuts traduits
+        $statuses = trans('blog.statuses');
         $categories = Category::all();
-        return view('admin.articles.edit', compact('article','categories'));
+        return view('admin.articles.edit', compact('article','categories','statuses'));
     }
 
     /**
      * Update the specified resource in storage.
      */
+    // public function update(Request $request, Blog $article)
+    // {
+    //     // Validation des données
+    //     $validated = $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'category_id' => 'required|exists:categories,id',
+    //         'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    //         'content' => 'required|string',
+    //         'status' => 'required|in:' . implode(',', array_keys(Blog::STATUSES)),
+    //     ]);
+
+    //     $imagePath = $this->handleImageUpload($request, $article->image);
+
+    //     // Générer un nouveau slug si le titre a changé
+    //     $slug = $validated['title'] !== $article->title
+    //     ? Blog::generateSlug($validated['title'])
+    //     : $article->slug;
+
+    //     // Mettre à jour l'article
+    //     $article->update([
+    //         'title' => $validated['title'],
+    //         'category_id' => $validated['category_id'],
+    //         'content' => $validated['content'],
+    //         'image' => $imagePath,
+    //         'slug' => $slug,
+    //         'status' => $validated['status'],
+    //     ]);
+
+    //     return redirect()->route('admin.articles.index')->with('success', 'Article mis à jour avec succès!');
+    // }
+
     public function update(Request $request, Blog $article)
     {
         // Validation des données
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title_fr' => 'required|string|max:255',
+            'title_en' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'content' => 'required|string',
+            'content_fr' => 'required|string',
+            'content_en' => 'required|string',
             'status' => 'required|in:' . implode(',', array_keys(Blog::STATUSES)),
         ]);
 
+        // Gérer le téléchargement de l'image (remplace l'ancienne si une nouvelle est fournie)
         $imagePath = $this->handleImageUpload($request, $article->image);
 
-        // Générer un nouveau slug si le titre a changé
-        $slug = $validated['title'] !== $article->title
-        ? Blog::generateSlug($validated['title'])
-        : $article->slug;
+        // Générer un nouveau slug si le titre en anglais a changé
+        $slug = $validated['title_en'] !== $article->title_en
+            ? Blog::generateSlug($validated['title_en'])
+            : $article->slug;
 
         // Mettre à jour l'article
         $article->update([
-            'title' => $validated['title'],
+            'title_fr' => $validated['title_fr'],
+            'title_en' => $validated['title_en'],
+            'content_fr' => $validated['content_fr'],
+            'content_en' => $validated['content_en'],
             'category_id' => $validated['category_id'],
-            'content' => $validated['content'],
             'image' => $imagePath,
             'slug' => $slug,
             'status' => $validated['status'],
         ]);
 
-        return redirect()->route('admin.articles.index')->with('success', 'Article mis à jour avec succès!');
+        return redirect()->route('admin.articles.index')
+        ->with('success', __('blog.updated'));
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -164,7 +212,8 @@ class ArticleController extends Controller
         // Supprimer l'article
         $article->delete();
 
-        return redirect()->route('admin.articles.index')->with('success', 'Article supprimé avec succès!');
+        return redirect()->route('admin.articles.index')
+        ->with('success', __('blog.article_deleted'));
     }
 
     public function storeComment(Request $request, Blog $article)
@@ -182,7 +231,9 @@ class ArticleController extends Controller
         // dd($request);
         $article->comments()->create($validated);
 
-        return redirect()->route('admin.articles.show', $blog->id)->with('success', 'Votre commentaire a été ajouté avec succès.');
+        return redirect()->route('admin.articles.show', $blog->id)
+        ->with('success', __('blog.comment_added'));
+        // ->with('success', 'Votre commentaire a été ajouté avec succès.');
     }
 
 

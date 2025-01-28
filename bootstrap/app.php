@@ -21,9 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'exclude.customer' => \App\Http\Middleware\ExcludeCustomer::class,
         ]);
 
-        // $middleware->web(append: [
-        //     \App\Http\Middleware\CheckRole::class,
-        // ]);
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
 
     })
     ->withExceptions(function (Exceptions $exceptions) {

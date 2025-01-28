@@ -13,11 +13,18 @@ class Blog extends Model
 
     // Définir les champs remplissables
     protected $fillable = [
-        'title',
+        // 'title',
+
+        'title_fr',
+        'title_en',
+        'content_fr',
+        'content_en',
+
+
         'category_id',
         'slug',
         'status',
-        'content',
+        // 'content',
         'image',
     ];
 
@@ -36,9 +43,14 @@ class Blog extends Model
      *
      * @return string
      */
+    // public function getTranslatedStatus(): string
+    // {
+    //     return self::STATUSES[$this->status] ?? 'Statut inconnu';
+    // }
+
     public function getTranslatedStatus(): string
     {
-        return self::STATUSES[$this->status] ?? 'Statut inconnu';
+        return trans('blog.statuses.' . $this->status);
     }
 
      /**
