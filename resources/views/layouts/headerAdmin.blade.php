@@ -9,7 +9,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() === 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">Accueil</a>
                 </li>
-                @hasanyrole('super_admin|admin')
+                @hasanyrole('super_administrator|administrator')
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), ['admin.users.index', 'admin.roles.index', 'admin.permissions.index', 'admin.coupons.index']) ? 'active' : '' }}"
                            href="#"
@@ -62,7 +62,7 @@
                                     Livraison
                                 </a>
                             </li>
-                            <li>
+                            {{-- <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.translations.index' ? 'active' : '' }}"
                                    href="{{ route('admin.translations.index') }}">
                                     Clé API de Traduction
@@ -73,7 +73,7 @@
                                    href="{{ route('admin.services.index') }}">
                                     Service Clé API Traduction
                                 </a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </li>
                 @endhasanyrole
@@ -138,14 +138,14 @@
                     <ul class="dropdown-menu">
                         <li>
                             <a class="dropdown-item"
-                               href="{{ route('set.locale', ['locale' => 'fr']) }}">
+                               href="{{ route('set.locale', ['lang' => 'fr']) }}">
                                 <img src="{{ asset('assets/images/header/fr.png') }}" class="me-1" alt="Français">
                                 {{ $locale === 'fr' ? __('Français') : __('French') }}
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item"
-                               href="{{ route('set.locale', ['locale' => 'en']) }}">
+                               href="{{ route('set.locale', ['lang' => 'en']) }}">
                                 <img src="{{ asset('assets/images/header/us.png') }}" class="me-1" alt="English">
                                 {{ $locale === 'fr' ? __('Anglais') : __('English') }}
                             </a>

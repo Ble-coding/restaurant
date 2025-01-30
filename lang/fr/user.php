@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'title' => 'Utilisateurs',
+    'dashboard_welcome' => 'Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.',
+    'search_placeholder' => 'Rechercher par nom...',
+    'success' => 'Succès!',
+    'error' => 'Erreur!',
+    'edit_user' => "Modifier l'utilisateur : :name",
+    'delete_user' => "Supprimer l'utilisateur : :name",
+    'delete_confirmation' => "Confirmez-vous la suppression de :name ?",
+    'cancel' => 'Annuler',
+    'delete' => 'Supprimer',
+    'update' => 'Modifier',
+    'register' => 'Enregistrement',
+    'submit' => 'Soumettre',
+    'full_name' => 'Nom complet',
+    'email' => 'Adresse email',
+    'phone' => 'Téléphone',
+    'roles' => 'Rôle(s)',
+    'password' => 'Mot de passe',
+    'password_confirmation' => 'Confirmer le mot de passe',
+    'edit' => '✏️',
+    'delete_icon' => '🗑️',
+    'new_password' => '(laisser vide pour ne pas modifier)',
+    'roles_permissions' => 'Rôles (permissions) :',
+    "choose_roles"=> "Choisissez les rôles",
+];

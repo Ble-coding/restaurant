@@ -4,8 +4,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Catégorie</h1>
-            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
+            <h1>{{ __('category.title') }}</h1>
+            <p>{{ __('category.welcome_message') }}</p>
         </div>
     </div>
 @endsection
@@ -22,7 +22,7 @@
                     id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher..."
+                    placeholder="{{ __('category.search_placeholder') }}"
                     value="{{ request()->get('search') }}"
                 >
             </form>
@@ -53,7 +53,10 @@
                         <div class="menu-item p-3">
                             <div class="menu-item-content">
                                 <div class="menu-item-header">
-                                    <h3 class="menu-item-title">{{ $category->name }}</h3>
+                                    <h3 class="menu-item-title">
+                                        {{-- {{ $category->name }} --}}
+                                        {{ $category->getTranslation('name', app()->getLocale()) }}
+                                    </h3>
                                     <div class="menu-item-dots"></div>
                                 </div>
                                 <p class="menu-item-description">
@@ -74,22 +77,35 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel{{ $category->id }}">Modifier la catégorie : {{ $category->code }}</h5>
+                                    <h5 class="modal-title" id="editModalLabel{{ $category->id }}">{{ __('category.edit_category', ['code' => $category->code]) }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form method="POST" action="{{ route('admin.categories.update', $category->id) }}">
                                         @csrf
                                         @method('PUT')
+
+                                        <!-- Champ pour le libellé en français -->
                                         <div class="mb-3">
-                                            <label for="name" class="form-label">Libellé</label>
-                                            <input type="text" class="form-control" name="name" value="{{ old('name', $category->name) }}">
-                                            @error('name')
+                                            <label for="name_fr" class="form-label">{{ __('category.category_fr') }}</label>
+                                            <input type="text" class="form-control form-custom-user" name="name[fr]" value="{{ old('name.fr', $category->getTranslation('name', 'fr')) }}">
+                                            @error('name.fr')
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                        <button type="submit" class="btn view-cart">Mettre à jour</button>
+
+                                        <!-- Champ pour le libellé en anglais -->
+                                        <div class="mb-3">
+                                            <label for="name_en" class="form-label">{{ __('category.category_en') }}</label>
+                                            <input type="text" class="form-control form-custom-user" name="name[en]" value="{{ old('name.en', $category->getTranslation('name', 'en')) }}">
+                                            @error('name.en')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <button type="submit" class="btn view-cart">{{ __('category.update') }}</button>
                                     </form>
+
                                 </div>
                             </div>
                         </div>
@@ -100,18 +116,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ $category->id }}">Supprimer la catégorie</h5>
+                                    <h5 class="modal-title" id="deleteModalLabel{{ $category->id }}">{{ __('category.delete_category') }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Êtes-vous sûr de vouloir supprimer la catégorie <strong>{{ $category->name }}</strong> ?</p>
+                                    <p>{{ __('category.delete_confirmation', ['name' => $category->name]) }}</p>
                                 </div>
                                 <div class="modal-footer">
                                     <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('category.cancel') }}</button>
+                                        <button type="submit" class="btn btn-danger">{{ __('category.delete') }}</button>
                                     </form>
                                 </div>
                             </div>
@@ -133,23 +149,40 @@
         @can('create-categories')
             <div class="col-md-6">
                 <div class="cart-container-width">
-                    <h3>Créer une catégorie de blog</h3>
+                    <h3>{{ __('category.create_title') }}</h3>
                     <hr>
                     <form method="POST" action="{{ route('admin.categories.store') }}">
                         @csrf
 
                         <!-- Champ Code -->
-                        <div class="mb-3">
+                        {{-- <div class="mb-3">
                             <label for="name" class="form-label">Catégorie</label>
                             <input type="text" class="form-control form-custom-user" name="name" placeholder="Libellé" value="{{ old('name') }}">
                             @error('name')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div> --}}
+
+                        <div class="mb-3">
+                            <label for="name_fr" class="form-label">{{ __('category.category_fr') }}</label>
+                            <input type="text" class="form-control form-custom-user" name="name[fr]" placeholder="{{ __('category.label_fr') }}" value="{{ old('name.fr') }}">
+                            @error('name.fr')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <!-- Champ pour la traduction en anglais -->
+                        <div class="mb-3">
+                            <label for="name_en" class="form-label">{{ __('category.category_en') }}</label>
+                            <input type="text" class="form-control form-custom-user" name="name[en]" placeholder="{{ __('category.label_en') }}" value="{{ old('name.en') }}">
+                            @error('name.en')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
-                            <button type="submit" class="view-cart">Soumettre</button>
+                            <button type="submit" class="view-cart">{{ __('category.submit') }}</button>
                         </div>
                     </form>
                 </div>

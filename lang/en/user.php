@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'title' => 'Users',
+    'dashboard_welcome' => 'Welcome to the dashboard, your control center where you can view important information and manage your settings.',
+    'search_placeholder' => 'Search by name...',
+    'success' => 'Success!',
+    'error' => 'Error!',
+    'edit_user' => "Edit user: :name",
+    'delete_user' => "Delete user: :name",
+    'delete_confirmation' => "Do you confirm the deletion of :name?",
+    'cancel' => 'Cancel',
+    'delete' => 'Delete',
+    'update' => 'Update',
+    'register' => 'Registration',
+    'submit' => 'Submit',
+    'full_name' => 'Full name',
+    'email' => 'Email address',
+    'phone' => 'Phone',
+    'roles' => 'Role(s)',
+    'password' => 'Password',
+    'password_confirmation' => 'Confirm password',
+    'edit' => '✏️',
+    'delete_icon' => '🗑️',
+    'new_password' => '(leave empty to keep the current one)',
+    'roles_permissions' => 'Roles (permissions):',
+    "choose_roles"=> "Choose roles",
+];

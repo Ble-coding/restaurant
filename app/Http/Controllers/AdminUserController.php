@@ -26,12 +26,11 @@ class AdminUserController extends Controller
 
         // Détermine les rôles à exclure selon le rôle de l'utilisateur connecté
         $excludedRoles = [];
-        if (auth()->user()->hasRole('super_admin')) {
-            $excludedRoles = ['super_admin'];
-        } elseif (auth()->user()->hasRole('admin')) {
-            $excludedRoles = ['admin', 'super_admin'];
+        if (auth()->user()->hasRole('super_administrator')) {
+            $excludedRoles = ['super_administrator'];
+        } elseif (auth()->user()->hasRole('administrator')) {
+            $excludedRoles = ['administrator', 'super_administrator']; // Exclure admin et super_admin
         }
-
         // Nettoyer et récupérer le terme de recherche depuis la requête GET
         $search = trim($request->get('search'));
 

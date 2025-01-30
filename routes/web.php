@@ -25,8 +25,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
-Route::get('locale\{lang}', [LocaleController::class, 'setLocale']);
+Route::get('locale/{lang}', [LocaleController::class, 'setLocale'])->name('set.locale');
 
 
 // Gestion des erreurs 404
@@ -95,7 +94,7 @@ Route::middleware(['auth', 'verified','exclude.customer'])->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Routes spécifiques au tableau de bord avec CheckRole
-    Route::middleware(['role:admin|super_admin|manager|editor|viewer|exclude.customer'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['role:administrator|super_administrator|manager|editor|viewer|exclude.customer'])->prefix('admin')->name('admin.')->group(function () {
 
 
 
@@ -419,7 +418,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             });
     // Gestion des utilisateurs accessible à Admin et SuperAdmin
-    Route::middleware(['role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['role:administrator|super_administrator'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', AdminUserController::class);
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

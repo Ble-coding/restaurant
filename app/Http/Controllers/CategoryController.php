@@ -44,13 +44,21 @@ class CategoryController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            // 'name' => 'required|string|max:255',
+            'name' => 'required|array', // Le champ 'name' doit être un tableau
+            'name.*' => 'required|string|max:255',
         ]);
 
         // Créer une nouvelle catégorie
-        Category::create($validated);
+        // Category::create($validated);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Catégorie créée avec succès!');
+          // Créer une nouvelle catégorie avec les traductions
+        $category = new Category();
+        $category->setTranslations('name', $validated['name']);
+        $category->save();
+
+        return redirect()->route('admin.categories.index')
+        ->with('success', __('category.success.created'));
     }
     /**
      * Display the specified resource.
@@ -75,14 +83,18 @@ class CategoryController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|array',
+            'name.*' => 'required|string|max:255',
         ]);
 
-        // Mettre à jour la catégorie
-        $category->update($validated);
+        // Mettre à jour les traductions de la catégorie
+        $category->setTranslations('name', $validated['name']);
+        $category->save();
 
-        return redirect()->route('admin.categories.index')->with('success', 'Catégorie mise à jour avec succès!');
+        return redirect()->route('admin.categories.index')
+        ->with('success', __('category.success.updated'));
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -90,8 +102,19 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         // Supprimer la catégorie (vérifier si des articles y sont associés)
-        $category->delete();
+        // $category->delete();
 
-        return redirect()->route('admin.categories.index')->with('success', 'Catégorie supprimée avec succès!');
+        // return redirect()->route('admin.categories.index')->with('success', 'Catégorie supprimée avec succès!');
+
+
+        try {
+            $category->delete();
+            return redirect()->route('admin.categories.index')
+                ->with('success', __('category.success.deleted'));
+        } catch (\Exception $e) {
+            return redirect()->route('admin.categories.index')
+                ->with('error', __('category.error.delete_failed'));
+        }
+
     }
 }

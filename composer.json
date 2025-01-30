@@ -11,6 +11,8 @@
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
         "spatie/laravel-permission": "^6.10",
+        "spatie/laravel-translatable": "^6.9",
+        "stichoza/google-translate-php": "^5.2",
         "stripe/stripe-php": "^16.4"
     },
     "require-dev": {

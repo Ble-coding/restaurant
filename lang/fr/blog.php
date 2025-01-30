@@ -75,6 +75,17 @@ return [
 
     'comment_added' => 'Votre commentaire a été ajouté avec succès.',
 
+     // Traductions pour la page et le tableau de bord
+     'dashboard_title' => 'Blogs',
+     'dashboard_welcome_message' => 'Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.',
+     'search_placeholder' => 'Rechercher...',
+
+     // Modale de suppression
+     'delete_modal_title' => 'Confirmer la suppression',
+     'delete_modal_body' => 'Êtes-vous sûr de vouloir supprimer l\'article <strong>:title</strong> ? Cette action est irréversible.',
+     'delete_modal_cancel_button' => 'Annuler',
+     'delete_modal_confirm_button' => 'Supprimer',
+
 
 
 ];

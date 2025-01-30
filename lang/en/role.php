@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'title' => 'Roles',
+    'welcome_message' => 'Welcome to the dashboard, your control center where you can view important information and manage your settings.',
+    'search_placeholder' => 'Search by name...',
+    'permissions' => 'Permissions',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    'confirm_delete' => 'Confirm deletion',
+    'delete_message' => 'Are you sure you want to delete the role :name? This action is irreversible.',
+    'cancel' => 'Cancel',
+    'submit' => 'Submit',
+    // 'role_label' => 'Label',
+    'role_label_fr' => 'Label (French)',
+    'role_label_en' => 'Label (English)',
+    'create_role' => 'Create a role',
+    'edit_role' => 'Editing role :name',
+    'success_message' => 'Operation successful!',
+    'error_message' => 'An error occurred!',
+    'choose_permissions' => 'Choose permissions',
+    'choose_roles' => 'Choose roles',
+    'choose_user' => 'Choose a user',
+    'choose_status' => 'Choose a status...',
+];

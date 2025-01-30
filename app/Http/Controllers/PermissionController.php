@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Permission;
 // use Spatie\Permission\Models\Permission;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Artisan;
 
@@ -27,7 +30,8 @@ class PermissionController extends Controller
             $query->where(function ($subQuery) use ($search) {
                 $subQuery->where('name', 'like', '%' . $search . '%') // Rechercher dans le nom
                          ->orWhere('guard_name', 'like', '%' . $search . '%') // Rechercher dans guard_name
-                         ->orWhere('translation', 'like', '%' . $search . '%'); // Rechercher dans translation
+                         ->orWhere('name_fr', 'like', '%' . $search . '%')
+                         ->orWhere('name_en', 'like', '%' . $search . '%'); // Rechercher dans translation
             });
         })
         ->orderBy('created_at', 'desc') // Trier par date de création descendante
@@ -96,34 +100,63 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'action' => 'required|string|in:create,view,edit,delete',
-            'resource' => 'required|string|in:' . implode(',', Permission::getResources()),
+            'action' => ['required', 'string', Rule::in(['create', 'view', 'edit', 'delete'])],
+            'resource' => ['required', 'string', Rule::in(array_keys(Permission::getResources()))],
         ]);
 
-        // Construit le nom de la permission
+        // 🔹 **Construire le nom de la permission**
         $name = strtolower($validatedData['action'] . '-' . $validatedData['resource']);
 
-        // Vérifie si la permission existe déjà
+        // 🔹 **Vérifie si la permission existe déjà**
         if (Permission::where('name', $name)->exists()) {
-            return redirect()->back()->withErrors(['name' => 'Cette permission existe déjà.']);
+            return redirect()->back()->withErrors(['name' => __('permission.already_exists')]);
         }
 
-        // Obtenir les correspondances `guard_name` et `translation`
-        $guardMapping = $this->getPermissionMapping();
-        $guardName = $guardMapping[$name]['guard'] ?? 'web'; // Valeur par défaut : 'web'
-        $translation = $guardMapping[$name]['translation'] ?? ucfirst($name); // Valeur par défaut : ucfirst
+        // 📌 **Définition des actions en FR et EN**
+        $actions = [
+            'create' => ['fr' => 'Créer', 'en' => 'Create'],
+            'view' => ['fr' => 'Voir', 'en' => 'View'],
+            'edit' => ['fr' => 'Modifier', 'en' => 'Edit'],
+            'delete' => ['fr' => 'Supprimer', 'en' => 'Delete'],
+        ];
 
-        \Log::info("Guard Name: $guardName, Translation: $translation");
+        // 📌 **Obtenir les ressources traduites dynamiquement**
+        $resources = Permission::getTranslatedResources();
 
-        // Crée la permission
+        // 📌 **Récupérer les traductions manuelles ou par défaut**
+        $actionFr = $actions[$validatedData['action']]['fr'] ?? ucfirst($validatedData['action']);
+        $actionEn = $actions[$validatedData['action']]['en'] ?? ucfirst($validatedData['action']);
+
+        $resourceFr = $resources[$validatedData['resource']] ?? ucfirst($validatedData['resource']);
+        $resourceEn = ucfirst($validatedData['resource']);
+
+        // 🔹 **Construire les noms traduits**
+        $nameFr = "$actionFr $resourceFr"; // Ex: "Créer Utilisateurs"
+        $nameEn = "$actionEn $resourceEn"; // Ex: "Create Users"
+
+        // 🔹 **Traduction automatique avec Google Translate**
+        $translator = new GoogleTranslate();
+
+        // **🔹 Adapter la phrase traduite pour correspondre à l'action et à la ressource**
+        $sentenceEn = "$actionEn $resourceEn";
+        $sentenceFr = $translator->setSource('en')->setTarget('fr')->translate($sentenceEn);
+
+        // 📌 **Log des traductions**
+        Log::info("Création de permission - FR: $nameFr | EN: $nameEn | FR Trad: $sentenceFr | EN Trad: $sentenceEn");
+
+        // 📌 **Créer la permission**
         Permission::create([
             'name' => $name,
-            'guard_name' => $guardName,
-            'translation' => $translation,
+            'name_fr' => $nameFr,
+            'name_en' => $nameEn,
+            'guard_name' => 'web',
+            'translation_fr' => $sentenceFr,
+            'translation_en' => $sentenceEn,
         ]);
 
-        // Redirige avec un message de succès
-        return redirect()->route('admin.permissions.index')->with('success', 'Permission créée avec succès.');
+        // ✅ **Redirection avec message de succès traduit**
+        return redirect()->route('admin.permissions.index')
+            ->with('success', __('permission.created_success'));
     }
 
 
@@ -140,7 +173,6 @@ class PermissionController extends Controller
      */
     public function edit(Permission $permission)
     {
-
         return view('admin.permissions.edit', compact('permission'));
     }
 
@@ -184,38 +216,68 @@ class PermissionController extends Controller
     //             ->with('success', 'Permission mise à jour avec succès');
 
     // }
+
     public function update(Request $request, Permission $permission)
     {
-        // Valider les données de la requête
         $validatedData = $request->validate([
-            'action' => 'required|string|in:create,view,edit,delete',
-            'resource' => 'required|string|in:' . implode(',', Permission::getResources()),
+            'action' => ['required', 'string', Rule::in(['create', 'view', 'edit', 'delete'])],
+            'resource' => ['required', 'string', Rule::in(array_keys(Permission::getResources()))],
         ]);
 
-        // Construire le champ `name` en combinant `action` et `resource`
+        // 🔹 **Construire le slug de la permission (ex: create-users)**
         $name = strtolower($validatedData['action'] . '-' . $validatedData['resource']);
 
-        // Vérifier l'unicité du champ `name`, en excluant l'ID actuel
-        $request->validate([
-            'name' => 'string|max:255|unique:permissions,name,' . $permission->id,
-        ]);
+        // 🔹 **Vérifier si la permission existe déjà pour un autre ID**
+        if (Permission::where('name', $name)->where('id', '!=', $permission->id)->exists()) {
+            return redirect()->back()->withErrors(['name' => __('permission.already_exists')]);
+        }
 
-        // Obtenir les correspondances `guard_name` et `translation`
-        $guardMapping = $this->getPermissionMapping();
-        $guardName = $guardMapping[$name]['guard'] ?? $permission->guard_name; // Utiliser l'ancien guard_name si non trouvé
-        $translation = $guardMapping[$name]['translation'] ?? ucfirst($name); // Utiliser l'ancien translation si non trouvé
+        // 📌 **Définition des actions en FR et EN**
+        $actions = [
+            'create' => ['fr' => 'Créer', 'en' => 'Create'],
+            'view' => ['fr' => 'Voir', 'en' => 'View'],
+            'edit' => ['fr' => 'Modifier', 'en' => 'Edit'],
+            'delete' => ['fr' => 'Supprimer', 'en' => 'Delete'],
+        ];
 
-        // Mettre à jour les informations de la permission
+        // 📌 **Obtenir les ressources traduites dynamiquement**
+        $resources = Permission::getTranslatedResources();
+
+        // 📌 **Récupérer les traductions manuelles ou par défaut**
+        $actionFr = $actions[$validatedData['action']]['fr'] ?? ucfirst($validatedData['action']);
+        $actionEn = $actions[$validatedData['action']]['en'] ?? ucfirst($validatedData['action']);
+
+        $resourceFr = $resources[$validatedData['resource']] ?? ucfirst($validatedData['resource']);
+        $resourceEn = ucfirst($validatedData['resource']);
+
+        // 🔹 **Construire les noms traduits**
+        $nameFr = "$actionFr $resourceFr"; // Ex: "Créer Utilisateurs"
+        $nameEn = "$actionEn $resourceEn"; // Ex: "Create Users"
+
+        // 🔹 **Traduction automatique avec Google Translate**
+        $translator = new GoogleTranslate();
+
+        // **🔹 Adapter la phrase traduite pour correspondre à l'action et à la ressource**
+        $sentenceEn = "$actionEn $resourceEn";
+        $sentenceFr = $translator->setSource('en')->setTarget('fr')->translate($sentenceEn);
+
+        // 📌 **Log des traductions**
+        Log::info("Mise à jour de permission - FR: $nameFr | EN: $nameEn | FR Trad: $sentenceFr | EN Trad: $sentenceEn");
+
+        // 📌 **Mettre à jour la permission**
         $permission->update([
             'name' => $name,
-            'guard_name' => $guardName,
-            'translation' => $translation,
+            'name_fr' => $nameFr,
+            'name_en' => $nameEn,
+            'guard_name' => 'web',
+            'translation_fr' => $sentenceFr,
+            'translation_en' => $sentenceEn,
         ]);
 
-        // Redirection avec un message de succès
-        return redirect()->route('admin.permissions.index')->with('success', 'Permission modifiée avec succès.');
+        // ✅ **Redirection avec message de succès traduit**
+        return redirect()->route('admin.permissions.index')
+            ->with('success', __('permission.updated_success'));
     }
-
 
     /**
      * Remove the specified resource from storage.
@@ -229,89 +291,90 @@ class PermissionController extends Controller
         Artisan::call('permission:cache-reset');
 
 
-        return redirect()->route('admin.permissions.index')->with('success', 'Permission supprimée avec succès');
+        return redirect()->route('admin.permissions.index')
+        ->with('success', __('permission.deleted_success'));
     }
 
 
-    private function getPermissionMapping(): array
-    {
-        // Récupérer les permissions depuis la base de données
-        $permissions = \DB::table('permissions')->get(['name', 'guard_name']);
+    // private function getPermissionMapping(): array
+    // {
+    //     // Récupérer les permissions depuis la base de données
+    //     $permissions = \DB::table('permissions')->get(['name', 'guard_name']);
 
-        // Si des permissions existent dans la base de données, les mapper dynamiquement
-        if ($permissions->isNotEmpty()) {
-            return $permissions->mapWithKeys(function ($permission) {
-                return [
-                    $permission->name => [
-                        'guard' => $permission->guard_name,
-                        'translation' => ucfirst($permission->name), // Par défaut : capitalisation du nom
-                    ],
-                ];
-            })->toArray();
-        }
+    //     // Si des permissions existent dans la base de données, les mapper dynamiquement
+    //     if ($permissions->isNotEmpty()) {
+    //         return $permissions->mapWithKeys(function ($permission) {
+    //             return [
+    //                 $permission->name => [
+    //                     'guard' => $permission->guard_name,
+    //                     'translation' => ucfirst($permission->name), // Par défaut : capitalisation du nom
+    //                 ],
+    //             ];
+    //         })->toArray();
+    //     }
 
-        // Si la table des rôles est vide, retourner le tableau par défaut
+    //     // Si la table des rôles est vide, retourner le tableau par défaut
 
-        return [
-            // Utilisateurs
-            'create-users' => ['guard' => 'web', 'translation' => 'Créer des utilisateurs'],
-            'view-users' => ['guard' => 'web', 'translation' => 'Voir les utilisateurs'],
-            'edit-users' => ['guard' => 'web', 'translation' => 'Modifier des utilisateurs'],
-            'delete-users' => ['guard' => 'web', 'translation' => 'Supprimer des utilisateurs'],
+    //     return [
+    //         // Utilisateurs
+    //         'create-users' => ['guard' => 'web', 'translation' => 'Créer des utilisateurs'],
+    //         'view-users' => ['guard' => 'web', 'translation' => 'Voir les utilisateurs'],
+    //         'edit-users' => ['guard' => 'web', 'translation' => 'Modifier des utilisateurs'],
+    //         'delete-users' => ['guard' => 'web', 'translation' => 'Supprimer des utilisateurs'],
 
-            // Rôles
-            'create-roles' => ['guard' => 'web', 'translation' => 'Créer des rôles'],
-            'view-roles' => ['guard' => 'web', 'translation' => 'Voir les rôles'],
-            'edit-roles' => ['guard' => 'web', 'translation' => 'Modifier des rôles'],
-            'delete-roles' => ['guard' => 'web', 'translation' => 'Supprimer des rôles'],
+    //         // Rôles
+    //         'create-roles' => ['guard' => 'web', 'translation' => 'Créer des rôles'],
+    //         'view-roles' => ['guard' => 'web', 'translation' => 'Voir les rôles'],
+    //         'edit-roles' => ['guard' => 'web', 'translation' => 'Modifier des rôles'],
+    //         'delete-roles' => ['guard' => 'web', 'translation' => 'Supprimer des rôles'],
 
-            // Permissions
-            'create-permissions' => ['guard' => 'web', 'translation' => 'Créer des permissions'],
-            'view-permissions' => ['guard' => 'web', 'translation' => 'Voir les permissions'],
-            'edit-permissions' => ['guard' => 'web', 'translation' => 'Modifier des permissions'],
-            'delete-permissions' => ['guard' => 'web', 'translation' => 'Supprimer des permissions'],
+    //         // Permissions
+    //         'create-permissions' => ['guard' => 'web', 'translation' => 'Créer des permissions'],
+    //         'view-permissions' => ['guard' => 'web', 'translation' => 'Voir les permissions'],
+    //         'edit-permissions' => ['guard' => 'web', 'translation' => 'Modifier des permissions'],
+    //         'delete-permissions' => ['guard' => 'web', 'translation' => 'Supprimer des permissions'],
 
-            // Coupons
-            'create-coupons' => ['guard' => 'web', 'translation' => 'Créer des coupons'],
-            'view-coupons' => ['guard' => 'web', 'translation' => 'Voir les coupons'],
-            'edit-coupons' => ['guard' => 'web', 'translation' => 'Modifier des coupons'],
-            'delete-coupons' => ['guard' => 'web', 'translation' => 'Supprimer des coupons'],
+    //         // Coupons
+    //         'create-coupons' => ['guard' => 'web', 'translation' => 'Créer des coupons'],
+    //         'view-coupons' => ['guard' => 'web', 'translation' => 'Voir les coupons'],
+    //         'edit-coupons' => ['guard' => 'web', 'translation' => 'Modifier des coupons'],
+    //         'delete-coupons' => ['guard' => 'web', 'translation' => 'Supprimer des coupons'],
 
-            // Produits
-            'create-products' => ['guard' => 'web', 'translation' => 'Créer des produits'],
-            'view-products' => ['guard' => 'web', 'translation' => 'Voir les produits'],
-            'edit-products' => ['guard' => 'web', 'translation' => 'Modifier des produits'],
-            'delete-products' => ['guard' => 'web', 'translation' => 'Supprimer des produits'],
+    //         // Produits
+    //         'create-products' => ['guard' => 'web', 'translation' => 'Créer des produits'],
+    //         'view-products' => ['guard' => 'web', 'translation' => 'Voir les produits'],
+    //         'edit-products' => ['guard' => 'web', 'translation' => 'Modifier des produits'],
+    //         'delete-products' => ['guard' => 'web', 'translation' => 'Supprimer des produits'],
 
-            // Commandes
-            'create-orders' => ['guard' => 'web', 'translation' => 'Créer des commandes'],
-            'view-orders' => ['guard' => 'web', 'translation' => 'Voir les commandes'],
-            'edit-orders' => ['guard' => 'web', 'translation' => 'Modifier des commandes'],
-            'delete-orders' => ['guard' => 'web', 'translation' => 'Supprimer des commandes'],
+    //         // Commandes
+    //         'create-orders' => ['guard' => 'web', 'translation' => 'Créer des commandes'],
+    //         'view-orders' => ['guard' => 'web', 'translation' => 'Voir les commandes'],
+    //         'edit-orders' => ['guard' => 'web', 'translation' => 'Modifier des commandes'],
+    //         'delete-orders' => ['guard' => 'web', 'translation' => 'Supprimer des commandes'],
 
-            // Blogs
-            'create-blogs' => ['guard' => 'web', 'translation' => 'Créer des articles de blog'],
-            'view-blogs' => ['guard' => 'web', 'translation' => 'Voir les articles de blog'],
-            'edit-blogs' => ['guard' => 'web', 'translation' => 'Modifier des articles de blog'],
-            'delete-blogs' => ['guard' => 'web', 'translation' => 'Supprimer des articles de blog'],
+    //         // Blogs
+    //         'create-blogs' => ['guard' => 'web', 'translation' => 'Créer des articles de blog'],
+    //         'view-blogs' => ['guard' => 'web', 'translation' => 'Voir les articles de blog'],
+    //         'edit-blogs' => ['guard' => 'web', 'translation' => 'Modifier des articles de blog'],
+    //         'delete-blogs' => ['guard' => 'web', 'translation' => 'Supprimer des articles de blog'],
 
-            // Menus
-            'create-menus' => ['guard' => 'web', 'translation' => 'Créer des menus'],
-            'view-menus' => ['guard' => 'web', 'translation' => 'Voir les menus'],
-            'edit-menus' => ['guard' => 'web', 'translation' => 'Modifier des menus'],
-            'delete-menus' => ['guard' => 'web', 'translation' => 'Supprimer des menus'],
+    //         // Menus
+    //         'create-menus' => ['guard' => 'web', 'translation' => 'Créer des menus'],
+    //         'view-menus' => ['guard' => 'web', 'translation' => 'Voir les menus'],
+    //         'edit-menus' => ['guard' => 'web', 'translation' => 'Modifier des menus'],
+    //         'delete-menus' => ['guard' => 'web', 'translation' => 'Supprimer des menus'],
 
-            // Tableau de bord
-            'access-dashboard' => ['guard' => 'web', 'translation' => 'Accéder au tableau de bord'],
+    //         // Tableau de bord
+    //         'access-dashboard' => ['guard' => 'web', 'translation' => 'Accéder au tableau de bord'],
 
-            // Paramètres
-            'manage-settings' => ['guard' => 'web', 'translation' => 'Gérer les paramètres'],
+    //         // Paramètres
+    //         'manage-settings' => ['guard' => 'web', 'translation' => 'Gérer les paramètres'],
 
-            // Rapports
-            'view-reports' => ['guard' => 'web', 'translation' => 'Voir les rapports'],
-            'export-reports' => ['guard' => 'web', 'translation' => 'Exporter les rapports'],
-        ];
-    }
+    //         // Rapports
+    //         'view-reports' => ['guard' => 'web', 'translation' => 'Voir les rapports'],
+    //         'export-reports' => ['guard' => 'web', 'translation' => 'Exporter les rapports'],
+    //     ];
+    // }
 
 
 }

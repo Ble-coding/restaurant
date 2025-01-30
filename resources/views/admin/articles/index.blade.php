@@ -4,9 +4,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Blogs</h1>
-            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
-        </div>
+            <h1>{{ __('blog.dashboard_title') }}</h1>
+            <p>{{ __('blog.dashboard_welcome_message') }}
     </div>
 @endsection
 
@@ -25,7 +24,7 @@
                     id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher..."
+                    placeholder="{{ __('blog.search_placeholder') }}"
                     value="{{ request()->get('search') }}"
                 >
             </form>
@@ -89,7 +88,10 @@
                                     @canany(['delete-articles', 'delete-blogs'])
                                     <a class="add_cart m-3" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $article->id }}">🗑️</a>
                                     @endcanany
-                                    <span class="menu-badge">{{ $article->category->name }}</span>
+                                    <span class="menu-badge">
+                                        {{ $article->category ? $article->category->getTranslation('name', app()->getLocale()) : __('messages.no_category') }}
+                                    </span>
+
                                 </p>
                             </div>
 
@@ -101,21 +103,22 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="deleteModalLabel{{ $article->id }}">Confirmer la suppression</h5>
+                                <h5 class="modal-title" id="deleteModalLabel{{ $article->id }}">{{ __('blog.delete_modal_title') }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>Êtes-vous sûr de vouloir supprimer l'article <strong>{{ $article->title }}</strong> ? Cette action est irréversible.</p>
+                                <p>{!! __('blog.delete_modal_body', ['title' => $article->title]) !!}</p>
                             </div>
                             <div class="modal-footer">
                                 <form method="POST" action="{{ route('admin.articles.destroy', $article->id) }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('blog.delete_modal_cancel_button') }}</button>
+                                    <button type="submit" class="btn btn-danger">{{ __('blog.delete_modal_confirm_button') }}</button>
                                 </form>
                             </div>
                         </div>
+
                     </div>
                 </div>
             @endforeach

@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
+            // 'checkRole' => \App\Http\Middleware\CheckRole::class,
             // 'dynamicPermission' => \App\Http\Middleware\DynamicPermissionMiddleware::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             // 'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,

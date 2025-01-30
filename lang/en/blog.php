@@ -73,4 +73,15 @@ return [
     'article_deleted' => 'Article deleted successfully!',
 
     'comment_added' => 'Your comment has been added successfully.',
+
+     // Translations for the page and dashboard
+     'dashboard_title' => 'Blogs',
+     'dashboard_welcome_message' => 'Welcome to the dashboard, your control center where you can view important information and manage your settings.',
+     'search_placeholder' => 'Search...',
+
+     // Delete modal
+     'delete_modal_title' => 'Confirm Deletion',
+     'delete_modal_body' => 'Are you sure you want to delete the article <strong>:title</strong>? This action is irreversible.',
+     'delete_modal_cancel_button' => 'Cancel',
+     'delete_modal_confirm_button' => 'Delete',
 ];

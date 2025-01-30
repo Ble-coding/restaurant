@@ -4,8 +4,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Roles</h1>
-            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
+            <h1>{{ __('role.title') }}</h1>
+            <p>{{ __('role.welcome_message') }}</p>
         </div>
     </div>
 @endsection
@@ -22,7 +22,7 @@
                     id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher par nom..."
+                    placeholder="{{ __('role.search_placeholder') }}"
                     value="{{ request()->get('search') }}"
                 >
             </form>
@@ -36,25 +36,31 @@
         <div class="row">
             @if(session('success'))
                 <div class="alert alert-success" id="success-alert">
-                    {{ session('success') }}
+                    {{ __('role.success_message') }}
                 </div>
             @endif
             @if($errors->any())
                 <div class="alert alert-danger"  id="error-alert">
                     <ul>
                         @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                             <li>{{ __('role.error_message') }}</li>
                         @endforeach
                     </ul>
                 </div>
             @endif
 
             @foreach ($roles as $role)
+            @php
+                $locale = app()->getLocale(); // Récupère la langue actuelle (fr ou en)
+                $name = $locale === 'fr' ? $role->name_fr : $role->name_en;
+            @endphp
                 <div class="col-md-3 col-lg-6 mb-4">
                     <div class="menu-item p-3">
                         <div class="menu-item-content">
                             <div class="menu-item-header">
-                                <h3 class="menu-item-title">{{ $role->name }}</h3>
+                                <h3 class="menu-item-title">
+                                    {{ $name }}
+                                </h3>
                                 <div class="menu-item-dots"></div>
                                 <div class="menu-item-price">
                                     <span class="menu-badge">
@@ -79,7 +85,7 @@
                                 @endforeach
                             </ul> --}}
                             <p class="menu-item-description">
-                                <span class="texte">{{ $role->translation }}</span>
+                                <span class="texte">{{ $role->name }}</span>
 
                                 <!-- Bouton pour ouvrir le modal de modification -->
                                 @can('edit-roles')
@@ -108,21 +114,37 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="editModalLabel{{ $role->id }}">Modification du rôle: {{ $role->translation }}</h5>
+                                <h5 class="modal-title" id="editModalLabel{{ $role->id }}">{{ __('role.edit_role', ['name' => $role->translation]) }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.roles.update', $role->id) }}">
                                     @csrf
                                     @method('PUT')
-                                    <input type="text" class="form-control form-custom-user me-2" name="name" value="{{ old('name', $role->name) }}" placeholder="Libellé" required>
+                                    {{-- <input type="text" class="form-control form-custom-user me-2" name="name" value="{{ old('name', $role->name) }}" placeholder="{{ __('role.role_label') }}" required>
                                     @error('name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror --}}
+
+                                         <!-- Champ pour le nom en français -->
+                                        <input type="text" class="form-control form-custom-user me-2" name="name_fr" 
+                                        value="{{ old('name_fr', $role->name_fr) }}" 
+                                        placeholder="{{ __('role.role_label_fr') }}" required>
+                                    @error('name_fr')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+
+                                    <!-- Champ pour le nom en anglais -->
+                                    <input type="text" class="form-control form-custom-user me-2" name="name_en" 
+                                        value="{{ old('name_en', $role->name_en) }}" 
+                                        placeholder="{{ __('role.role_label_en') }}" required>
+                                    @error('name_en')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
 
                                     <!-- Sélect multiple des permissions -->
                                     <div class="mb-3">
-                                        <label for="permissions{{ $role->id }}" class="form-label">Permissions</label>
+                                        <label for="permissions{{ $role->id }}" class="form-label">{{ __('role.permissions') }}</label>
                                         <select name="permissions[]" id="permissions{{ $role->id }}" class="form-control" multiple>
                                             @foreach($permissions as $permission)
                                                 <option value="{{ $permission->id }}" {{ $role->permissions->contains($permission->id) ? 'selected' : '' }}>
@@ -135,7 +157,7 @@
                                         @enderror
                                     </div>
                                     <div class="cart-actions mt-4">
-                                        <button type="submit" class="view-cart">Modifier</button>
+                                        <button type="submit" class="view-cart">{{ __('role.edit') }}</button>
                                     </div>
                                 </form>
                             </div>
@@ -149,18 +171,18 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="deleteModalLabel{{ $role->id }}">Confirmer la suppression</h5>
+                                <h5 class="modal-title" id="deleteModalLabel{{ $role->id }}">{{ __('role.confirm_delete') }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>Êtes-vous sûr de vouloir supprimer le rôle <strong>{{ $role->name }}</strong> ? Cette action est irréversible.</p>
+                                <p>{{ __('role.delete_message', ['name' => $role->name]) }}</p>
                             </div>
                             <div class="modal-footer">
                                 <form method="POST" action="{{ route('admin.roles.destroy', $role->id) }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('role.cancel') }}</button>
+                                    <button type="submit" class="btn btn-danger">{{ __('role.delete') }}</button>
                                 </form>
                             </div>
                         </div>
@@ -183,15 +205,28 @@
                 <hr>
                 <form method="POST" action="{{ route('admin.roles.store') }}">
                     @csrf
-                    <input type="text" class="form-control form-custom-user me-2" name="name" placeholder="Libellé">
+                    {{-- <input type="text" class="form-control form-custom-user me-2" name="name" placeholder="{{ __('role.role_label') }}">
                     @error('name')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror --}}
+
+                      <!-- Champ pour le nom en français -->
+                    <input type="text" class="form-control form-custom-user me-2" name="name_fr" placeholder="{{ __('role.role_label_fr') }}" value="{{ old('name_fr') }}" required>
+                    @error('name_fr')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+
+                    <!-- Champ pour le nom en anglais -->
+                    <input type="text" class="form-control form-custom-user me-2" name="name_en" placeholder="{{ __('role.role_label_en') }}" value="{{ old('name_en') }}" required>
+                    @error('name_en')
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
 
 
+
                        <!-- Sélect multiple des permissions -->
                         <div class="mb-3">
-                            <label for="permissions" class="form-label">Permissions</label>
+                            <label for="permissions" class="form-label">{{ __('role.permissions') }}</label>
                             <select name="permissions[]" id="permissions" class="form-control" multiple>
                                 @foreach($permissions as $permission)
                                     <option value="{{ $permission->id }}">{{ $permission->name }}</option>
@@ -202,7 +237,7 @@
                             @enderror
                         </div>
                     <div class="cart-actions mt-4">
-                        <button type="submit" class="view-cart">Soumettre</button>
+                        <button type="submit" class="view-cart">{{ __('role.submit') }}</button>
                     </div>
                 </form>
             </div>

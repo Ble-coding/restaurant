@@ -1,13 +1,13 @@
     $(document).ready(function () {
         $('#permissions').select2({
-            placeholder: "Choisissez les permissions",
+            placeholder: "Permissions",
             allowClear: true,
             theme: 'bootstrap4',  // Assurez-vous que le thème est disponible
             width: '100%',         // Pour occuper toute la largeur du conteneur
         });
 
         $('#roles').select2({
-                placeholder: "Choisissez les rôles", // Texte du placeholder
+                placeholder: "Roles", // Texte du placeholder
                 allowClear: true,                    // Permet de désélectionner
                 theme: 'bootstrap4',                // Thème à utiliser
                 width: '100%'                        // Largeur adaptative
@@ -15,14 +15,14 @@
 
 
         $('#user_id').select2({
-            placeholder: "Choisir un utilisateur", // Texte du placeholder
+            placeholder: "User", // Texte du placeholder
             allowClear: true,                    // Permet de désélectionner
             theme: 'bootstrap4',                // Thème à utiliser
             width: '100%'                        // Largeur adaptative
         });
                   // Initialisation de Select2
         $('#status').select2({
-                placeholder: "Choisissez un statut...", // Placeholder pour le champ
+                placeholder: "Status...", // Placeholder pour le champ
                 allowClear: true,                    // Permet de désélectionner
                 theme: 'bootstrap4',                // Thème à utiliser
                 width: '100%'

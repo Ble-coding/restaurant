@@ -26,10 +26,10 @@ class RoleController extends Controller
 
         // Détermine les rôles à exclure selon le rôle de l'utilisateur connecté
         $excludedRoles = [];
-        if (auth()->user()->hasRole('super_admin')) {
-            $excludedRoles = ['super_admin'];
-        } elseif (auth()->user()->hasRole('admin')) {
-            $excludedRoles = ['admin', 'super_admin']; // Exclure admin et super_admin
+        if (auth()->user()->hasRole('super_administrator')) {
+            $excludedRoles = ['super_administrator'];
+        } elseif (auth()->user()->hasRole('administrator')) {
+            $excludedRoles = ['administrator', 'super_administrator']; // Exclure admin et super_admin
         }
 
         // Récupérer tous les permissions disponibles
@@ -41,7 +41,8 @@ class RoleController extends Controller
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', '%' . $search . '%') // Rechercher dans le nom
                              ->orWhere('guard_name', 'like', '%' . $search . '%') // Rechercher dans guard_name
-                             ->orWhere('translation', 'like', '%' . $search . '%'); // Rechercher dans translation (si ce champ existe)
+                             ->orWhere('name_fr', 'like', '%' . $search . '%')
+                             ->orWhere('name_en', 'like', '%' . $search . '%'); // Rechercher dans translation (si ce champ existe)
                 });
             })
             ->whereNotIn('name', $excludedRoles)
@@ -64,28 +65,61 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // public function store(Request $request)
+    // {
+    //     // Valider les données
+    //     $validatedData = $request->validate([
+    //         'name' => 'required|string|max:255|min:3|unique:roles,name',
+    //         'permissions' => 'array|required', // Les permissions doivent être un tableau
+    //         'permissions.*' => 'integer|exists:permissions,id', // Chaque permission    doit    exister
+    //     ]);
+
+    //     // Convertir le nom en minuscule
+    //     $name = strtolower($validatedData['name']);
+
+    //     // Déterminer le `guard_name` et la traduction (exemple à conserver si pertinent)
+    //     $guardMapping = $this->getGuardMapping();
+    //     $guardName = $guardMapping[$name]['guard'] ?? 'web';
+    //     $translation = $guardMapping[$name]['translation'] ?? ucfirst($name);
+
+    //     // Créer le rôle
+    //     $role = Role::create([
+    //         'name' => $name,
+    //         'guard_name' => $guardName,
+    //         'translation' => $translation,
+    //     ]);
+
+    //     // Attribuer les permissions sélectionnées
+    //     $permissions = Permission::whereIn('id', $validatedData['permissions'])->get();
+    //     $role->givePermissionTo($permissions);
+
+    //     // Rediriger avec un message de succès
+    //     return redirect()->route('admin.roles.index')->with('success', 'Rôle créé avec succès, avec permissions assignées.');
+    // }
+
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         // Valider les données
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255|min:3|unique:roles,name',
+            'name_fr' => 'required|string|max:255|min:3', // Validation pour le nom en français
+            'name_en' => 'required|string|max:255|min:3', // Validation pour le nom en anglais
             'permissions' => 'array|required', // Les permissions doivent être un tableau
             'permissions.*' => 'integer|exists:permissions,id', // Chaque permission doit exister
         ]);
 
-        // Convertir le nom en minuscule
-        $name = strtolower($validatedData['name']);
-
-        // Déterminer le `guard_name` et la traduction (exemple à conserver si pertinent)
-        $guardMapping = $this->getGuardMapping();
-        $guardName = $guardMapping[$name]['guard'] ?? 'web';
-        $translation = $guardMapping[$name]['translation'] ?? ucfirst($name);
+        // Générer le slug à partir de la traduction principale (par exemple, anglais)
+        $slug = strtolower(str_replace(' ', '-', $validatedData['name_en']));
 
         // Créer le rôle
         $role = Role::create([
-            'name' => $name,
-            'guard_name' => $guardName,
-            'translation' => $translation,
+            'name_fr' => $validatedData['name_fr'], // Stocké sous format normal
+            'name_en' => $validatedData['name_en'], // Stocké sous format normal
+            'guard_name' => 'web', // Par défaut
+            'name' => $slug,
+            'user_id' => auth()->id(),
         ]);
 
         // Attribuer les permissions sélectionnées
@@ -95,6 +129,8 @@ class RoleController extends Controller
         // Rediriger avec un message de succès
         return redirect()->route('admin.roles.index')->with('success', 'Rôle créé avec succès, avec permissions assignées.');
     }
+
+
 
     /**
      * Display the specified resource.
@@ -151,33 +187,69 @@ class RoleController extends Controller
     //     return redirect()->route('admin.roles.index')->with('success', 'Rôle mis à jour avec succès, avec permissions assignées.');
     // }
 
+
+
+    // public function update(Request $request, Role $role)
+    // {
+    //     // Affichage de la demande pour la déboguer
+    //     \Log::info("Validation Request Data", $request->all());
+
+    //     // Valider les données
+    //     $validatedData = $request->validate([
+    //         'name' => 'required|string|max:255|min:3|unique:roles,name,' . $role->id, // Exclure l'ID actuel lors de la vérification d'unicité
+    //         'permissions' => 'array|required', // Les permissions doivent être un tableau
+    //         'permissions.*' => 'integer|exists:permissions,id', // Chaque permission doit exister
+    //     ]);
+
+    //     \Log::info("Validated Data", $validatedData);
+
+    //     // Convertir le nom en minuscule
+    //     $name = strtolower($validatedData['name']);
+
+    //     // Déterminer le `guard_name` et la traduction (garder les anciens si non modifiables)
+    //     $guardMapping = $this->getGuardMapping();
+    //     $guardName = $guardMapping[$name]['guard'] ?? $role->guard_name;
+    //     $translation = $guardMapping[$name]['translation'] ?? ucfirst($name);
+
+    //     // Mettre à jour les données du rôle
+    //     $role->update([
+    //         'name' => $name,
+    //         'guard_name' => $guardName,
+    //         'translation' => $translation,
+    //     ]);
+
+    //     // Synchroniser les permissions sélectionnées
+    //     $permissions = Permission::whereIn('id', $validatedData['permissions'])->get();
+    //     $role->syncPermissions($permissions);
+
+    //     // Rediriger avec un message de succès
+    //     return redirect()->route('admin.roles.index')->with('success', 'Rôle mis à jour avec succès, avec permissions assignées.');
+    // }
+
+
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, Role $role)
     {
-        // Affichage de la demande pour la déboguer
-        \Log::info("Validation Request Data", $request->all());
-
         // Valider les données
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255|min:3|unique:roles,name,' . $role->id, // Exclure l'ID actuel lors de la vérification d'unicité
+            'name_fr' => 'required|string|max:255|min:3', // Nom en français obligatoire
+            'name_en' => 'required|string|max:255|min:3', // Nom en anglais obligatoire
             'permissions' => 'array|required', // Les permissions doivent être un tableau
             'permissions.*' => 'integer|exists:permissions,id', // Chaque permission doit exister
         ]);
 
-        \Log::info("Validated Data", $validatedData);
-
-        // Convertir le nom en minuscule
-        $name = strtolower($validatedData['name']);
-
-        // Déterminer le `guard_name` et la traduction (garder les anciens si non modifiables)
-        $guardMapping = $this->getGuardMapping();
-        $guardName = $guardMapping[$name]['guard'] ?? $role->guard_name;
-        $translation = $guardMapping[$name]['translation'] ?? ucfirst($name);
+        // Générer le slug à partir de la version anglaise (ou française si indisponible)
+        $slug = strtolower(str_replace(' ', '-', $validatedData['name_en']));
 
         // Mettre à jour les données du rôle
         $role->update([
-            'name' => $name,
-            'guard_name' => $guardName,
-            'translation' => $translation,
+            'name_fr' => $validatedData['name_fr'], // Mise à jour du nom en français
+            'name_en' => $validatedData['name_en'], // Mise à jour du nom en anglais
+            'name' => $slug, // Mettre à jour le slug
+            'guard_name' => $role->guard_name, // Conserver la valeur existante
+            'user_id' => auth()->id(),
         ]);
 
         // Synchroniser les permissions sélectionnées
@@ -187,6 +259,8 @@ class RoleController extends Controller
         // Rediriger avec un message de succès
         return redirect()->route('admin.roles.index')->with('success', 'Rôle mis à jour avec succès, avec permissions assignées.');
     }
+
+
 
 
 
