@@ -1,7 +1,11 @@
 <?php
 
 return [
+    'created_success' => 'Utilisateur créé avec succès.',
+    'updated_success' => 'Utilisateur mis à jour avec succès.',
+    'deleted_success' => 'Utilisateur supprimé avec succès.',
     'title' => 'Utilisateurs',
+    'forbidden' => 'Vous n\'avez pas la permission de voir cette page.',
     'dashboard_welcome' => 'Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.',
     'search_placeholder' => 'Rechercher par nom...',
     'success' => 'Succès!',

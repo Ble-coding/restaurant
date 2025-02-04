@@ -19,7 +19,7 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         if (!auth()->user()->can('view-payments')) {
-            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+            abort(403, __('payment.forbidden'));
         }
         $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
 
@@ -44,17 +44,37 @@ class PaymentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // public function store(Request $request)
+    // {
+    //         // Validation des données
+    //         $validated = $request->validate([
+    //             'name' => 'required|string|max:255',
+    //         ]);
+
+    //         // Créer une nouvelle catégorie
+    //         Payment::create($validated);
+
+    //         return redirect()->route('admin.payments.index')->with('success', 'Libellé paiement crée avec succès!');
+    // }
+
     public function store(Request $request)
     {
-            // Validation des données
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-            ]);
+        // Validation des données
+        $validated = $request->validate([
+            'name_fr' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
+        ]);
 
-            // Créer une nouvelle catégorie
-            Payment::create($validated);
+        // Création du paiement avec traduction
+        $payment = new Payment();
+        $payment->setTranslations('name', [
+            'fr' => $validated['name_fr'],
+            'en' => $validated['name_en'],
+        ]);
+        $payment->save();
 
-            return redirect()->route('admin.payments.index')->with('success', 'Libellé paiement crée avec succès!');
+        return redirect()->route('admin.payments.index')
+        ->with('success', __('payment.created_success'));
     }
 
 
@@ -77,24 +97,44 @@ class PaymentController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    // public function update(Request $request, Payment $payment)
+    // {
+    //     // Validation des données
+    //     $validated = $request->validate([
+    //         'name' => [
+    //             'required',
+    //             'string',
+    //             'max:255',
+    //             Rule::unique('payments')->ignore($payment->id), // Unicité sauf pour l'ID actuel
+    //         ],
+    //     ]);
+
+    //     // Mettre à jour le paiement
+    //     $payment->update($validated);
+
+    //     // Redirection avec un message de succès
+    //     return redirect()->route('admin.payments.index')->with('success', 'Libellé du paiement mis à jour avec succès!');
+    // }
+
     public function update(Request $request, Payment $payment)
     {
         // Validation des données
         $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('payments')->ignore($payment->id), // Unicité sauf pour l'ID actuel
-            ],
+            'name_fr' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
         ]);
 
-        // Mettre à jour le paiement
-        $payment->update($validated);
+        // Mise à jour des traductions
+        $payment->setTranslations('name', [
+            'fr' => $validated['name_fr'],
+            'en' => $validated['name_en'],
+        ]);
+        $payment->save();
 
-        // Redirection avec un message de succès
-        return redirect()->route('admin.payments.index')->with('success', 'Libellé du paiement mis à jour avec succès!');
+        return redirect()->route('admin.payments.index')
+        ->with('success', __('payment.updated_success'));
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -104,7 +144,9 @@ class PaymentController extends Controller
         // Supprimer la paiement (vérifier si des articles y sont associés)
         $payment->delete();
 
-        return redirect()->route('admin.payments.index')->with('success', 'Libellé paiement supprimé avec succès!');
+        return redirect()->route('admin.payments.index')
+        ->with('success', __('payment.deleted_success'));
+        // ->with('success', 'Libellé paiement supprimé avec succès!');
     }
 
 
@@ -115,7 +157,7 @@ class PaymentController extends Controller
     {
         // Vérification des permissions
         if (!auth()->user()->can('view-gateways')) {
-            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+            abort(403, __('gateway.forbidden'));
         }
 
 
@@ -184,10 +226,10 @@ class PaymentController extends Controller
             $paymentGateway = PaymentGateway::create($validated);
 
             DB::commit();  // Valide la transaction
-            return back()->with('success', 'Passerelle ajoutée avec succès.');
+            return back()->with('success', __('paymentGateway.success_add'));
         } catch (\Exception $e) {
             DB::rollBack();  // Annule la transaction en cas d'erreur
-            return back()->with('error', 'Une erreur est survenue : ' . $e->getMessage());
+            return back()->with('error', __('paymentGateway.error_general', ['message' => $e->getMessage()]));
         }
     }
 
@@ -237,12 +279,11 @@ class PaymentController extends Controller
 
             // Met à jour la passerelle de paiement
             $gateway->update($validated);
-
-            DB::commit(); // Valide la transaction
-            return back()->with('success', 'Passerelle mise à jour avec succès.');
+            DB::commit();  // Valide la transaction
+            return back()->with('success', __('paymentGateway.success_update'));
         } catch (\Exception $e) {
-            DB::rollBack(); // Annule la transaction en cas d'erreur
-            return back()->with('error', 'Une erreur est survenue : ' . $e->getMessage());
+            DB::rollBack();  // Annule la transaction en cas d'erreur
+            return back()->with('error', __('paymentGateway.error_general', ['message' => $e->getMessage()]));
         }
     }
 
@@ -255,7 +296,8 @@ class PaymentController extends Controller
         // Suppression de la passerelle
         $gateway->delete();
 
-        return redirect()->route('admin.gateways.index')->with('success', 'La passerelle de paiement a été supprimée avec succès!');
+        return redirect()->route('admin.gateways.index')
+        ->with('success', __('paymentGateway.success_delete'));
     }
 
 }

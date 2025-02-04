@@ -87,5 +87,17 @@ return [
      'delete_modal_confirm_button' => 'Supprimer',
 
 
+    "blogs" => [
+        "title" => "Nos Blogs",
+        "description" => "Découvrez un blog soigneusement élaboré pour éveiller vos papilles et satisfaire toutes vos envies.",
+    ],
 
+    "name" => "Nom",
+    "email" => "Email",
+    "website" => "Site Web",
+    "phone" => "Téléphone",
+    "phone_placeholder" => "Téléphone",
+    "content" => "Entrez votre commentaire ici...",
+    "save_info" => "Enregistrer mon nom, email et site web dans ce navigateur pour mon prochain commentaire.",
+    "submit" => "Publier le commentaire",
 ];

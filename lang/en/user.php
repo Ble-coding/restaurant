@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Users',
+    'forbidden' => 'You do not have permission to access this page.',
     'dashboard_welcome' => 'Welcome to the dashboard, your control center where you can view important information and manage your settings.',
     'search_placeholder' => 'Search by name...',
     'success' => 'Success!',
@@ -25,4 +26,7 @@ return [
     'new_password' => '(leave empty to keep the current one)',
     'roles_permissions' => 'Roles (permissions):',
     "choose_roles"=> "Choose roles",
+    'created_success' => 'User successfully created.',
+    'updated_success' => 'User successfully updated.',
+    'deleted_success' => 'User successfully deleted.',
 ];

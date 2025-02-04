@@ -7,6 +7,7 @@ return [
     'permissions' => 'Permissions',
     'edit' => 'Modifier',
     'delete' => 'Supprimer',
+    'forbidden' => 'Vous n\'avez pas la permission de voir cette page.',
     'confirm_delete' => 'Confirmer la suppression',
     'delete_message' => 'Êtes-vous sûr de vouloir supprimer le rôle :name ? Cette action est irréversible.',
     'cancel' => 'Annuler',

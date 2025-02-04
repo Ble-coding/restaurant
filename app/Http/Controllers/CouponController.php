@@ -14,7 +14,7 @@ class CouponController extends Controller
     public function index(Request $request)
     {
         if (!auth()->user()->can('view-coupons')) {
-            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+            abort(403, __('coupon.forbidden'));
         }
         // Récupérer les paramètres de recherche
         $search = $request->get('search');
@@ -68,17 +68,23 @@ class CouponController extends Controller
             'discount' => 'required|numeric',
             'type' => 'required|string',
             'expires_at' => 'nullable|date',
+            'description_fr' => 'required|string|max:500',
+            'description_en' => 'required|string|max:500',
         ]);
 
         // Création du coupon avec les données validées
         $coupon = Coupon::create($request->only(['code', 'discount', 'type', 'expires_at']));
 
+
+
         // Définir le statut du coupon en fonction de sa validité
         $coupon->status = $coupon->isValid() ? 'active' : 'inactive';
         $coupon->save(); // Sauvegarder après mise à jour
 
+
         // Rediriger avec un message de succès
-        return redirect()->route('admin.coupons.index')->with('success', 'Coupon créé avec succès.');
+        return redirect()->route('admin.coupons.index')
+        ->with('success', __('coupon.created_success'));
     }
 
 
@@ -120,7 +126,9 @@ class CouponController extends Controller
         $coupon->save(); // Sauvegarder après mise à jour
 
         // Rediriger avec un message de succès
-        return redirect()->route('admin.coupons.index')->with('success', 'Coupon mis à jour avec succès.');
+        return redirect()->route('admin.coupons.index')
+        ->with('success', __('coupon.updated_success'));
+        // ->with('success', 'Coupon mis à jour avec succès.');
     }
 
 
@@ -131,6 +139,8 @@ class CouponController extends Controller
     public function destroy(Coupon $coupon)
     {
         $coupon->delete();
-        return redirect()->route('admin.coupons.index')->with('success', 'Coupon supprimé avec succès.');
+        return redirect()->route('admin.coupons.index')
+        ->with('success', __('coupon.deleted_success'));
+        // ->with('success', 'Coupon supprimé avec succès.');
     }
 }

@@ -12,8 +12,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Nos Blogs</h1>
-            <p>Découvrez un blog soigneusement élaboré pour éveiller vos papilles et satisfaire toutes vos envies.</p>
+            <h1>{{ __('blog.blogs.title') }}</h1>
+            <p>{{ __('blog.blogs.description') }}</p>
         </div>
     </div>
 @endsection
@@ -23,8 +23,8 @@
         <div class="blog-section">
             <div class="container">
                 <div class="section-title">
-                    <h2>Dernières nouvelles de notre blog</h2>
-                    <p>  Découvrez l'univers culinaire africain grâce à nos articles inspirants. </p>
+                    <h2>{{ __('home.blog_latest_news') }}</h2>
+                    <p>{{ __('home.blog_description') }}</p>
                 </div>
 
                 <div class="search-wrapper">
@@ -35,7 +35,7 @@
                                 id="search"
                                 class="search-input"
                                 name="search"
-                                placeholder="Rechercher..."
+                                placeholder="{{ __('blog.search_placeholder') }}"
                                 value="{{ request()->get('search') }}"
                             >
                         </form>
@@ -45,48 +45,59 @@
 
                 <div class="blog-grid">
                     @foreach ($blogs as $blog)
-                            <article class="blog-item">
-                                <a class="{{ Route::currentRouteName() === 'blogs.index' ? 'active' : '' }}" href="{{ route('blogs.show', $blog->id) }}">
-                                    <!-- Lien vers la page du blog -->
-                                    <div class="blog-cadre">
-                                        <div class="blog-image">
-                                            <!-- Image dynamique -->
-                                            <img src="{{ url('storage/' . $blog->image) }}" alt="{{ $blog->title }}">
-                                        </div>
+                    @php
+                        $locale = app()->getLocale(); // Récupère la langue actuelle (fr ou en)
+                        $title = $locale === 'fr' ? $blog->title_fr : $blog->title_en;
+                        $content = $locale === 'fr' ? $blog->content_fr : $blog->content_en;
+
+                        // Définir le format de la date en fonction de la langue
+                        $dateFormat = $locale === 'fr' ? 'd F Y' : 'M d, Y';
+                    @endphp
+                        <article class="blog-item">
+                            <a class="{{ Route::currentRouteName() === 'blogs.index' ? 'active' : '' }}" href="{{ route('blogs.show', $blog->id) }}">
+                            <!-- Lien vers la page du blog -->
+                                <div class="blog-cadre">
+                                    <div class="blog-image">
+                                        <!-- Image dynamique -->
+                                        <img src="{{ url('storage/' . $blog->image) }}" alt="{{ $blog->title }}">
                                     </div>
-                                    <div class="blog-content">
+                                </div>
+                                <div class="blog-content">
                                     <!-- Date formatée -->
-                                    <span class="blog-date">{{ $blog->created_at->format('d M Y') }}</span>
+                                <span class="blog-date">{{ $blog->created_at->locale($locale)->translatedFormat($dateFormat) }}</span>
 
                                     <!-- Titre dynamique -->
                                     <h3 class="blog-title-semi">
-                                        {{ $blog->title }}
+                                        {{ $title}}
+                                        {{-- {{ $blog->title }} --}}
                                         {{-- {{ Str::limit(strip_tags($blog->title), 20) }} --}}
                                     </h3>
 
                                     <!-- Extrait du contenu (limité à 100 caractères) -->
-                                        <p class="blog-excerpt">
-                                            {{ Str::limit(strip_tags($blog->content), 70) }}
-                                        </p>
-                                    </a>
-                                        <!-- Métadonnées statiques (laisser pour l'instant) -->
+                                    <p class="blog-excerpt">
+                                        {{-- {{ Str::limit(strip_tags($blog->content), 70) }} --}}
+                                        {{ Str::limit(strip_tags($content), 70) }}
+                                    </p>
 
-                                        @if(Auth::guard('customer')->check())
-                                            <div class="blog-meta">
-                                                <span class="like-btn" data-post-id="{{ $blog->id }}" style="cursor: pointer;">
-                                                    <i class="bi {{ $blog->likes->contains('customer_id', auth('customer')->id()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
-                                                    <span id="like-count-{{ $blog->id }}">
-                                                        {{ $blog->likes->count() }} {{ Str::plural('Like', $blog->likes->count()) }}
-                                                    </span>
-                                                </span>
-                                                <span><i class="bi bi-chat"></i>  {{ $blog->comments_count }} {{ Str::plural('commentaire', $blog->comments_count) }}</span>
-                                            </div>
-                                        @else
-                                        @endif
+                                </a>
 
-                                    </div>
+                                @if(Auth::guard('customer')->check())
+                                <div class="blog-meta">
+                                    <span class="like-btn" data-post-id="{{ $blog->id }}" style="cursor: pointer;">
+                                        <i class="bi {{ $blog->likes->contains('customer_id', auth('customer')->id()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                                        <span id="like-count-{{ $blog->id }}">
+                                            {{ $blog->likes->count() }} {{ Str::plural('Like', $blog->likes->count()) }}
+                                        </span>
+                                    </span>
+                                    <span><i class="bi bi-chat"></i>  {{ $blog->comments_count }} {{ Str::plural('commentaire', $blog->comments_count) }}</span>
+                                </div>
+                                @else
+                                @endif
 
-                            </article>
+
+                                </div>
+
+                        </article>
                     @endforeach
                 </div>
                 <div class="row">

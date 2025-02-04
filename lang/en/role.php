@@ -12,6 +12,7 @@ return [
     'cancel' => 'Cancel',
     'submit' => 'Submit',
     // 'role_label' => 'Label',
+    'forbidden' => 'You do not have permission to access this page.',
     'role_label_fr' => 'Label (French)',
     'role_label_en' => 'Label (English)',
     'create_role' => 'Create a role',

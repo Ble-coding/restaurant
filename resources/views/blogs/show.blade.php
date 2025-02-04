@@ -10,6 +10,16 @@
 
 @section('content')
     <div class="container mt-5">
+
+        @php
+            $locale = app()->getLocale(); // Langue actuelle
+            $title = $locale === 'fr' ? $blog->title_fr : $blog->title_en;
+            $content = $locale === 'fr' ? $blog->content_fr : $blog->content_en;
+
+                // Définir le format de la date en fonction de la langue
+                 $dateFormat = $locale === 'fr' ? 'd F Y' : 'M d, Y';
+        @endphp
+
         <div class="row">
 
             <!-- Section principale (texte principal) -->
@@ -22,30 +32,30 @@
 
                     <!-- Titre du blog -->
                     <h1 class="blog-title">
-                        {{ $blog->title }}
+                        {{ $title }}
                     </h1>
 
                     <!-- Métadonnées -->
                     <div class="blog-meta">
-                        Publié le {{ $blog->created_at->format('d M Y') }} <i class="bi bi-chat">{{ $commentsCount }} {{ Str::plural('commentaire', $commentsCount) }}</i>
+                        {{ __('blog.published_on') }} {{ $blog->created_at->locale($locale)->translatedFormat($dateFormat) }} <i class="bi bi-chat">{{ $commentsCount }} {{ trans_choice('blog.comments', $commentsCount) }}</i>
                         <span id="like-count-{{ $blog->id }}">
                             <i class="bi bi-heart-fill"></i>
-                            {{ $blog->likes->count() }} {{ Str::plural('Like', $blog->likes->count()) }}
+                            {{ $blog->likes->count() }} {{ trans_choice('blog.likes', $blog->likes->count()) }}
                         </span>
                     </div>
 
                     <!-- Image principale -->
                     <div class="blog-image">
                         @if ($blog->image)
-                            <img src="{{ url('storage/' . $blog->image) }}" alt="{{ $blog->title }}" class="img-fluid">
-                        @else
-                            <img src="{{ asset('assets/images/default-blog.jpg') }}" alt="Image par défaut" class="img-fluid">
-                        @endif
+                        <img src="{{ url('storage/' . $blog->image) }}" alt="{{ __('blog.alt_image', ['title' => $title]) }}" class="img-fluid">
+                    @else
+                        <img src="{{ asset('assets/images/default-blog.jpg') }}" alt="Image par défaut" class="img-fluid">
+                    @endif
                     </div>
 
                     <!-- Contenu -->
                     <div class="blog-content">
-                        {!! $blog->content !!}
+                        {!! $content !!}
                     </div>
                 </div>
 
@@ -72,35 +82,40 @@
                     <form action="{{ route('blogs.storeComment', $blog->id) }}" method="POST" class="comment-form">
                         @csrf
                         <div class="form-row">
-                            <input type="text" name="name" placeholder="Nom" class="form-control form-custom">
+                            <input type="text" name="name" placeholder="{{ __('blog.name') }}" class="form-control form-custom">
                             @error('name') <span class="text-danger">{{ $message }}</span> @enderror
-                            <input type="email" name="email" placeholder="Email" class="form-control form-custom">
+
+                            <input type="email" name="email" placeholder="{{ __('blog.email') }}" class="form-control form-custom">
                             @error('email') <span class="text-danger">{{ $message }}</span> @enderror
-                            <input type="text" name="website" placeholder="Site Web" class="form-control form-custom">
+
+                            <input type="text" name="website" placeholder="{{ __('blog.website') }}" class="form-control form-custom">
                             @error('website') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
+
                         <div class="form-row mt-3 mb-3">
-                            <input type="tel" name="phone" id="phone" placeholder="Téléphone" class="form-control">
+                            <input type="tel" name="phone" id="phone" placeholder="{{ __('blog.phone_placeholder') }}" class="form-control">
                             <input type="hidden" name="country_code" id="country_code" value="{{ old('country_code') }}">
-                            {{-- <input type="hidden" id="country_code{{ $blog->id }}" name="country_code" value="{{ $blog->country_code }}"> --}}
                             @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-row">
-                            <textarea name="content" placeholder="Entrez votre commentaire ici..." class="form-textarea form-custom" ></textarea>
+                            <textarea name="content" placeholder="{{ __('blog.content') }}" class="form-textarea form-custom"></textarea>
                             @error('content') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
+
                         <div class="form-row-check checkbox-row">
-                            <input type="hidden" name="save_info" value="0"> <!-- Champ caché -->
+                            <input type="hidden" name="save_info" value="0">
                             <input type="checkbox" id="save-info" name="save_info" value="1">
                             <label for="save-info">
-                                Enregistrer mon nom, email et site web dans ce navigateur pour mon prochain commentaire.
+                                {{ __('blog.save_info') }}
                             </label>
                         </div>
+
                         <div class="form-row">
-                            <button type="submit" class="submit-btn">Publier le commentaire</button>
+                            <button type="submit" class="submit-btn">{{ __('blog.submit') }}</button>
                         </div>
                     </form>
+
                 </div>
             </div>
 
@@ -110,20 +125,19 @@
 
                     <!-- Section About -->
                     <div class="about-section mb-5">
-                        <div class="section-titre">À PROPOS</div>
+                        <div class="section-titre">{{ __('blog.about_title') }}</div>
                         <div class="about-image">
-                            <img src="{{ asset('assets/images/team/image1.png') }}" alt="About" class="img-fluid">
+                            <img src="{{ asset('assets/images/team/image1.png') }}" alt="{{ __('blog.about_title') }}" class="img-fluid">
                         </div>
-                        <p class="about-text"> Découvrez nos plats traditionnels, nos boissons naturelles et notre passion pour partager un bout de culture ivoirienne avec vous. Rejoignez-nous pour un voyage culinaire unique et savoureux !
-                        </p>
+                        <p class="about-text">{{ __('blog.about_text') }}</p>
                         <div class="contenu-btn">
-                            <a class="read-more" href="{{ route('home') }}#apropos">Savoir plus</a>
+                            <a class="read-more" href="{{ route('home') }}#apropos">{{ __('blog.about_button') }}</a>
                         </div>
                     </div>
 
                     <!-- Section Connect & Follow -->
                     <div class="connect-section mb-5">
-                        <div class="section-titre">CONNECTEZ-VOUS ET SUIVEZ-VOUS</div>
+                        <div class="section-titre">{{ __('blog.connect_follow_title') }}</div>
                         <div class="social-icons-sidebar">
                             <a href="#"><i class="bi bi-facebook"></i></a>
                             <a href="#"><i class="bi bi-twitter"></i></a>
@@ -137,29 +151,35 @@
 
                     <!-- Section Newsletter -->
                     <div class="newsletter-section mb-5">
-                        <div class="section-titre">NEWSLETTER</div>
-                        <p>Entrez votre adresse email ci-dessous pour vous abonner à ma newsletter</p>
+                        <div class="section-titre">{{ __('blog.newsletter_title') }}</div>
+                        <p>{{ __('blog.newsletter_text') }}</p>
                         <form class="newsletter-form">
-                            <input type="email" class="form-control form-custom-newsletter" placeholder="Votre adresse email...">
+                            <input
+                                type="email"
+                                class="form-control form-custom-newsletter"
+                                placeholder="{{ __('blog.newsletter_placeholder') }}">
                             <div class="contenu-btn">
-                                <button type="submit" class="btn subscribe-btn">S'ABONNER</button>
+                                <button type="submit" class="btn subscribe-btn">{{ __('blog.newsletter_button') }}</button>
                             </div>
                         </form>
                     </div>
 
                     <!-- Derniers Blogs -->
                     <div class="latest-posts mb-5">
-                        <div class="section-titre">Derniers Blogs</div>
+                        <div class="section-titre">{{ __('blog.latest_blogs_title') }}</div>
                         @foreach ($latestBlogs as $latestBlog)
-                            <a href="{{ route('blogs.show', $latestBlog->id) }}">
+                            <a href="{{ route('admin.articles.show', $latestBlog->id) }}">
                                 <div class="post">
                                     <!-- Image dynamique -->
                                     <img src="{{ url('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->title }}">
                                     <div class="post-info">
                                         <!-- Titre dynamique -->
-                                        <h4>{{ $latestBlog->title }}</h4>
+                                        @php
+                                            $title = app()->getLocale() === 'fr' ? $latestBlog->title_fr : $latestBlog->title_en;
+                                        @endphp
+                                        <h4>{{ $title }}</h4>
                                         <!-- Date formatée -->
-                                        <p>{{ $latestBlog->created_at->format('d M Y') }}</p>
+                                        <p>{{ $latestBlog->created_at->locale($locale)->translatedFormat($dateFormat) }}</p>
                                     </div>
                                 </div>
                             </a>

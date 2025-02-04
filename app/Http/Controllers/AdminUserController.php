@@ -21,7 +21,7 @@ class AdminUserController extends Controller
     {
         // Vérifie si l'utilisateur a la permission 'view-users'
         if (!auth()->user()->can('view-users')) {
-            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+            abort(403, __('user.forbidden'));
         }
 
         // Détermine les rôles à exclure selon le rôle de l'utilisateur connecté
@@ -95,7 +95,8 @@ class AdminUserController extends Controller
         // Assigner plusieurs rôles
         $user->assignRole($request->roles); // Assigner les rôles passés dans la requête
 
-        return redirect()->route('admin.users.index')->with('success', 'Utilisateur créé avec succès.');
+        return redirect()->route('admin.users.index')
+        ->with('success', __('user.created_success'));
     }
 
 
@@ -150,7 +151,8 @@ class AdminUserController extends Controller
         // Mettre à jour les rôles de l'utilisateur
         $user->syncRoles($request->roles); // Synchroniser avec les rôles reçus dans la requête
 
-        return redirect()->route('admin.users.index')->with('success', 'Utilisateur mis à jour avec succès.');
+        return redirect()->route('admin.users.index')
+        ->with('success', __('user.updated_success'));
     }
 
 
@@ -163,7 +165,8 @@ class AdminUserController extends Controller
         // Supprimer l'utilisateur
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé avec succès.');
+        return redirect()->route('admin.users.index')
+        ->with('success', __('user.deleted_success'));
     }
 
 }

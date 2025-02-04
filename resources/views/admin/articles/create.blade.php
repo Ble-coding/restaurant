@@ -32,7 +32,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                    
+
                             {{-- <h5>{{ __('blog.title_fr') }}</h5> --}}
                             <div class="mb-3">
                                 <label for="title_fr" class="form-label">{{ __('blog.title_fr') }}</label>
@@ -41,7 +41,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                    
+
                             <div class="mb-3">
                                 <label for="category_id" class="form-label">{{ __('blog.category') }}</label>
                                 <select name="category_id" id="category_id" class="form-select form-custom-user">
@@ -56,7 +56,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                    
+
                             <div class="mb-3">
                                 <label for="status" class="form-label">{{ __('blog.status') }}</label>
                                 <select id="status" name="status" class="form-select form-custom-user">
@@ -72,7 +72,7 @@
                                 @enderror
                             </div>
                         </div>
-                    
+
                         <!-- Colonne 2 : Contenu -->
                         <div class="col-md-8">
                             <div class="mb-3">
@@ -90,7 +90,7 @@
                                 @enderror
                             </div>
                         </div>
-                    
+
                         <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
                             @canany(['create-articles', 'create-blogs'])
@@ -98,7 +98,7 @@
                             @endcanany
                         </div>
                     </div>
-                    
+
                 </form>
         </div>
     </div>

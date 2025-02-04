@@ -19,7 +19,7 @@ class RoleController extends Controller
     {
 
         if (!auth()->user()->can('view-roles')) {
-            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+            abort(403, __('role.forbidden'));
         }
         // Nettoyer et récupérer le terme de recherche depuis la requête GET
         $search = trim($request->get('search'));
@@ -127,7 +127,8 @@ class RoleController extends Controller
         $role->givePermissionTo($permissions);
 
         // Rediriger avec un message de succès
-        return redirect()->route('admin.roles.index')->with('success', 'Rôle créé avec succès, avec permissions assignées.');
+        return redirect()->route('admin.roles.index')
+        ->with('success', 'Rôle créé avec succès, avec permissions assignées.');
     }
 
 

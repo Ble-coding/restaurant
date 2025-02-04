@@ -84,4 +84,20 @@ return [
      'delete_modal_body' => 'Are you sure you want to delete the article <strong>:title</strong>? This action is irreversible.',
      'delete_modal_cancel_button' => 'Cancel',
      'delete_modal_confirm_button' => 'Delete',
+
+    "blogs" => [
+        "title" => "Our Blogs",
+        "description" => "Discover a carefully crafted blog to awaken your taste buds and satisfy all your cravings.",
+    ],
+
+
+    "name" => "Name",
+    "email" => "Email",
+    "website" => "Website",
+    "phone" => "Phone",
+    "phone_placeholder" => "Phone",
+    "content" => "Enter your comment here...",
+    "save_info" => "Save my name, email, and website in this browser for my next comment.",
+    "submit" => "Post Comment",
+
 ];

@@ -14,9 +14,10 @@ class StripeServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Stripe::class, function ($app) {
-            // Récupérer la passerelle de paiement Stripe
-            $paymentGateway = PaymentGateway::whereHas('payment', function ($query) {
-                $query->where('name', 'Stripe');
+            $locale = app()->getLocale(); // Récupérer la langue actuelle (fr ou en)
+
+            $paymentGateway = PaymentGateway::whereHas('payment', function ($query) use ($locale) {
+                $query->whereRaw("JSON_EXTRACT(name, '$.$locale') = ?", ['Stripe']);
             })->first();
 
             if (!$paymentGateway) {
@@ -25,6 +26,7 @@ class StripeServiceProvider extends ServiceProvider
 
             return new Stripe($paymentGateway->api_key, $paymentGateway->secret_key);
         });
+
     }
 
     /**

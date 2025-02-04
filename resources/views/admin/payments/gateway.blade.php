@@ -4,8 +4,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Portail</h1>
-            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
+            <h1>{{ __('paymentGateway.title') }}</h1>
+            <p>{{ __('paymentGateway.dashboard_message') }}</p>
         </div>
     </div>
 @endsection
@@ -24,7 +24,7 @@
                     id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher..."
+                    placeholder="{{ __('paymentGateway.search_placeholder') }}"
                     value="{{ request()->get('search') }}"
                 >
             </form>
@@ -63,7 +63,7 @@
                                     <div class="menu-item-dots"></div>
                                     <div class="menu-item-price">
                                         <span class="menu-badge api-key" title="{{ $gateway->api_key }}">
-                                            API KEY ({{ Str::limit($gateway->api_key, 20, '...') }})
+                                            {{ __('paymentGateway.api_key', ['key' => Str::limit($gateway->api_key, 20, '...')]) }}
                                         </span>
 
                                     </div>
@@ -71,7 +71,7 @@
                                 <p class="menu-item-description">
                                     <span class="texte">
                                         @if ($gateway->payment->name !== 'Stripe')
-                                            <span class="menu-badge">SITE ID {{ $gateway->site_id }}</span>
+                                            <span class="menu-badge">{{ __('paymentGateway.site_id', ['id' => $gateway->site_id]) }}</span>
                                         @endif
 
                                     </span>
@@ -102,7 +102,7 @@
                                         <div class="row">
                                                <!-- Champ API Key -->
                                         <div class="col-md-4 mb-3">
-                                            <label for="api_key" class="form-label">API KEY</label>
+                                            <label for="api_key" class="form-label">{{ __('paymentGateway.label_api_key') }}</label>
                                             <input type="text"
                                                    class="form-control form-custom-user"
                                                    id="api_key"
@@ -112,11 +112,10 @@
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
-
-
-                                        <!-- Champ Site ID -->
-                                        <div class="col-md-4 mb-3" id="update_site_id_container">
-                                            <label for="update_site_id" class="form-label">SITE ID</label>
+                                        @if ($gateway->payment->name !== 'Stripe')
+                                          <!-- Champ Site ID -->
+                                          <div class="col-md-4 mb-3" id="update_site_id_container">
+                                            <label for="update_site_id" class="form-label">{{ __('paymentGateway.label_site_id') }}</label>
                                             <input type="text"
                                                 class="form-control form-custom-user"
                                                 id="update_site_id"
@@ -126,11 +125,14 @@
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
+                                        @endif
+
+
 
                                         <!-- Sélect Payment ID -->
                                         <div class="col-md-4 mb-3">
-                                            <label for="update_payment_id" class="form-label">Paiement</label>
-                                            <select name="payment_id" id="update_payment_id" class="form-control">
+                                            <label for="update_payment_id" class="form-label">{{ __('paymentGateway.label_payment') }}</label>
+                                            <select name="payment_id" id="update_payment_id" class="form-control   form-custom-user">
                                                 @foreach($payments as $payment)
                                                     <option value="{{ $payment->id }}" {{ old('payment_id', $gateway->payment_id) == $payment->id ? 'selected' : '' }}>
                                                         {{ $payment->name }}
@@ -142,11 +144,9 @@
                                             @enderror
                                         </div>
 
-
-                                        <!-- Champ Secret Key -->
                                        <!-- Champ Secret Key -->
                         <div class="col-md-4 mb-3">
-                            <label for="secret_key_gateway_{{ $gateway->id }}" class="form-label">SECRET KEY</label>
+                            <label for="secret_key_gateway_{{ $gateway->id }}" class="form-label">{{ __('paymentGateway.label_secret_key') }} </label>
                             <input type="password"
                                    class="form-control form-custom-user"
                                    id="secret_key_gateway_{{ $gateway->id }}"
@@ -168,7 +168,7 @@
 
                                         <!-- Bouton Soumettre -->
                                         <div class="mt-4 text-end">
-                                            <button type="submit" class="btn view-cart">Mettre à jour</button>
+                                            <button type="submit" class="btn view-cart">{{ __('paymentGateway.update_button') }}</button>
                                         </div>
                                     </form>
 
@@ -183,18 +183,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ $gateway->id }}">Supprimer la passerelle de paiement</h5>
+                                    <h5 class="modal-title" id="deleteModalLabel{{ $gateway->id }}">{{ __('paymentGateway.delete_title') }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Êtes-vous sûr de vouloir supprimer la passerelle <strong>{{ $gateway->id }}</strong> ?</p>
+                                    <p>{{ __('paymentGateway.delete_confirmation', ['id' => $gateway->payment->name]) }}</p>
                                 </div>
                                 <div class="modal-footer">
                                     <form method="POST" action="{{ route('admin.gateways.destroy', $gateway->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('paymentGateway.cancel') }}</button>
+                                        <button type="submit" class="btn btn-danger">{{ __('paymentGateway.confirm_delete') }}</button>
                                     </form>
                                 </div>
                             </div>
@@ -216,7 +216,11 @@
         @can('create-gateways')
             <div class="col-md-6">
                 <div class="cart-container-width">
-                    <h3>Créer une passerelle de paiement</h3>
+                    <h3>
+                        {{ __('paymentGateway.create_title') }}
+                        {{-- Créer une passerelle de paiement --}}
+
+                    </h3>
                     <hr>
                     <form method="POST" action="{{ route('admin.gateways.store') }}">
                         @csrf
@@ -227,7 +231,7 @@
                                    class="form-control form-custom-user me-2"
                                    name="api_key"
                                    id="api_key_input"
-                                   placeholder="API KEY"
+                                   placeholder="{{ __('paymentGateway.label_api_key') }}"
                                    value="{{ old('api_key') }}">
                             @error('api_key')
                                 <span class="text-danger">{{ $message }}</span>
@@ -235,7 +239,7 @@
                         </div>
 
                         <div class="mb-3" id="create_site_id_container">
-                            <label for="create_site_id" class="form-label">SITE ID</label>
+                            <label for="create_site_id" class="form-label">{{ __('paymentGateway.label_site_id') }}</label>
                             <input type="text" class="form-control form-custom-user" id="create_site_id" name="site_id"
                                    value="{{ old('site_id') }}">
                             @error('site_id')
@@ -244,7 +248,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="create_payment_id" class="form-label">Paiement Type</label>
+                            <label for="create_payment_id" class="form-label">{{ __('paymentGateway.label_payment') }}</label>
                             <select name="payment_id" id="create_payment_id" class="form-control
                             form-custom-user">
                                 @foreach($payments as $payment)
@@ -264,7 +268,7 @@
                             <input type="password"
                                    class="form-control form-custom-user me-2"
                                    name="secret_key"
-                                   placeholder="SECRET KEY">
+                                   placeholder="{{ __('paymentGateway.label_secret_key') }}">
                             @error('secret_key')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -272,14 +276,15 @@
 
                         <!-- Placeholder pour Stripe Elements -->
                     <div id="stripe_elements_container" style="display: none;">
-                        <label for="card-element" class="form-label">Stripe Payment</label>
+                        <label for="card-element" class="form-label">
+                            {{ __('paymentGateway.stripe_payment') }}</label>
                         <div id="card-element"></div>
                     </div>
 
 
                         <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
-                            <button type="submit" class="view-cart">Soumettre</button>
+                            <button type="submit" class="view-cart"> {{ __('paymentGateway.submit_button') }}</button>
                         </div>
                     </form>
                 </div>
@@ -293,112 +298,6 @@
 
 @push('scripts')
      <script src="{{ asset('assets/js/search.js') }}"></script>
-     {{-- <script>
-     document.addEventListener('DOMContentLoaded', function () {
-            // Fonction pour gérer la visibilité des champs
-            const toggleFieldVisibility = (paymentSelect, siteIdContainer, stripeContainer, stripePaymentId) => {
-                const selectedValue = paymentSelect.value;
-
-                if (selectedValue === stripePaymentId) {
-                    siteIdContainer.style.display = 'none';
-                    stripeContainer.style.display = 'block';
-                } else {
-                    siteIdContainer.style.display = 'block';
-                    stripeContainer.style.display = 'none';
-                }
-            };
-
-            // Gérer le formulaire de création
-            const createFormStripePaymentId = '{{ $payments->firstWhere("name", "Stripe")->id ?? "" }}'; // ID Stripe
-            const createPaymentSelect = document.getElementById('create_payment_id');
-            const createSiteIdContainer = document.getElementById('create_site_id_container');
-            const createStripeContainer = document.getElementById('stripe_elements_container');
-
-            if (createPaymentSelect) {
-                toggleFieldVisibility(
-                    createPaymentSelect,
-                    createSiteIdContainer,
-                    createStripeContainer,
-                    createFormStripePaymentId
-                );
-
-                createPaymentSelect.addEventListener('change', () => {
-                    toggleFieldVisibility(
-                        createPaymentSelect,
-                        createSiteIdContainer,
-                        createStripeContainer,
-                        createFormStripePaymentId
-                    );
-                });
-            }
-
-            // Gérer le formulaire de mise à jour (similaire au formulaire de création)
-            const updateFormStripePaymentId = '{{ $payments->firstWhere("name", "Stripe")->id ?? "" }}'; // ID Stripe
-            const updatePaymentSelect = document.getElementById('update_payment_id');
-            const updateSiteIdContainer = document.getElementById('update_site_id_container');
-            const updateStripeContainer = document.getElementById('update_stripe_elements_container');
-
-            if (updatePaymentSelect) {
-                toggleFieldVisibility(
-                    updatePaymentSelect,
-                    updateSiteIdContainer,
-                    updateStripeContainer,
-                    updateFormStripePaymentId
-                );
-
-                updatePaymentSelect.addEventListener('change', () => {
-                    toggleFieldVisibility(
-                        updatePaymentSelect,
-                        updateSiteIdContainer,
-                        updateStripeContainer,
-                        updateFormStripePaymentId
-                    );
-                });
-            }
-        });
-
-      </script>
-
-
-<script src="https://js.stripe.com/v3/"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const stripeApiKey = "{{ $stripeGateway->api_key ?? '' }}";
-        if (!stripeApiKey) {
-            console.error('Stripe API Key manquante');
-            return;
-        }
-
-        const stripe = Stripe(stripeApiKey);
-        const elements = stripe.elements();
-        const cardElement = elements.create('card', {
-            classes: {
-                base: 'form-control my-2 rounded',
-            },
-        });
-        cardElement.mount('#card-element');
-
-        const form = document.getElementById('checkout-form');
-        const cardButton = document.getElementById('submit-button');
-
-        cardButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const { paymentMethod, error } = await stripe.createPaymentMethod('card', cardElement);
-
-            if (error) {
-                alert(error.message);
-            } else {
-                const paymentMethodInput = document.createElement('input');
-                paymentMethodInput.type = 'hidden';
-                paymentMethodInput.name = 'payment_method';
-                paymentMethodInput.value = paymentMethod.id;
-                form.appendChild(paymentMethodInput);
-
-                form.submit();
-            }
-        });
-    });
-</script> --}}
 
      <script src="{{ asset('assets/js/global.js') }}"></script>
 @endpush

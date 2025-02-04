@@ -1,7 +1,8 @@
 $(document).ready(function () {
     function initializeSummernote(selector, lang = 'en-US') {
+        let placeholderText = lang === 'fr-FR' ? 'Tapez votre contenu ici...' : 'Type your content here...';
         $(selector).summernote({
-            placeholder: 'Tapez votre contenu ici...',
+            placeholder: placeholderText,
             tabsize: 2,
             height: 300,
             toolbar: [

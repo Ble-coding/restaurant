@@ -23,7 +23,13 @@
                 $locale = app()->getLocale(); // Langue actuelle
                 $title = $locale === 'fr' ? $article->title_fr : $article->title_en;
                 $content = $locale === 'fr' ? $article->content_fr : $article->content_en;
+
+                    // Définir le format de la date en fonction de la langue
+                     $dateFormat = $locale === 'fr' ? 'd F Y' : 'M d, Y';
             @endphp
+
+
+
             <!-- Section principale (texte principal) -->
             <div class="col-md-8">
                 <div class="content-section">
@@ -39,7 +45,7 @@
 
                     <!-- Métadonnées -->
                     <div class="blog-meta">
-                        {{ __('blog.published_on') }} {{ $article->created_at->format('d M Y') }}  <i class="bi bi-chat"></i> {{ $commentsCount }} {{ trans_choice('blog.comments', $commentsCount) }}
+                        {{ __('blog.published_on') }} {{ $article->created_at->locale($locale)->translatedFormat($dateFormat) }}  <i class="bi bi-chat"></i> {{ $commentsCount }} {{ trans_choice('blog.comments', $commentsCount) }}
                             <span id="like-count-{{ $article->id }}">
                                 <i class="bi bi-heart-fill"></i>
                                 {{ $article->likes->count() }} {{ trans_choice('blog.likes', $article->likes->count()) }}
@@ -154,7 +160,7 @@
                                         @endphp
                                         <h4>{{ $title }}</h4>
                                         <!-- Date formatée -->
-                                        <p>{{ $latestBlog->created_at->format('d M Y') }}</p>
+                                        <p>{{ $latestBlog->created_at->locale($locale)->translatedFormat($dateFormat) }}</p>
                                     </div>
                                 </div>
                             </a>

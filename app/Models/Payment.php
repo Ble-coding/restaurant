@@ -5,12 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Translatable\HasTranslations;
 
 class Payment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
+    // ;
 
-    protected $fillable = ['name'];
+    // Champs translatables
+    public $translatable = ['name'];
+
+    protected $fillable = ['name'];  //ex paiement en ligne , credit bancaire
 
     /**
      * Get all of the orders for the Payment

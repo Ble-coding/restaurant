@@ -4,8 +4,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Coupons</h1>
-            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
+            <h1>{{ __('coupon.title') }}</h1>
+            <p>{{ __('coupon.dashboard_message') }}</p>
         </div>
     </div>
 @endsection
@@ -41,7 +41,7 @@
                             id="search"
                             class="form-control form-custom-user"
                             name="search"
-                            placeholder="Rechercher par code..."
+                            placeholder="{{ __('coupon.search_placeholder') }}."
                             value="{{ request()->get('search') }}"
                         >
                     </div>
@@ -49,15 +49,15 @@
                     <!-- Filtrer par état (actif/expiré) -->
                     <div class="col-md-4 mb-3">
                         <select name="expired" id="expired" class="form-select form-custom-user">
-                            <option value="">-- Statut d'expiration --</option>
-                            <option value="active" {{ request()->get('expired') === 'active' ? 'selected' : '' }}>Actif</option>
-                            <option value="expired" {{ request()->get('expired') === 'expired' ? 'selected' : '' }}>Expiré</option>
+                            <option value="">{{ __('coupon.status_filter') }}</option>
+                            <option value="active" {{ request()->get('expired') === 'active' ? 'selected' : '' }}>{{ __('coupon.active') }}</option>
+                            <option value="expired" {{ request()->get('expired') === 'expired' ? 'selected' : '' }}>{{ __('coupon.expired') }}</option>
                         </select>
                     </div>
 
                     <!-- Bouton de soumission -->
                     <div class="col-md-2 mb-3 text-end">
-                        <button type="submit" class="btn view-cart">Rechercher</button>
+                        <button type="submit" class="btn view-cart">{{ __('coupon.search_button') }}</button>
                     </div>
                 </div>
             </form>
@@ -94,7 +94,7 @@
                                     <h3 class="menu-item-title">{{ $coupon->code }}</h3>
                                     <div class="menu-item-dots"></div>
                                     <div class="menu-item-price">
-                                        <span class="menu-badge">{{ $coupon->discount }}% ({{ $coupon->translated_type }})</span>
+                                        <span class="menu-badge">{{ $coupon->discount }}% ({{ $coupon->type }})</span>
                                     </div>
                                 </div>
                                 <p class="menu-item-description">
@@ -103,9 +103,9 @@
                                             {{ $coupon->formatted_expires_at }}
                                         @else
                                             @if ($coupon->status === 'active')
-                                                <span class="menu-badge">Actif</span>
+                                                <span class="menu-badge">{{ __('coupon.active_status') }}</span>
                                             @else
-                                                <span class="menu-badge">Inactif</span>
+                                                <span class="menu-badge">{{ __('coupon.inactive_status') }}</span>
                                             @endif
                                         @endif
                                     </span>
@@ -136,14 +136,14 @@
                                         <!-- Première ligne -->
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="code" class="form-label">Code</label>
+                                                <label for="code" class="form-label">{{ __('coupon.code') }}</label>
                                                 <input type="text" class="form-control form-custom-user" name="code" value="{{ old('code', $coupon->code) }}">
                                                 @error('code')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="discount" class="form-label">Réduction (%)</label>
+                                                <label for="discount" class="form-label">{{ __('coupon.discount') }}</label>
                                                 <input type="number" class="form-control form-custom-user" name="discount" value="{{ old('discount', $coupon->discount) }}">
                                                 @error('discount')
                                                     <span class="text-danger">{{ $message }}</span>
@@ -154,25 +154,27 @@
                                         <!-- Deuxième ligne -->
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="type" class="form-label">Type</label>
+                                                <label for="type" class="form-label">{{ __('coupon.type') }}</label>
                                                 <select name="type" class="form-select form-custom-user">
-                                                    <option value="percent" {{ $coupon->type === 'percent' ? 'selected' : '' }}>Pourcentage</option>
-                                                    <option value="fixed" {{ $coupon->type === 'fixed' ? 'selected' : '' }}>Montant Fixe</option>
+                                                    <option value="percent" {{ $coupon->type === 'percent' ? 'selected' : '' }}>{{ __('coupon.type_percent') }}</option>
+                                                    <option value="fixed" {{ $coupon->type === 'fixed' ? 'selected' : '' }}>{{ __('coupon.type_fixed') }}</option>
                                                 </select>
                                                 @error('type')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="expires_at" class="form-label">Date d'expiration</label>
+                                                <label for="expires_at" class="form-label">{{ __('coupon.expiration_date') }}</label>
                                                 <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ old('expires_at', $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : '') }}">
                                             </div>
                                         </div>
 
+
+
                                         <!-- Bouton -->
                                         <div class="row">
                                             <div class="col-12 text-end">
-                                                <button type="submit" class="btn view-cart">Mettre à jour</button>
+                                                <button type="submit" class="btn view-cart">{{ __('coupon.update_coupon') }}</button>
                                             </div>
                                         </div>
                                     </form>
@@ -187,18 +189,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ $coupon->id }}">Supprimer le Coupon</h5>
+                                    <h5 class="modal-title" id="deleteModalLabel{{ $coupon->id }}">{{ __('coupon.delete_coupon') }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Êtes-vous sûr de vouloir supprimer le coupon <strong>{{ $coupon->code }}</strong> ?</p>
+                                    <p>{{ __('coupon.delete_confirmation', ['code' => $coupon->code]) }}</p>
                                 </div>
                                 <div class="modal-footer">
                                     <form method="POST" action="{{ route('admin.coupons.destroy', $coupon->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('coupon.cancel') }}</button>
+                                        <button type="submit" class="btn btn-danger">{{ __('coupon.confirm_delete') }}</button>
                                     </form>
                                 </div>
                             </div>
@@ -220,15 +222,15 @@
         @can('create-coupons')
             <div class="col-md-6">
                 <div class="cart-container-width">
-                    <h3>Créer un Coupon</h3>
+                    <h3>{{ __('coupon.create_coupon') }}</h3>
                     <hr>
                     <form method="POST" action="{{ route('admin.coupons.store') }}">
                         @csrf
 
                         <!-- Champ Code -->
                         <div class="mb-3">
-                            <label for="code" class="form-label">Code</label>
-                            <input type="text" class="form-control form-custom-user" name="code" placeholder="Code du coupon" value="{{ old('code') }}" >
+                            <label for="code" class="form-label">{{ __('coupon.code') }}</label>
+                            <input type="text" class="form-control form-custom-user" name="code" placeholder="{{ __('coupon.code') }}" value="{{ old('code') }}" >
                             @error('code')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -236,8 +238,8 @@
 
                         <!-- Champ Réduction -->
                         <div class="mb-3">
-                            <label for="discount" class="form-label">Réduction (%)</label>
-                            <input type="number" class="form-control form-custom-user" name="discount" placeholder="Pourcentage de réduction" value="{{ old('discount') }}" >
+                            <label for="discount" class="form-label">{{ __('coupon.discount') }}</label>
+                            <input type="number" class="form-control form-custom-user" name="discount" placeholder="{{ __('coupon.discount') }}" value="{{ old('discount') }}" >
                             @error('discount')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -245,10 +247,10 @@
 
                         <!-- Champ Type -->
                         <div class="mb-3">
-                            <label for="type" class="form-label">Type</label>
+                            <label for="type" class="form-label">{{ __('coupon.type') }}</label>
                             <select name="type" class="form-select" >
-                                <option value="percent" {{ old('type') === 'percent' ? 'selected' : '' }}>Pourcentage</option>
-                                <option value="fixed" {{ old('type') === 'fixed' ? 'selected' : '' }}>Montant Fixe</option>
+                                <option value="percent" {{ old('type') === 'percent' ? 'selected' : '' }}>{{ __('coupon.type_percent') }}</option>
+                                <option value="fixed" {{ old('type') === 'fixed' ? 'selected' : '' }}>{{ __('coupon.type_fixed') }}</option>
                             </select>
                             @error('type')
                                 <span class="text-danger">{{ $message }}</span>
@@ -257,8 +259,8 @@
 
                         <!-- Champ Date d'expiration -->
                         <div class="mb-3">
-                            <label for="expires_at" class="form-label">Date d'expiration</label>
-                            <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ old('expires_at') }}">
+                            <label for="expires_at" class="form-label">{{ __('coupon.expiration_date') }}</label>
+                            <input type="date" class="form-control form-custom-user" name="expires_at" value="{{ __('coupon.expiration_date') }}">
                             @error('expires_at')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -266,7 +268,7 @@
 
                         <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
-                            <button type="submit" class="view-cart">Soumettre</button>
+                            <button type="submit" class="view-cart">{{ __('coupon.submit') }}</button>
                         </div>
                     </form>
                 </div>

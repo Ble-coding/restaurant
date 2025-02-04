@@ -4,9 +4,10 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Paiements</h1>
-            <p>Bienvenue dans le tableau de bord, votre centre de contrôle où vous pouvez consulter les informations importantes et gérer vos paramètres.</p>
+            <h1>{{ __('payment.title') }}</h1>
+            <p>{{ __('payment.dashboard_message') }}</p>
         </div>
+
     </div>
 @endsection
 
@@ -24,7 +25,7 @@
                     id="search"
                     class="search-input"
                     name="search"
-                    placeholder="Rechercher..."
+                    placeholder="{{ __('payment.search_placeholder') }}"
                     value="{{ request()->get('search') }}"
                 >
             </form>
@@ -101,20 +102,37 @@
                                         @method('PUT')
 
                                         <!-- Première ligne -->
-                                        <div class="row">
+                                        {{-- <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="payment" class="form-label">Libellé</label>
+                                                <label for="payment" class="form-label">{{ __('payment.label') }}</label>
                                                 <input type="text" class="form-control form-custom-user" name="name" value="{{ old('name', $payment->name) }}">
                                                 @error('name')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
+                                        </div> --}}
+
+                                        <div class="mb-3">
+                                            <label for="name_fr" class="form-label">{{ __('payment.label_fr') }}</label>
+                                            <input type="text" class="form-control form-custom-user" name="name_fr" value="{{ old('name_fr', $payment->getTranslation('name', 'fr')) }}">
+                                            @error('name_fr')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Nom en Anglais -->
+                                        <div class="mb-3">
+                                            <label for="name_en" class="form-label">{{ __('payment.label_en') }}</label>
+                                            <input type="text" class="form-control form-custom-user" name="name_en" value="{{ old('name_en', $payment->getTranslation('name', 'en')) }}">
+                                            @error('name_en')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
                                         </div>
 
                                         <!-- Bouton -->
                                         <div class="row">
                                             <div class="col-12 text-end">
-                                                <button type="submit" class="btn view-cart">Mettre à jour</button>
+                                                <button type="submit" class="btn view-cart">{{ __('payment.update_button') }}</button>
                                             </div>
                                         </div>
                                     </form>
@@ -130,18 +148,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ $payment->id }}">Supprimer le paiement</h5>
+                                    <h5 class="modal-title" id="deleteModalLabel{{ $payment->id }}">{{ __('payment.delete_payment') }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Êtes-vous sûr de vouloir supprimer le paiement <strong>{{ $payment->name }}</strong> ?</p>
+                                    <p>{{ __('payment.delete_confirmation', ['name' => $payment->name]) }}</p>
                                 </div>
                                 <div class="modal-footer">
                                     <form method="POST" action="{{ route('admin.payments.destroy', $payment->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('payment.cancel') }}</button>
+                                        <button type="submit" class="btn btn-danger">{{ __('payment.confirm_delete') }} </button>
                                     </form>
                                 </div>
                             </div>
@@ -163,22 +181,40 @@
         @can('create-payments')
             <div class="col-md-6">
                 <div class="cart-container-width">
-                    <h3>Créer un paiement</h3>
+                    <h3>{{ __('payment.create_payment') }}</h3>
                     <hr>
                     <form method="POST" action="{{ route('admin.payments.store') }}">
                         @csrf
 
                         <!-- Champ name -->
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Libellé</label>
-                            <input type="text" class="form-control form-custom-user" name="name" placeholder="libellé" value="{{ old('name') }}" >
+                        {{-- <div class="mb-3">
+                            <label for="name" class="form-label">{{ __('payment.label') }}</label>
+                            <input type="text" class="form-control form-custom-user" name="name" placeholder="{{ __('payment.label') }}" value="{{ old('name') }}" >
                             @error('name')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
+                        </div> --}}
+
+                        <!-- Nom en Français -->
+                        <div class="mb-3">
+                            <label for="name_fr" class="form-label">{{ __('payment.label_fr') }}</label>
+                            <input type="text" class="form-control form-custom-user" name="name_fr" placeholder="{{ __('payment.label_fr') }}" value="{{ old('name_fr') }}" required>
+                            @error('name_fr')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
                         </div>
-                        <!-- Bouton Soumettre -->
+
+                        <!-- Nom en Anglais -->
+                        <div class="mb-3">
+                            <label for="name_en" class="form-label">{{ __('payment.label_en') }}</label>
+                            <input type="text" class="form-control form-custom-user" name="name_en" placeholder="{{ __('payment.label_en') }}" value="{{ old('name_en') }}" required>
+                            @error('name_en')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                            <!-- Bouton Soumettre -->
                         <div class="cart-actions mt-4">
-                            <button type="submit" class="view-cart">Soumettre</button>
+                            <button type="submit" class="view-cart">{{ __('payment.submit_button') }}</button>
                         </div>
                     </form>
                 </div>

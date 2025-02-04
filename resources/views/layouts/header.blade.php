@@ -54,14 +54,14 @@
                     <ul class="dropdown-menu">
                         <li>
                             <a class="dropdown-item"
-                               href="{{ route('set.locale', ['locale' => 'fr']) }}">
+                               href="{{ route('set.locale', ['lang' => 'fr']) }}">
                                 <img src="{{ asset('assets/images/header/fr.png') }}" class="me-1" alt="Français">
                                 {{ $locale === 'fr' ? __('Français') : __('French') }}
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item"
-                               href="{{ route('set.locale', ['locale' => 'en']) }}">
+                               href="{{ route('set.locale', ['lang' => 'en']) }}">
                                 <img src="{{ asset('assets/images/header/us.png') }}" class="me-1" alt="English">
                                 {{ $locale === 'fr' ? __('Anglais') : __('English') }}
                             </a>

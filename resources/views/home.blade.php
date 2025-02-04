@@ -19,12 +19,12 @@
             <div class="row">
                 <!-- Text Section -->
                 <div class="col-md-6 section-text">
-                    <h6 class="subtitle">Bienvenue chez</h6>
-                    <h1 class="title">Côte d'Ivoire Drinks & Foods</h1>
+                    <h6 class="subtitle">{{ __('home.welcome_subtitle') }}</h6>
+                    <h1 class="title">{{ __('home.welcome_title') }}</h1>
                     <p class="description">
-                        Votre passeport culinaire pour la Côte d’Ivoire, livré directement chez vous !
+                        {{ __('home.welcome_description') }}
                     </p>
-                    <a href="#apropos" class="btn btn-orange">Explorez plus</a>
+                    <a href="#apropos" class="btn btn-orange"> {{ __('home.explore_more') }}</a>
                 </div>
             </div>
         </div>
@@ -37,8 +37,8 @@
     <section id="services">
         <div class="container my-5">
             <div class="section-title">
-                <h2>Services</h2>
-                <p>Faites de vos événements un succès avec nos plats ivoiriens authentiques </p>
+                <h2>  {{ __('home.services_title') }}</h2>
+                <p>{{ __('home.services_description') }} </p>
             </div>
             <div class="row">
                 <!-- Premier service -->
@@ -46,12 +46,12 @@
                     <div class="image_zooming">
                         <a href="#">
                             <div class="service-item">
-                                <img src="./assets/images/services/service_traiteur.png"  alt="Services traiteur">
+                                <img src="./assets/images/services/service_traiteur.png"  alt="{{ __('home.catering_services') }}">
                             </div>
-                            <h5>Services traiteur</h5>
+                            <h5>{{ __('home.catering_services') }}</h5>
                         </a>
                     </div>
-                    <p>Découvrez une sélection de plats ivoiriens et internationaux soigneusement préparés pour ravir les papilles de vos invités. Des entrées aux desserts, chaque assiette reflète notre passion pour la cuisine.</p>
+                    <p>{{ __('home.catering_description') }}</p>
                 </div>
 
                 <!-- Deuxième service -->
@@ -59,12 +59,12 @@
                     <div class="image_zooming">
                         <a href="#">
                             <div class="service-item">
-                                <img src="./assets/images/services/service_jus.png" alt="Boissons naturelles">
+                                <img src="./assets/images/services/service_jus.png" alt="{{ __('home.natural_drinks') }}">
                             </div>
-                            <h5>Boissons naturelles</h5>
+                            <h5>{{ __('home.natural_drinks') }}</h5>
                         </a>
                     </div>
-                    <p>Offrez à vos convives des boissons artisanales, préparées à partir d’ingrédients frais et naturels. Nos jus exotiques et cocktails sans alcool sont parfaits pour accompagner vos repas.</p>
+                    <p>{{ __('home.drinks_description') }}</p>
                 </div>
 
                 <!-- Troisième service -->
@@ -72,12 +72,12 @@
                     <div class="image_zooming">
                         <a href="#">
                             <div class="service-item">
-                                <img src="./assets/images/services/livreur.png" alt="Livraison soignée">
+                                <img src="./assets/images/services/livreur.png" alt="{{ __('home.delivery_service') }}">
                             </div>
-                            <h5>Livraison soignée</h5>
+                            <h5>{{ __('home.delivery_service') }}</h5>
                         </a>
                     </div>
-                    <p>Bénéficiez d’un service de livraison rapide et ponctuel. Nos plats sont présentés de manière élégante pour impressionner vos invités dès leur arrivée sur votre table.</p>
+                    <p>{{ __('home.delivery_description') }}</p>
                 </div>
             </div>
         </div>
@@ -86,8 +86,8 @@
     <section id="menu">
         <div class="slider-container">
             <div class="section-title">
-                <h2>Nos Menus Disponibles</h2>
-                <p>Découvrez nos spécialités locales et savourez des repas faits avec passion et authenticité.</p>
+                <h2>{{ __('home.available_menus') }}</h2>
+                <p>{{ __('home.menus_description') }}</p>
             </div>
             <div class="swiper menu-swiper">
                 <div class="swiper-wrapper">
@@ -118,9 +118,9 @@
     <!-- Section avec image de fond -->
     <section class="video-section">
         <div class="content">
-            <h2>Découvrez Notre Restaurant et Nos Délices Savoureux</h2>
+            <h2>{{ __('home.restaurant_discovery') }}</h2>
             <p>
-                Plongez dans l'univers de notre cuisine avec cette vidéo exclusive. Regardez comment nos plats sont préparés avec passion et expertise.
+                {{ __('home.restaurant_description') }}
             </p>
             <!-- Image bouton pour jouer la vidéo -->
             <img class="play-button" width="90" height="90" src="{{ asset('/assets/images/header/play-btn.png') }}" alt="Play Video" onclick="openModal()">
@@ -139,8 +139,8 @@
     <section id="boisson" class="boisson-section">
         <div class="slider-container">
             <div class="section-title">
-                <h2>Boissons & Fruits</h2>
-                <p>Désaltérez-vous avec nos boissons naturelles, préparées avec soin pour votre bien-être et votre plaisir.</p>
+                <h2>{{ __('home.drinks_fruits') }}</h2>
+                <p>{{ __('home.drinks_fruits_description') }}</p>
             </div>
             <div class="swiper boisson-slider">
                 <div class="swiper-wrapper">
@@ -173,8 +173,8 @@
         <div class="team-section">
             <div class="container">
                 <div class="section-title">
-                    <h2>Rencontrez Notre Équipe Dévouée</h2>
-                    <p> Une équipe passionnée par la cuisine ivoirienne et les produits naturels, dédiée à vous offrir une expérience culinaire exceptionnelle.</p>
+                    <h2>{{ __('home.team_title') }}</h2>
+                    <p>{{ __('home.team_description') }}</p>
                 </div>
                 <div class="row p-4">
 
@@ -189,8 +189,8 @@
                                 </div>
                             </div>
                             <div class="team-info">
-                                <h3 class="team-name">Yobo Michael Enzo</h3>
-                                <p class="team-role"> MANAGER GENERAL</p>
+                                <h3 class="team-name">{{ __('home.team_member_1') }}</h3>
+                                <p class="team-role"> {{ __('home.team_role_1') }}</p>
                             </div>
                         </div>
                     </div>
@@ -221,8 +221,8 @@
                                 </div>
                             </div>
                             <div class="team-info">
-                                <h3 class="team-name">Kacou Claude-Annette Epse Yobo</h3>
-                                <p class="team-role">RESPONSABLE COMMUNICATION ET COMMERCIALE</p>
+                                <h3 class="team-name">{{ __('home.team_member_2') }}</h3>
+                                <p class="team-role"> {{ __('home.team_role_2') }}</p>
                             </div>
                         </div>
                     </div>
@@ -241,40 +241,36 @@
     <section id="apropos">
         <div class="container py-5">
             <div class="section-title">
-                <h2>À propos</h2>
-                <p> Nous sommes passionnés par le partage de la richesse culinaire ivoirienne avec la diaspora et tous les amateurs de cuisine africaine </p>
+                <h2>{{ __('home.about_title') }}</h2>
+                <p> {{ __('home.about_description') }} </p>
             </div>
             <div class="row g-4">
                 <!-- Notre Histoire -->
                 <div class="col-md-4">
                     <div class="about-card p-4 rounded">
-                        <h3>Notre Histoire</h3>
+                        <h3>{{ __('home.our_story') }}</h3>
                         <p>
-                            Côte d’Ivoire Drinks & Foods est né de notre passion pour la cuisine ivoirienne. Basés à Londres,
-                            nous avons décidé de partager cette richesse culinaire avec vous, en proposant des plats et boissons
-                            qui rappellent la chaleur et l’hospitalité de la Côte d’Ivoire.
+                            {{ __('home.our_story_description') }}
                         </p>
                     </div>
                 </div>
                 <!-- Notre Mission -->
                 <div class="col-md-4">
                     <div class="about-card p-4 rounded">
-                        <h3>Notre Mission</h3>
+                        <h3> {{ __('home.our_mission') }}</h3>
                         <p>
-                            Nous nous engageons à offrir une expérience culinaire authentique, basée sur des recettes
-                            traditionnelles et des ingrédients de qualité. Notre objectif est de rapprocher la diaspora
-                            ivoirienne et les amateurs de cuisine africaine de la culture culinaire de notre pays.
+                            {{ __('home.our_mission_description') }}
                         </p>
                     </div>
                 </div>
                 <!-- Nos Valeurs -->
                 <div class="col-md-4">
                     <div class="about-card p-4  rounded">
-                        <h3>Nos Valeurs</h3>
+                        <h3>    {{ __('home.our_values') }}</h3>
                         <ul>
-                            <li><strong>Authenticité</strong> : Chaque plat est préparé selon les recettes traditionnelles.</li>
-                            <li><strong>Qualité</strong> : Nous utilisons des ingrédients frais et sélectionnés avec soin.</li>
-                            <li><strong>Proximité</strong> : Nous livrons vos plats directement à domicile, pour votre confort.</li>
+                            <li> {!! __('home.values.authenticity') !!} </li>
+                            <li> {!! __('home.values.quality') !!} </li>
+                            <li> {!! __('home.values.proximity') !!} </li>
                         </ul>
                     </div>
                 </div>
@@ -286,11 +282,19 @@
         <div class="blog-section">
             <div class="container">
                 <div class="section-title">
-                    <h2>Dernières nouvelles de notre blog</h2>
-                    <p>  Découvrez l'univers culinaire africain grâce à nos articles inspirants. </p>
+                    <h2>{{ __('home.blog_latest_news') }}</h2>
+                    <p>{{ __('home.blog_description') }}</p>
                 </div>
                 <div class="blog-grid">
                     @foreach ($blogs as $blog)
+                    @php
+                        $locale = app()->getLocale(); // Récupère la langue actuelle (fr ou en)
+                        $title = $locale === 'fr' ? $blog->title_fr : $blog->title_en;
+                        $content = $locale === 'fr' ? $blog->content_fr : $blog->content_en;
+
+                        // Définir le format de la date en fonction de la langue
+                        $dateFormat = $locale === 'fr' ? 'd F Y' : 'M d, Y';
+                    @endphp
                         <article class="blog-item">
                             <a class="{{ Route::currentRouteName() === 'blogs.index' ? 'active' : '' }}" href="{{ route('blogs.show', $blog->id) }}">
                             <!-- Lien vers la page du blog -->
@@ -302,17 +306,19 @@
                                 </div>
                                 <div class="blog-content">
                                     <!-- Date formatée -->
-                                    <span class="blog-date">{{ $blog->created_at->format('d M Y') }}</span>
+                                <span class="blog-date">{{ $blog->created_at->locale($locale)->translatedFormat($dateFormat) }}</span>
 
                                     <!-- Titre dynamique -->
                                     <h3 class="blog-title-semi">
-                                        {{ $blog->title }}
+                                        {{ $title}}
+                                        {{-- {{ $blog->title }} --}}
                                         {{-- {{ Str::limit(strip_tags($blog->title), 20) }} --}}
                                     </h3>
 
                                     <!-- Extrait du contenu (limité à 100 caractères) -->
                                     <p class="blog-excerpt">
-                                        {{ Str::limit(strip_tags($blog->content), 70) }}
+                                        {{-- {{ Str::limit(strip_tags($blog->content), 70) }} --}}
+                                        {{ Str::limit(strip_tags($content), 70) }}
                                     </p>
 
                                 </a>
@@ -338,7 +344,7 @@
             </div>
             <div class="contenu-btn">
                 {{-- <a href="#">Voir plus de blogs</a> --}}
-                <a class="view-cart nav-link {{ Route::currentRouteName() === 'blogs.index' ? 'active' : '' }}" href="{{ route('blogs.index') }}">Voir plus de blogs</a>
+                <a class="view-cart nav-link {{ Route::currentRouteName() === 'blogs.index' ? 'active' : '' }}" href="{{ route('blogs.index') }}">{{ __('home.view_more_blogs') }}</a>
             </div>
         </div>
     </section>
@@ -363,17 +369,17 @@
                 <div class="col-md-6 bg-white p-4">
                     <form class="contact-form">
                         <div class="mb-3">
-                            <input type="text" class="form-control form-control-custom" placeholder="Entrez votre nom" required>
+                            <input type="text" class="form-control form-control-custom" placeholder="{{ __('home.contact_form.name_placeholder') }}" required>
                         </div>
                         <div class="mb-3">
-                            <input type="email" class="form-control form-control-custom" placeholder="Email" required>
+                            <input type="email" class="form-control form-control-custom" placeholder="{{ __('home.contact_form.email_placeholder') }}" required>
                         </div>
                         <div class="mb-3">
-                            <textarea class="form-control form-control-custom" rows="4" placeholder="Message" required></textarea>
+                            <textarea class="form-control form-control-custom" rows="4" placeholder="{{ __('home.contact_form.message_placeholder') }}" required></textarea>
                         </div>
                         <div class="text-end">
                             <button type="submit" class="w-auto px-5 btn btn-send">
-                                ENVOYER UN MESSAGE
+                                {{ __('home.contact_form.send_message') }}
                                 <img  class="btn-arrow" src="./assets/images/apropos/right_arrow_test.png" width="40" height="40" alt="arrow_right" />
                             </button>
                         </div>
