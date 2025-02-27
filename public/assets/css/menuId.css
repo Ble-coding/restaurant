@@ -170,28 +170,28 @@ body, html {
 /* Taille pour les petits écrans */
 @media (min-width: 640px) {
     .container {
-        max-width: 960px; /* Augmenter à 960px */
+        max-width: 960px;
     }
 }
 
 /* Taille pour les écrans moyens */
 @media (min-width: 768px) {
     .container {
-        max-width: 1140px; /* Augmenter à 1140px */
+        max-width: 1140px;
     }
 }
 
 /* Taille pour les grands écrans */
 @media (min-width: 1024px) {
     .container {
-        max-width: 1366px; /* Augmenter à 1366px */
+        max-width: 1366px;
     }
 }
 
 /* Taille pour les très grands écrans */
 @media (min-width: 1280px) {
     .container {
-        max-width: 1600px; /* Augmenter à 1600px */
+        max-width: 1600px;
     }
 }
 
@@ -267,7 +267,14 @@ body, html {
   border-radius: 5px;
   color: #fff;
   width: 100%;
+
   max-width: 300px;
+}
+
+.container-fixed{
+    position: fixed;
+    bottom: 20px;
+    transform: translateY(-20px);
 }
 
 .cart-container h3 {

@@ -14,7 +14,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         if (!auth()->user()->can('view-categories')) {
-            abort(403, 'Vous n\'avez pas la permission de voir cette page.');
+            abort(403, __('category.forbidden'));
         }
         $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
 
@@ -44,22 +44,26 @@ class CategoryController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            // 'name' => 'required|string|max:255',
             'name' => 'required|array', // Le champ 'name' doit être un tableau
             'name.*' => 'required|string|max:255',
         ]);
 
-        // Créer une nouvelle catégorie
-        // Category::create($validated);
+        // Génération des slugs pour chaque langue
+        $slugs = [];
+        foreach ($validated['name'] as $lang => $name) {
+            $slugs[$lang] = Str::slug($name);
+        }
 
-          // Créer une nouvelle catégorie avec les traductions
+        // Créer une nouvelle catégorie avec les traductions
         $category = new Category();
         $category->setTranslations('name', $validated['name']);
+        $category->setTranslations('slug', $slugs);
         $category->save();
 
         return redirect()->route('admin.categories.index')
-        ->with('success', __('category.success.created'));
+            ->with('success', __('category.success.created'));
     }
+
     /**
      * Display the specified resource.
      */
@@ -87,13 +91,34 @@ class CategoryController extends Controller
             'name.*' => 'required|string|max:255',
         ]);
 
-        // Mettre à jour les traductions de la catégorie
+        // Récupérer les anciennes traductions
+        $oldTranslations = $category->getTranslations('name');
+
+        // Mettre à jour les traductions du nom
         $category->setTranslations('name', $validated['name']);
+
+        // Générer les nouveaux slugs uniquement pour les langues modifiées
+        $newSlugs = [];
+        foreach ($validated['name'] as $lang => $newName) {
+            if (!isset($oldTranslations[$lang]) || $oldTranslations[$lang] !== $newName) {
+                // Si la traduction a changé, on régénère le slug
+                $newSlugs[$lang] = Str::slug($newName);
+            } else {
+                // Sinon, on garde l'ancien slug
+                $newSlugs[$lang] = $category->getTranslation('slug', $lang);
+            }
+        }
+
+        // Mettre à jour les slugs
+        $category->setTranslations('slug', $newSlugs);
+
+        // Sauvegarder la catégorie
         $category->save();
 
         return redirect()->route('admin.categories.index')
-        ->with('success', __('category.success.updated'));
+            ->with('success', __('category.success.updated'));
     }
+
 
 
     /**

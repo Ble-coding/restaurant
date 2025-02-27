@@ -5,6 +5,7 @@ return [
     'welcome_message' => 'Welcome to the dashboard, your control center where you can check important information and manage your settings.',
     'search_placeholder' => 'Search...',
     'edit' => 'Edit',
+    'forbidden' => 'You do not have permission to access this page.',
     'delete' => 'Delete',
     'edit_category' => 'Edit Category: :code',
     'delete_category' => 'Delete Category',

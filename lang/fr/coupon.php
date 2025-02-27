@@ -25,7 +25,7 @@ return [
     'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer le coupon :code ?',
     'cancel' => 'Annuler',
     'confirm_delete' => 'Supprimer',
-
+    'forbidden' => 'Vous n\'avez pas la permission de voir cette page.',
     'create_coupon' => 'Créer un Coupon',
     'update_coupon' => 'Mettre à jour le Coupon',
     'submit' => 'Soumettre',

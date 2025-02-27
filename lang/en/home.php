@@ -55,5 +55,8 @@ return [
         "email_placeholder" => "Email",
         "message_placeholder" => "Message",
         "send_message" => "SEND A MESSAGE",
-    ]
+    ],
+    'filter_by_category' => 'Filter by category',
+    'filter_by_status' => 'Filter by status',
+
 ];

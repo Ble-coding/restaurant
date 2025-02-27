@@ -19,7 +19,7 @@ return [
     'active_status' => 'Active',
     'inactive_status' => 'Inactive',
     'formatted_expires_at' => 'Expired on :date',
-
+    'forbidden' => 'You do not have permission to access this page.',
     'edit_coupon' => 'Edit Coupon',
     'delete_coupon' => 'Delete Coupon',
     'delete_confirmation' => 'Are you sure you want to delete the coupon :code ?',

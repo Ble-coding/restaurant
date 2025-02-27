@@ -56,5 +56,8 @@ return [
         "message_placeholder" => "Message",
         "send_message" => "ENVOYER UN MESSAGE",
     ],
+    'filter_by_category' => 'Filtrer par catégorie',
+    'filter_by_status' => 'Filtrer par statut',
+
 
 ];

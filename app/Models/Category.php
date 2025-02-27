@@ -14,8 +14,7 @@ class Category extends Model
     , HasTranslations;
 
     // Champs traduisibles
-    public $translatable = ['name'];
-
+    public $translatable = ['name', 'slug'];
     protected $fillable = ['name', 'slug'];
 
 
@@ -29,16 +28,48 @@ class Category extends Model
         return $this->hasMany(Product::class); // Une catégorie a plusieurs products
     }
 
+    // protected static function boot()
+    // {
+    //     parent::boot();
+
+    //     static::creating(function ($category) {
+    //         $category->slug = Str::slug($category->getTranslation('name', app()->getLocale()));
+    //     });
+
+    //     static::updating(function ($category) {
+    //         $category->slug = Str::slug($category->getTranslation('name', app()->getLocale()));
+    //     });
+    // }
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($category) {
-            $category->slug = Str::slug($category->getTranslation('name', app()->getLocale()));
+            $translations = $category->getTranslations('name');
+
+            $slugs = [];
+            foreach ($translations as $lang => $name) {
+                if (!$category->hasTranslation('slug', $lang)) {
+                    $slugs[$lang] = Str::slug($name);
+                }
+            }
+
+            $category->setTranslations('slug', $slugs);
         });
 
         static::updating(function ($category) {
-            $category->slug = Str::slug($category->getTranslation('name', app()->getLocale()));
+            $translations = $category->getTranslations('name');
+
+            $slugs = [];
+            foreach ($translations as $lang => $name) {
+                if (!$category->hasTranslation('slug', $lang)) {
+                    $slugs[$lang] = Str::slug($name);
+                }
+            }
+
+            $category->setTranslations('slug', $slugs);
         });
     }
+
 }

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Liste des slugs associés aux boissons naturelles (injecté depuis Blade)
     const boissonsSlugs = JSON.parse(document.getElementById('boissons-slugs').textContent);
+    console.log("Slugs détectés:", document.getElementById('boissons-slugs').textContent);
 
     // Fonction pour afficher/masquer les champs de prix
     const togglePriceFields = () => {
@@ -27,6 +28,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ajout d'un écouteur d'événement sur le changement de catégorie
     categorySelect.addEventListener('change', togglePriceFields);
 });
-
-
-

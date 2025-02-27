@@ -5,20 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory; // Ajoutez cette ligne
+use Spatie\Translatable\HasTranslations;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
 
+    // Propriétés traduisibles
+    public $translatable = [
+        'name',
+        'description',
+        // 'status',
+    ];
     protected $fillable = [
         'name',
         'description',
         'price',
+        'price_choice',
         'image',
         'status',
         'category_id',
         'price_half_litre', 'price_litre'
-        // ,'menu_price','extra_price','half_litre_price','litre_price'
+
     ];
 
     protected $appends = ['formatted_price_with_text'];
@@ -29,13 +37,38 @@ class Product extends Model
         return $this->hasMany(CartItem::class);
     }
 
-    public function getStatusOptions(): array
+    // Statuts traduisibles
+    // public function getStatusOptions(): array
+    // {
+    //     return [
+    //         'available' => [
+    //             'en' => 'Available',
+    //             'fr' => 'Disponible',
+    //         ],
+    //         'recommended' => [
+    //             'en' => 'Recommended',
+    //             'fr' => 'Recommandé',
+    //         ],
+    //         'seasonal' => [
+    //             'en' => 'Seasonal',
+    //             'fr' => 'Saisonnier',
+    //         ],
+    //     ];
+    // }
+
+    public static function getStatusLabels(): array
     {
         return [
-            'available' => 'Disponible',
-            'recommended' => 'Recommandé',
-            'seasonal' => 'Saisonnier',
+            'available' => __('product.status_available'),
+            'recommended' => __('product.status_recommended'),
+            'seasonal' => __('product.status_seasonal'),
         ];
+    }
+
+    public function getTranslatedStatus(): string
+    {
+        $statusLabels = self::getStatusLabels();
+        return $statusLabels[$this->status] ?? __('product.status_unknown');
     }
 
 
@@ -44,8 +77,6 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class); // Un produit appartient à une catégorie
     }
-
-
 
     public function getFormattedPriceAttribute()
     {
@@ -101,3 +132,6 @@ class Product extends Model
 
 
 }
+
+
+  // ,'menu_price','extra_price','half_litre_price','litre_price'

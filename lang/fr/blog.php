@@ -91,6 +91,7 @@ return [
         "title" => "Nos Blogs",
         "description" => "Découvrez un blog soigneusement élaboré pour éveiller vos papilles et satisfaire toutes vos envies.",
     ],
+    'forbidden' => 'Vous n\'avez pas la permission de voir cette page.',
 
     "name" => "Nom",
     "email" => "Email",

@@ -4,8 +4,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Notre univers culinaire !</h1>
-            <p>Découvrez un menu soigneusement élaboré pour éveiller vos papilles et satisfaire toutes vos envies.</p>
+            <h1>{{ __('menu.culinary_universe') }}</h1>
+            <p>{{ __('menu.culinary_description') }}</p>
         </div>
     </div>
 @endsection
@@ -27,63 +27,66 @@
             @endif
 
 
-            <!-- Cart Table -->
             <div class="table-responsive">
                 <table class="table table-dark text-center align-middle cart-table">
                     <thead>
                         <tr>
-                            <th>Produit</th>
-                            <th>Prix</th>
-                            <th>Quantité</th>
-                            {{-- <th>Sous-total</th>
-                            <th>Action</th> --}}
+                            <th>{{ __('menu.title') }}</th>
+                            <th>{{ __('menu.price') }}</th>
+                            <th>{{ __('menu.quantity') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($cart as $id => $item)
-                        @php
-                            // Calcul de la valeur en litres en fonction de la taille sélectionnée
-                            $sizeValue = $item['size'] === 'half_litre' ? 0.5 : 1;
-                            $totalSize = $sizeValue * $item['quantity'];
-                            $itemSubtotal = $item['price'] * $item['quantity'];
-                        @endphp
-                        <tr>
-                            <!-- Colonne : Produit avec image -->
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" style="width: 80px; height: auto;">
-                                    <span>{{ $item['name'] }}</span>
-                                </div>
-                            </td>
+                            @php
+                                $itemSubtotal = $item['price'] * $item['quantity'];
+                                $totalSize = null;
+                                $sizeLabel = '';
 
-                            <!-- Colonne : Quantité et Taille -->
-                            <td>
-                                {{ $item['quantity'] }} ×
-                                @if ($item['size'] === 'half_litre')
-                                    0.5L
-                                @else
-                                    1L
-                                @endif
-                                = <strong>{{ $totalSize }} Litre(s)</strong>
-                            </td>
+                                if ($item['price_choice'] === 'detailed') {
+                                    $sizeValue = $item['size'] === 'half_litre' ? 0.5 : 1;
+                                    $totalSize = $sizeValue * $item['quantity'];
+                                    $sizeLabel = $item['size'] === 'half_litre' ? __('menu.half') : __('menu.full');
+                                }
+                            @endphp
+                            <tr>
+                                <!-- Produit (image + nom) -->
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" style="width: 80px; height: auto;">
+                                        <span>{{ $item['name'] }}</span>
+                                    </div>
+                                </td>
 
-                            <!-- Colonne : Sous-total -->
-                            <td>£{{ number_format($itemSubtotal, 2) }}</td>
-                        </tr>
-                    @endforeach
+                                <!-- Prix × Quantité (+ Taille si detailed) -->
+                                <td>
+                                    {{ $item['quantity'] }} × £{{ number_format($item['price'], 2) }}
+
+                                    @if ($item['price_choice'] === 'detailed')
+                                        ({{ $sizeLabel }})
+                                        <br>
+                                        = <strong>{{ $totalSize }} {{ __('menu.litre') }}</strong>
+                                    @endif
+                                </td>
+
+                                <!-- Sous-total -->
+                                <td>£{{ number_format($itemSubtotal, 2) }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
+
             <div class="row">
                 <div class="col-md-8"></div>
                 <div class="col-md-4">
                     <div class="cart-totals mt-4">
                         <div class="totals-row d-flex justify-content-between">
-                            <span>Sous-total</span>
+                            <span>{{ __('menu.subtotal') }}</span>
                             <span id="cart-subtotal">£{{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="totals-row d-flex justify-content-between mt-2">
-                            <span>Acompte (50%)</span>
+                            <span>{{ __('menu.deposit') }} (50%)</span>
                             <span id="cart-final-total">£{{ number_format($subtotal * 0.5, 2) }}</span>
                         </div>
                         <div class="totals-row d-flex justify-content-between mt-2">
@@ -92,12 +95,13 @@
                         </div>
                         <form action="{{ route('checkout.view') }}" method="get">
                             <button type="submit" class="btn-checkout btn-orange mt-3 w-100">
-                                PROCÉDER AU PAIEMENT
+                                {{ __('menu.checkout') }}
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 

@@ -13,20 +13,22 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Réinitialiser les identifiants des tables liées
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        \DB::table('permissions')->truncate();
-        \DB::table('roles')->truncate();
-        \DB::table('model_has_permissions')->truncate();
-        \DB::table('model_has_roles')->truncate();
-        \DB::table('role_has_permissions')->truncate();
-        \DB::table('users')->truncate();
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // \DB::table('permissions')->truncate();
+        // \DB::table('roles')->truncate();
+        // \DB::table('model_has_permissions')->truncate();
+        // \DB::table('model_has_roles')->truncate();
+        // \DB::table('role_has_permissions')->truncate();
+        // \DB::table('users')->truncate();
+        // \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Appeler les Seeders nécessaires
         $this->call([
-            PermissionSeeder::class,
-            RoleSeeder::class,
-            AdminUserSeeder::class,
+            // PermissionSeeder::class,
+            // RoleSeeder::class,
+            // AdminUserSeeder::class,
+            ProductNameAndDescriptionSeeder::class,
+
         ]);
     }
 }

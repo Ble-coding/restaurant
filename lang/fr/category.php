@@ -17,7 +17,7 @@ return [
     'category_en' => 'Catégorie (Anglais)',
     'label_fr' => 'Libellé (Français)',
     'label_en' => 'Libellé (Anglais)',
-
+    'forbidden' => 'Vous n\'avez pas la permission de voir cette page.',
     'success' => [
         'created' => 'Catégorie créée avec succès !',
         'updated' => 'Catégorie mise à jour avec succès !',

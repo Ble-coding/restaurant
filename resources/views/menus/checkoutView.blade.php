@@ -4,8 +4,8 @@
 @section('headerContent')
     <div class="main-section">
         <div class="container text-center">
-            <h1>Notre univers culinaire !</h1>
-            <p>Découvrez un menu soigneusement élaboré pour éveiller vos papilles et satisfaire toutes vos envies.</p>
+            <h1>{{ __('menu.culinary_universe') }}</h1>
+            <p>{{ __('menu.culinary_description') }}</p>
         </div>
     </div>
 @endsection
@@ -499,7 +499,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const stripeApiKey = "{{ $stripeGateway->api_key }}"; // Clé API Stripe
+    const stripeApiKey = "{{ $stripeGateway->api_key }}";
     const stripe = Stripe(stripeApiKey);
     const elements = stripe.elements();
     const cardElement = elements.create('card', {

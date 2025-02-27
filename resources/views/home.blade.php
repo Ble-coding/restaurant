@@ -84,27 +84,64 @@
     </section>
 
     <section id="menu">
+        
+        
         <div class="slider-container">
             <div class="section-title">
                 <h2>{{ __('home.available_menus') }}</h2>
                 <p>{{ __('home.menus_description') }}</p>
             </div>
+            <div class="row">
+                <!-- Filtre par Catégorie -->
+                <div class="col-md-6">
+                    <div class="category-filters">
+                        <div class="section-title">
+                            <h6>{{ __('home.filter_by_category') }}</h6>
+                        </div>
+                        
+                        @foreach ($categories as $category)
+                            <label>
+                                <input type="checkbox" class="category-filter form-custom-user" value="{{ $category->id }}">
+                                {{ $category->getTranslation('name', app()->getLocale()) }}
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            
+                <!-- Filtre par Statut -->
+                <div class="col-md-6">
+                    <div class="status-filters">
+                        <div class="section-title">
+                            <h6>{{ __('home.filter_by_status') }}</h6>
+                        </div>
+            
+                        @foreach ($statuses as $key => $label)
+                            <label>
+                                <input type="checkbox" class="status-filter form-custom-user" value="{{ $key }}">
+                                {{ $label }}
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            
             <div class="swiper menu-swiper">
-                <div class="swiper-wrapper">
-                    @foreach ($productsMenusPlats as $product)
+                <div class="swiper-wrapper" id="product-list">
+                    @foreach ($products as $product)
                         <div class="swiper-slide">
                             <div class="content">
                                 <h3>{{ $product->name }}</h3>
                                 <p>
-                                    {{-- {{ $product->description }} --}}
                                     {{ Str::limit($product->description, 150, '...') }}
                                 </p>
-                                <a class="{{ Route::currentRouteName() === 'menus.index' && request('search') === 'plat' ? 'active' : '' }}" href="{{ route('menus.index') }}?search=plat">Voir le Menu Complet</a>
+                                <a class="{{ Route::currentRouteName() === 'menus.index'}}" 
+                                   href="{{ route('menus.index') }}">
+                                    Voir le Menu Complet
+                                </a>
                             </div>
                             <img src="{{ asset('storage/' . $product->image) }}"
-                            class="img-fluid"
-                            {{-- width="555" height="400" --}}
-                            alt="{{ $product->name }}">
+                                 class="img-fluid"
+                                 alt="{{ $product->name }}">
                         </div>
                     @endforeach
                 </div>
@@ -112,6 +149,7 @@
                 <div class="swiper-button-prev menu-prev"></div>
                 <div class="swiper-button-next menu-next"></div>
             </div>
+            
         </div>
     </section>
 
@@ -136,7 +174,7 @@
     </section>
 
 
-    <section id="boisson" class="boisson-section">
+    {{-- <section id="boisson" class="boisson-section">
         <div class="slider-container">
             <div class="section-title">
                 <h2>{{ __('home.drinks_fruits') }}</h2>
@@ -148,26 +186,26 @@
                         <div class="swiper-slide">
                             <div class="content">
                                 <h3>{{ $product->name }}</h3>
-                                <p>
+                                <p> --}}
                                     {{-- {{ $product->description }} --}}
-                                    {{ Str::limit($product->description, 150, '...') }}
+                                    {{-- {{ Str::limit($product->description, 150, '...') }}
                                 </p>
 
                                 <a class="{{ Route::currentRouteName() === 'menus.index' && request('search') === 'boisson' ? 'active' : '' }}" href="{{ route('menus.index') }}?search=boisson">Voir les Boissons</a>
                             </div>
                             <img src="{{ asset('storage/' . $product->image) }}"
-                            class="img-fluid"
+                            class="img-fluid" --}}
                             {{-- width="555" height="400"  --}}
-                            alt="{{ $product->name }}">
+                            {{-- alt="{{ $product->name }}">
                         </div>
                     @endforeach
-                </div>
+                </div> --}}
                 <!-- Navigation buttons -->
-                <div class="swiper-button-prev boisson-prev"></div>
+                {{-- <div class="swiper-button-prev boisson-prev"></div>
                 <div class="swiper-button-next boisson-next"></div>
             </div>
-        </div>
-    </section>
+        </div> --}}
+    {{-- </section> --}}
 
     <section id="team">
         <div class="team-section">
@@ -177,7 +215,7 @@
                     <p>{{ __('home.team_description') }}</p>
                 </div>
                 <div class="row p-4">
-
+ 
                     <div class="col-md-4 col-sm-12">
                         <div class="team-member">
                             <div class="team-card">
@@ -399,4 +437,34 @@
 <script src="{{ asset('assets/js/accueilJs.js') }}"></script>
 <script src="{{ asset('assets/swiper/js/swiper-bundle.min.js') }}"></script>
 <script src="{{ asset('assets/swiper/js/swiper-btn.js') }}"></script>
+{{-- <script src="{{ asset('assets/js/filter.js') }}"></script> --}}
+<script>
+$(document).ready(function () {
+    $('.category-filter, .status-filter').change(function () {
+        let selectedCategories = [];
+        let selectedStatuses = [];
+
+        // Récupérer les catégories cochées
+        $('.category-filter:checked').each(function () {
+            selectedCategories.push($(this).val());
+        });
+
+        // Récupérer les statuts cochés
+        $('.status-filter:checked').each(function () {
+            selectedStatuses.push($(this).val());
+        });
+
+        $.ajax({
+            url: '{{ route("home") }}',
+            method: 'GET',
+            data: { categories: selectedCategories, statuses: selectedStatuses },
+            success: function (response) {
+                $('#product-list').html($(response).find('#product-list').html());
+            }
+        });
+    });
+});
+
+</script>
 @endpush
+ 

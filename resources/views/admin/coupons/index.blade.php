@@ -56,9 +56,9 @@
                     </div>
 
                     <!-- Bouton de soumission -->
-                    <div class="col-md-2 mb-3 text-end">
+                    {{-- <div class="col-md-2 mb-3 text-end">
                         <button type="submit" class="btn view-cart">{{ __('coupon.search_button') }}</button>
-                    </div>
+                    </div> --}}
                 </div>
             </form>
         {{-- </div> --}}

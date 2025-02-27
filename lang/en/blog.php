@@ -89,7 +89,7 @@ return [
         "title" => "Our Blogs",
         "description" => "Discover a carefully crafted blog to awaken your taste buds and satisfy all your cravings.",
     ],
-
+    'forbidden' => 'You do not have permission to access this page.',
 
     "name" => "Name",
     "email" => "Email",

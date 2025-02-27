@@ -1,23 +1,9 @@
-window.addEventListener('load', function() {
-    const boissonSwiperElement = document.querySelector('.boisson-slider'); // Mise à jour du sélecteur
+document.addEventListener('DOMContentLoaded', function() {
+    const boissonSwiperElement = document.querySelector('.boisson-slider'); 
     const menuSwiperElement = document.querySelector('.menu-swiper');
 
-    // console.log('Boisson swiper:', boissonSwiperElement);
-    // console.log('Menu swiper:', menuSwiperElement);
-
-    // S'assurer que les éléments sont visibles avant d'initialiser Swiper
-    if (boissonSwiperElement && menuSwiperElement) {
-        const boissonSwiper = new Swiper(boissonSwiperElement, {
-            direction: 'vertical',
-            loop: true,
-            navigation: {
-                nextEl: '.boisson-next',
-                prevEl: '.boisson-prev',
-            },
-        });
-
-        const menuSwiper = new Swiper(menuSwiperElement, {
-            direction: 'vertical',
+    if (menuSwiperElement) {
+        new Swiper(menuSwiperElement, {
             loop: true,
             navigation: {
                 nextEl: '.menu-next',
@@ -25,6 +11,18 @@ window.addEventListener('load', function() {
             },
         });
     } else {
-        console.error('Swiper elements not found');
+        console.error('Element .menu-swiper non trouvé');
+    }
+
+    if (boissonSwiperElement) {
+        new Swiper(boissonSwiperElement, {
+            loop: true,
+            navigation: {
+                nextEl: '.boisson-next',
+                prevEl: '.boisson-prev',
+            },
+        });
+    } else {
+        console.error('Element .boisson-slider non trouvé');
     }
 });

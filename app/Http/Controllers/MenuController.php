@@ -36,51 +36,171 @@ class MenuController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
+        $status = $request->get('status');
+        $categoryId = $request->get('category_id');
+        $price = $request->get('price');
+        $locale = app()->getLocale();
 
-        $livraisonKeywords = ['Livraison', 'Livraisons'];
-
-        // Récupérer dynamiquement les slugs des catégories correspondant aux mots-clés
-        $slugsLivraison = Category::where(function ($query) use ($livraisonKeywords) {
-            foreach ($livraisonKeywords as $keyword) {
-                $query->orWhere('name', 'LIKE', "%$keyword%");
-            }
+        $slugsLivraison = Category::select('slug')
+        ->where(function ($query) use ($locale) {
+            $query->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(slug, '$.\"{$locale}\"'))) LIKE ?", ['%livraison%'])
+                ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(slug, '$.\"{$locale}\"'))) LIKE ?", ['%delivery%']);
         })
-        ->pluck('slug')
+        ->get()
+        ->map(function ($category) use ($locale) {
+            $decodedSlug = json_decode($category->slug, true); // Décoder le JSON
+            return $decodedSlug[$locale] ?? null; // Récupérer la valeur correspondant à la langue actuelle
+        })
+        ->filter()
         ->toArray();
 
-        // Appliquer la recherche sur les produits (menus)
-        $menus = Product::query()
-        ->when($search, function ($query) use ($search) {
-            $query->where(function ($subQuery) use ($search) {
-                $subQuery->where('name', 'like', '%' . $search . '%')
-                         ->orWhere('description', 'like', '%' . $search . '%')
-                         ->orWhere('status', 'like', '%' . $search . '%');
-            })
-            ->orWhereHas('category', function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            });
-        })
-        // Exclure les catégories associées aux slugs des "Livraisons"
-        ->whereHas('category', function ($query) use ($slugsLivraison) {
-            $query->whereNotIn('slug', $slugsLivraison);
-        })
-        ->with('category')
-        ->orderBy('created_at', 'desc')
-        ->paginate(6);
 
-        // Récupérer toutes les catégories sauf celles associées aux "Livraisons"
+        $menus = Product::query()
+            ->when($search, function ($query) use ($search, $locale) {
+                $query->where(function ($subQuery) use ($search, $locale) {
+                    $subQuery->whereRaw("JSON_EXTRACT(name, '$.$locale') LIKE ?", ["%$search%"])
+                             ->orWhereRaw("JSON_EXTRACT(description, '$.$locale') LIKE ?", ["%$search%"]);
+                });
+            })
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($price, function ($query) use ($price) {
+                $query->where(function ($subQuery) use ($price) {
+                    $subQuery->where('price', 'like', "%$price%")
+                             ->orWhere('price_half_litre', 'like', "%$price%")
+                             ->orWhere('price_litre', 'like', "%$price%");
+                });
+            })
+            ->whereHas('category', function ($query) use ($slugsLivraison) {
+                $query->whereNotIn('slug', $slugsLivraison);
+            })
+            ->with('category')
+            ->orderBy('created_at', 'desc')
+            ->paginate(4);
+
         $categories = Category::whereNotIn('slug', $slugsLivraison)->get();
 
-        // Charger le panier depuis la session
-        $cart = Session::get('cart', []); // Par défaut, le panier est vide s'il n'existe pas dans la session
+        $cart = Session::get('cart', []);
 
-        // Calculer le sous-total du panier
         $subtotal = collect($cart)->sum(function ($item) {
-            return $item['price'] * $item['quantity']; // Sous-total = prix x quantité
+            return $item['price'] * $item['quantity'];
         });
 
         return view('menus.index', compact('menus', 'cart', 'subtotal', 'categories'));
     }
+
+    // public function index(Request $request)
+    // {
+    //     $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
+    //     $status = $request->get('status');
+    //     $categoryId = $request->get('category_id');
+    //     $price = $request->get('price');
+
+    //     $livraisonKeywords = ['Livraison', 'Livraisons'];
+
+    //     // Récupérer dynamiquement les slugs des catégories correspondant aux mots-clés
+    //     $slugsLivraison = Category::where(function ($query) use ($livraisonKeywords) {
+    //         foreach ($livraisonKeywords as $keyword) {
+    //             $query->orWhere('name', 'LIKE', "%$keyword%");
+    //         }
+    //     })
+    //     ->pluck('slug')
+    //     ->toArray();
+
+    //     // Appliquer la recherche sur les produits (menus)
+    //     $menus = Product::query()
+    //         ->when($search, function ($query) use ($search) {
+    //             $query->where(function ($subQuery) use ($search) {
+    //                 $subQuery->where('name', 'like', "%$search%")
+    //                         ->orWhere('description', 'like', "%$search%");
+    //             });
+    //         })
+    //         ->when($status, function ($query) use ($status) {
+    //             $query->where('status', $status);
+    //         })
+    //         ->when($categoryId, function ($query) use ($categoryId) {
+    //             $query->where('category_id', $categoryId);
+    //         })
+    //         ->when($price, function ($query) use ($price) {
+    //             $query->where(function ($subQuery) use ($price) {
+    //                 $subQuery->where('price', 'like', "%$price%")
+    //                         ->orWhere('price_half_litre', 'like', "%$price%")
+    //                         ->orWhere('price_litre', 'like', "%$price%");
+    //             });
+    //         })
+    //         ->whereHas('category', function ($query) use ($slugsLivraison) {
+    //             $query->whereNotIn('slug', $slugsLivraison);
+    //         })
+    //         ->with('category')
+    //         ->orderBy('created_at', 'desc')
+    //         ->paginate(4);
+
+    //     // Récupérer toutes les catégories sauf celles associées aux "Livraisons"
+    //     $categories = Category::whereNotIn('slug', $slugsLivraison)->get();
+
+    //     // Charger le panier depuis la session
+    //     $cart = Session::get('cart', []);
+
+    //     // Calculer le sous-total du panier
+    //     $subtotal = collect($cart)->sum(function ($item) {
+    //         return $item['price'] * $item['quantity'];
+    //     });
+
+    //     return view('menus.index', compact('menus', 'cart', 'subtotal', 'categories'));
+    // }
+
+    // public function index(Request $request)
+    // {
+    //     $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
+
+    //     $livraisonKeywords = ['Livraison', 'Livraisons'];
+
+    //     // Récupérer dynamiquement les slugs des catégories correspondant aux mots-clés
+    //     $slugsLivraison = Category::where(function ($query) use ($livraisonKeywords) {
+    //         foreach ($livraisonKeywords as $keyword) {
+    //             $query->orWhere('name', 'LIKE', "%$keyword%");
+    //         }
+    //     })
+    //     ->pluck('slug')
+    //     ->toArray();
+
+    //     // Appliquer la recherche sur les produits (menus)
+    //     $menus = Product::query()
+    //     ->when($search, function ($query) use ($search) {
+    //         $query->where(function ($subQuery) use ($search) {
+    //             $subQuery->where('name', 'like', '%' . $search . '%')
+    //                      ->orWhere('description', 'like', '%' . $search . '%')
+    //                      ->orWhere('status', 'like', '%' . $search . '%');
+    //         })
+    //         ->orWhereHas('category', function ($query) use ($search) {
+    //             $query->where('name', 'like', '%' . $search . '%');
+    //         });
+    //     })
+    //     // Exclure les catégories associées aux slugs des "Livraisons"
+    //     ->whereHas('category', function ($query) use ($slugsLivraison) {
+    //         $query->whereNotIn('slug', $slugsLivraison);
+    //     })
+    //     ->with('category')
+    //     ->orderBy('created_at', 'desc')
+    //     ->paginate(4);
+
+    //     // Récupérer toutes les catégories sauf celles associées aux "Livraisons"
+    //     $categories = Category::whereNotIn('slug', $slugsLivraison)->get();
+
+    //     // Charger le panier depuis la session
+    //     $cart = Session::get('cart', []); // Par défaut, le panier est vide s'il n'existe pas dans la session
+
+    //     // Calculer le sous-total du panier
+    //     $subtotal = collect($cart)->sum(function ($item) {
+    //         return $item['price'] * $item['quantity']; // Sous-total = prix x quantité
+    //     });
+
+    //     return view('menus.index', compact('menus', 'cart', 'subtotal', 'categories'));
+    // }
 
     public function cartCount()
     {
@@ -128,36 +248,36 @@ class MenuController extends Controller
     {
         $customerId = Auth::guard('customer')->id();
 
-       // Vérifier si l'utilisateur est connecté
         if (!$customerId) {
-            // Sauvegarder l'URL actuelle dans la session
             session()->put('intended_url', url()->previous());
 
             return response()->json([
                 'status' => 'error',
                 'message' => 'Veuillez vous connecter pour passer une commande.',
-                'redirect' => route('customer.login') // URL de connexion
+                'redirect' => route('customer.login')
             ], 401);
         }
+
         $product = Product::findOrFail($request->product_id);
+        $size = $request->input('size');
 
-        // Vérifier si une taille a été fournie pour les boissons naturelles
-        $size = null;
-        $price = $product->price;
-
-        if ($product->category->slug === 'boissons-naturelles') {
-            $size = $request->input('size', 'half_litre'); // Valeur par défaut : demi-litre
-            if ($size === 'litre') {
+        if ($product->price_choice === 'detailed') {
+            if ($size === 'half_litre') {
+                $price = $product->price_half_litre;
+            } elseif ($size === 'litre') {
                 $price = $product->price_litre;
             } else {
-                $price = $product->price_half_litre;
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Veuillez sélectionner une taille valide.'
+                ], 400);
             }
+        } else {
+            $price = $product->price;
         }
 
-        // Obtenir ou initialiser le panier
         $cart = Session::get('cart', []);
 
-        // Ajouter ou mettre à jour le produit dans le panier
         $cartKey = $product->id . ($size ? "-$size" : '');
         if (isset($cart[$cartKey])) {
             $cart[$cartKey]['quantity']++;
@@ -168,10 +288,10 @@ class MenuController extends Controller
                 'quantity' => 1,
                 'image' => $product->image,
                 'size' => $size,
+                'price_choice' => $product->price_choice ?? 'normal'
             ];
         }
 
-        // Sauvegarder le panier
         Session::put('cart', $cart);
 
         return response()->json([
@@ -181,26 +301,38 @@ class MenuController extends Controller
         ]);
     }
 
+
+
     // CartController
     public function viewCart()
     {
         $cart = session('cart', []);
         $subtotal = 0;
 
-        // Mettre à jour chaque élément du panier avec la clé 'subtotal' et calculer le sous-total total
-        foreach ($cart as $id => &$item) { // Utilisation de référence pour modifier directement les éléments du panier
+        foreach ($cart as $id => &$item) {
             $item['subtotal'] = $item['price'] * $item['quantity'];
+
+            // Assurer que tous les items ont 'price_choice'
+            $priceChoice = $item['price_choice'] ?? 'normal';
+            $item['price_choice'] = $priceChoice;
+
+            if ($priceChoice === 'detailed') {
+                $sizeValue = ($item['size'] === 'half_litre') ? 0.5 : 1;
+                $item['total_size'] = $sizeValue * $item['quantity'];
+            } else {
+                $item['total_size'] = null;
+            }
+
             $subtotal += $item['subtotal'];
         }
 
-        // Sauvegarder le panier mis à jour dans la session
         session(['cart' => $cart]);
 
-        // Calculer le total (par exemple, avec des taxes ou autres frais)
-        $total = $subtotal; // Exemple, ajouter des frais si nécessaire
+        $total = $subtotal;
 
         return view('menus.cartView', compact('cart', 'subtotal', 'total'));
     }
+
 
     public function removeFromCart(Request $request)
     {
@@ -231,9 +363,14 @@ class MenuController extends Controller
         $zones = Zone::all();
         $payments = Payment::all();
         // Récupérer la clé Stripe basée sur le payment_id et le nom 'Stripe'
+        // $stripeGateway = PaymentGateway::whereHas('payment', function ($query) {
+        //     $query->where('name', 'Stripe');
+        // })->first();
+
         $stripeGateway = PaymentGateway::whereHas('payment', function ($query) {
             $query->where('name', 'Stripe');
         })->first();
+
 
         $cart = session('cart', []);
         $subtotal = collect($cart)->sum(function ($item) {
