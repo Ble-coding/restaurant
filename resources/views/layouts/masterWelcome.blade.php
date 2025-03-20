@@ -13,7 +13,7 @@
 </head>
 <body>
     <section id="accueil">
-        @include('layouts.headerWelcome')
+        @include('layouts.header')
     </section>
 
     @yield('content')

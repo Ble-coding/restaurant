@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -11,13 +12,21 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+
+
+
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('loginConnected');
+Route::post('/login', [LoginController::class, 'login'])->name('loginConnected.store');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logoutConnected');
+
+
 Route::middleware('guest')->group(function () {
     Route::get('register-account', [RegisteredUserController::class, 'create'])
         ->name('register.account');
 
     Route::post('register-account', [RegisteredUserController::class, 'store']);
 
-    Route::get('admin/login', [AuthenticatedSessionController::class, 'create'])
+    Route::get('admin/access', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
     Route::post('admin/login', [AuthenticatedSessionController::class, 'store']);

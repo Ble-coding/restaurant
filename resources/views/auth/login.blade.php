@@ -32,7 +32,7 @@
             <div class="col-12 col-md-6">
               <div class="login-box p-4">
                 <h3>Se connecter</h3>
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('loginConnected') }}">
                     @csrf
                     @if ($errors->any())
                         <div class="alert alert-danger">

@@ -88,7 +88,7 @@
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li>
                             {{-- Formulaire de déconnexion --}}
-                            <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
+                            <form id="logout-form" action="{{ route('logoutConnected') }}" method="POST" style="display: none;">
                                 @csrf
                             </form>
                             <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -104,7 +104,7 @@
                         {{ __('header.login') }}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{{ route('customer.login') }}">  {{ __('header.login') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ route('loginConnected') }}">  {{ __('header.login') }}</a></li>
                         <li><a class="dropdown-item" href="{{ route('customer.register') }}">  {{ __('header.register') }}</a></li>
                     </ul>
                 </li>

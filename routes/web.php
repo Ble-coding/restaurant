@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('locale/{lang}', [LocaleController::class, 'setLocale'])->name('set.locale');
 
 
+
+
 // Gestion des erreurs 404
 Route::fallback(function () {
     return response()->view('errors.404', [], 404);

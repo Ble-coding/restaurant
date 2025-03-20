@@ -6,7 +6,8 @@
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
-                @if (Route::has('login'))
+                @if (Route::has('loginConnected'))
+
                 @auth
                     <!-- Lien pour les utilisateurs authentifiés -->
                     <li class="nav-item">
@@ -17,7 +18,7 @@
                 @else
                     <!-- Lien pour la connexion -->
                     <li class="nav-item">
-                        <a class="nav-link {{ Route::currentRouteName() === 'login' ? 'active' : '' }}" href="{{ route('login') }}">
+                        <a class="nav-link {{ Route::currentRouteName() === 'login' ? 'active' : '' }}" href="{{ route('loginConnected') }}">
                             {{ __('header.login') }}
                         </a>
                     </li>
