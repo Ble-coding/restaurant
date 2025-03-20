@@ -101,4 +101,12 @@ return [
     "content" => "Entrez votre commentaire ici...",
     "save_info" => "Enregistrer mon nom, email et site web dans ce navigateur pour mon prochain commentaire.",
     "submit" => "Publier le commentaire",
+
+    'search_placeholder' => 'Rechercher des articles...',
+    'category_filter' => 'Filtrer par catégorie',
+    'status_filter' => 'Filtrer par statut',
+    'published' => 'Publié',
+    'draft' => 'Brouillon',
+    'search_button' => 'Rechercher',
+    // 'forbidden' => 'Vous n\'avez pas la permission de voir cette page.',
 ];

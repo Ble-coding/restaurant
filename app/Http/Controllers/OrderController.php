@@ -29,35 +29,84 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-
-
         $search = trim($request->get('search'));
+        $status = $request->get('status');
+        $date = $request->get('date');
+        $price = $request->get('price');
 
-        $orders = Order::with('products')->with('customer')
+        $orders = Order::with('products', 'customer')
             ->when($search, function ($query) use ($search) {
-                $query->whereHas('products', function ($subQuery) use ($search) {
-                    $subQuery->where('name', 'like', '%' . $search . '%')
-                             ->orWhere('code', 'like', '%' . $search . '%')
-                             ->orWhere('status', 'like', '%' . $search . '%');
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', '%' . $search . '%')
+                      ->orWhere('total', 'like', '%' . $search . '%')
+                      ->orWhereHas('customer', function ($subQuery) use ($search) {
+                          $subQuery->where('first_name', 'like', '%' . $search . '%')
+                                   ->orWhere('last_name', 'like', '%' . $search . '%');
+                      });
                 });
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(6); // Pagination
+            });
+
+        // Appliquer les filtres ensemble si au moins un est défini
+        if ($status || $date || $price) {
+            $orders->where(function ($q) use ($status, $date, $price) {
+                if ($status) {
+                    $q->where('status', $status);
+                }
+                if ($date) {
+                    $q->whereDate('created_at', $date);
+                }
+                if ($price) {
+                    $q->whereRaw("CAST(total AS DECIMAL(10,2)) >= ?", [$price]);
+                }
+            });
+        }
+
+        $orders = $orders->orderBy('created_at', 'desc')->paginate(10);
 
         return view('admin.orders.index', compact('orders'));
     }
 
-    public function customerOrders()
+    public function customerOrders(Request $request)
     {
         $customerId = Auth::guard('customer')->id();
 
+        $search = trim($request->get('search'));
+        $status = $request->get('status');
+        $date = $request->get('date');
+        $price = $request->get('price');
+
         $orders = Order::with('products')
             ->where('customer_id', $customerId)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10); // Pagination
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', '%' . $search . '%')
+                      ->orWhere('total', 'like', '%' . $search . '%');
+                });
+            });
+
+        // Appliquer les filtres ensemble si au moins un est défini
+        if ($status || $date || $price) {
+            $orders->where(function ($q) use ($status, $date, $price) {
+                if ($status) {
+                    $q->whereJsonContains('status->en', $status)
+                      ->orWhereJsonContains('status->fr', $status);
+                }
+                if ($date) {
+                    $q->whereDate('created_at', $date);
+                }
+                if ($price) {
+                    $q->whereRaw("CAST(total AS DECIMAL(10,2)) >= ?", [$price]);
+                }
+            });
+        }
+
+        $orders = $orders->orderBy('created_at', 'desc')->paginate(10);
 
         return view('menus.orders.index', compact('orders'));
     }
+
+
+
 
 
 
@@ -82,18 +131,17 @@ class OrderController extends Controller
      */
     public function show(string $commandeId)
     {
-
-        // $this->authorize('view-orders');
         $order = Order::where('id', $commandeId)
             ->with('orderLogs')
             ->first();
 
         if (!$order) {
-            // Redirection si la commande n'est pas trouvée
-            return redirect()->route('admin.orders.index')->with('error', "Commande non trouvée.");
+            return redirect()->route('admin.orders.index')->with('error', __('order.not_found'));
         }
 
-        // Extraction des dates pour les statuts
+        // Extraction du statut en anglais uniquement
+        $rawStatus = $order->getRawStatus();
+
         $deliveryLog = $order->orderLogs
             ->where('status_after', 'delivered')
             ->sortByDesc('created_at')
@@ -113,7 +161,6 @@ class OrderController extends Controller
         return view('admin.orders.show', compact('order', 'deliveryDate', 'cancelDate', 'shippingCost'));
     }
 
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -127,24 +174,21 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
-        // $this->authorize('update-orders');
         $request->validate([
             'status' => 'required|in:pending,preparing,shipped,delivered,canceled',
         ]);
 
         $order = Order::findOrFail($id);
-        $oldStatus = $order->status;
+        $oldStatus = $order->getRawStatus(); // On récupère toujours la version EN
 
         if (in_array($oldStatus, ['shipped', 'delivered'])) {
-            return back()->withErrors('La commande ne peut pas être modifiée après expédition.');
+            return back()->withErrors(__('order.cannot_be_modified'));
         }
 
         $order->update([
             'status' => $request->status,
         ]);
 
-        // Enregistrer l'historique
         $order->orderLogs()->create([
             'status_before' => $oldStatus,
             'status_after' => $request->status,
@@ -152,60 +196,78 @@ class OrderController extends Controller
         ]);
 
         return redirect()->route('admin.commandes.index')
-                         ->with('success', 'Statut de la commande mis à jour.');
+                         ->with('success', __('order.status_updated'));
     }
-
     public function cancelOrder($id)
     {
+
+        $customer = Auth::guard('customer')->user();
+        // $customerId = Auth::guard('customer')->id();
+        if (!$customer || empty($customer->last_name)) {
+            return redirect()->route('customer.login')->with('error', __('order.must_be_logged_in'));
+        }
+
+       
+
+        // Récupérer la commande appartenant au client connecté
         $order = Order::where('customer_id', Auth::guard('customer')->id())
-                    ->where('status', 'pending')
-                    ->findOrFail($id);
+                      ->findOrFail($id);
 
-        $order->update(['status' => 'canceled']);
+                      
+    
+        // Vérifier si la commande est annulable (statut "pending")
+        if ($order->getTranslation('status', 'en') !== 'pending') {
+            return back()->withErrors(__('order.cannot_be_canceled'));
+        }
+    
+        // Mettre à jour le statut de la commande avec Spatie Translatable
+        $order->setTranslation('status', 'en', 'canceled');
+        $order->setTranslation('status', 'fr', 'Annulé');
 
+        // dd($order);
+        $order->save();
+    
+        // Enregistrer le changement dans les logs
         $order->orderLogs()->create([
             'status_before' => 'pending',
             'status_after' => 'canceled',
-            'changed_by' => Auth::guard('customer')->name,
+            // 'changed_by' => Auth::guard('customer')->user()->name,
+            'changed_by' => $customer->last_name, // Correction ici
+            // 'changed_by' =>  Auth::guard('customer')->name(),
         ]);
-
-
-
+    
+        // Redirection avec un message de succès
         return redirect()->route('customer.orders.index')
-                        ->with('success', 'Commande annulée.');
+                         ->with('success', __('order.canceled_success'));
     }
-
+    
 
     public function CustomerShowOrders($commandeId)
     {
-        // Vérification de l'utilisateur connecté sous le guard 'customer'
         $customer = Auth::guard('customer')->user();
 
         if (!$customer) {
-            // Redirection si l'utilisateur n'est pas connecté
-            return redirect()->route('customer.login')->with('error', "Vous devez être connecté pour voir vos commandes.");
+            return redirect()->route('customer.login')->with('error', __('order.must_be_logged_in'));
         }
 
-        // Récupération de la commande associée à ce client spécifique
         $order = Order::where('id', $commandeId)
-            ->with('orderLogs') // Chargement des logs associés à la commande
-            ->where('customer_id', $customer->id) // Vérification que la commande appartient bien au client connecté
+            ->with('orderLogs')
+            ->where('customer_id', $customer->id)
             ->first();
 
         if (!$order) {
-            // Si la commande n'existe pas ou ne correspond pas à ce client
-            return redirect()->route('customer.orders.index')->with('error', "Commande non trouvée.");
+            return redirect()->route('customer.orders.index')->with('error', __('order.not_found'));
         }
 
-        // Récupération de la date du statut "delivered"
+        $rawStatus = $order->getRawStatus(); // Toujours travailler avec EN
+
         $deliveryLog = $order->orderLogs
-            ->where('status_after', 'delivered') // Recherche du log avec statut 'delivered'
-            ->sortByDesc('created_at') // Tri pour prendre le plus récent
+            ->where('status_after', 'delivered')
+            ->sortByDesc('created_at')
             ->first();
 
-        $deliveryDate = $deliveryLog ? $deliveryLog->created_at : null; // Extraction de la date si trouvée
+        $deliveryDate = $deliveryLog ? $deliveryLog->created_at : null;
 
-        // Récupération de la date du statut "canceled"
         $cancelLog = $order->orderLogs
             ->where('status_after', 'canceled')
             ->sortByDesc('created_at')
@@ -213,10 +275,8 @@ class OrderController extends Controller
 
         $cancelDate = $cancelLog ? $cancelLog->created_at : null;
 
-        // Extraction des frais de livraison
         $shippingCost = $order->shipping_cost;
 
-        // Retourne la vue avec toutes les données nécessaires
         return view('menus.orders.show', compact('order', 'cancelDate', 'deliveryDate', 'shippingCost'));
     }
 

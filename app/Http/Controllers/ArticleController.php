@@ -23,30 +23,42 @@ class ArticleController extends Controller
      */
     public function index(Request $request)
     {
+        // Vérification des permissions
         if (!auth()->user()->can('view-articles') && !auth()->user()->can('view-blogs')) {
-            // abort(403, 'Vous n\'avez pas la permission de voir cette page.');
             abort(403, __('blog.forbidden'));
         }
-        $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
-        $categories = Category::all(); // Récupérer toutes les catégories
 
-        // Appliquer la recherche sur les articles
+        // Récupération des filtres
+        $search = trim($request->get('search'));
+        $categoryId = $request->get('category_id');
+        $status = $request->get('status');
+        
+        // Récupération des catégories pour le filtre
+        $categories = Category::all();
+
+        // Requête de recherche
         $articles = Blog::query()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
-                    $subQuery->where('title', 'like', '%' . $search . '%') // Rechercher dans le titre
-                            ->orWhere('content', 'like', '%' . $search . '%') // Rechercher dans le contenu
-                            ->orWhere('status', 'like', '%' . $search . '%'); // Rechercher dans le statut
-                })
-                ->orWhereHas('category', function ($query) use ($search) { // Rechercher dans les catégories liées
-                    $query->where('name', 'like', '%' . $search . '%');
+                    $subQuery->where('title_fr', 'like', "%$search%")
+                            ->orWhere('title_en', 'like', "%$search%")
+                            ->orWhere('content_fr', 'like', "%$search%")
+                            ->orWhere('content_en', 'like', "%$search%")
+                            ->orWhere('slug', 'like', "%$search%");
                 });
             })
-            ->orderBy('created_at', 'desc') // Trier par date de création, la plus récente en premier
-            ->paginate(6); // Pagination avec 6 articles par page
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(6);
 
         return view('admin.articles.index', compact('articles', 'categories'));
     }
+
 
 
     /**

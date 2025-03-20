@@ -23,6 +23,16 @@ return [
     'name_placeholder_fr' => 'Libellé FR',
     'name_placeholder_en' => 'Libellé EN',
     'price_placeholder' => 'Prix de l\'option',
+    'type' => 'Type de livraison',
+    'free' => 'Gratuit',
+    'edit_product' => 'Modifier le type de livraison',
+    'paid' => 'Payant',
+    'conditional' => 'Conditionnel',
+    'min_price_for_free' => 'Prix minimum la livraison gratuite',
+    'min_price_for_free_placeholder' => 'Entrez le prix minimum la livraison gratuite',
+    'conditions' => 'Conditions de livraison',
+    'conditions_placeholder' => 'Entrez une condition de livraison',
+    'add_condition' => 'Ajouter une condition',
 
     // Messages de succès
     'success_add' => 'Option de livraison ajoutée avec succès!',

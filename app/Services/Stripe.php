@@ -107,4 +107,18 @@ class Stripe
             throw new Exception("Erreur: Le montant doit être un nombre positif.");
         }
     }
+
+    public function confirmPaymentIntent(string $paymentIntentId): array
+    {
+        $response = Http::withBasicAuth($this->apiSecret, '')
+            ->asForm()
+            ->post("{$this->baseUrl}/payment_intents/{$paymentIntentId}/confirm");
+
+        if ($response->failed()) {
+            throw new Exception("Erreur Stripe lors de la confirmation : " . $response->json('error.message'));
+        }
+
+        return $response->json();
+    }
+
 }

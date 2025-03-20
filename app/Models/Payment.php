@@ -15,7 +15,7 @@ class Payment extends Model
     // Champs translatables
     public $translatable = ['name'];
 
-    protected $fillable = ['name'];  //ex paiement en ligne , credit bancaire
+    protected $fillable = ['name'];
 
     /**
      * Get all of the orders for the Payment

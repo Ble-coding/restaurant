@@ -28,17 +28,53 @@
                 </div>
 
                 <div class="search-wrapper">
-                    <div class="search-container">
+                    <div class="    ">
                         <form method="GET" action="{{ route('blogs.index') }}" id="search-form">
-                            <input
-                                type="text"
-                                id="search"
-                                class="search-input"
-                                name="search"
-                                placeholder="{{ __('blog.search_placeholder') }}"
-                                value="{{ request()->get('search') }}"
-                            >
+                            <div class="row">
+                                <!-- Recherche par mot-clé -->
+                                <div class="col-md-6 mb-3">
+                                    <input
+                                        type="text"
+                                        id="search"
+                                        class="form-control  form-custom-user"
+                                        name="search"
+                                        placeholder="{{ __('blog.search_placeholder') }}"
+                                        value="{{ request()->get('search') }}"
+                                    >
+                                </div>
+                        
+                                <!-- Filtrer par catégorie -->
+                                <div class="col-md-6 mb-3">
+                                    <select name="category_id" class="form-select form-custom-user">
+                                        <option value="">{{ __('blog.category_filter') }}</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}" {{ request()->get('category_id') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                        
+                                <!-- Filtrer par statut -->
+                                <div class="col-md-6 mb-3">
+                                    <select name="status" class="form-select form-custom-user">
+                                        <option value="">{{ __('blog.status_filter') }}</option>
+                                        <option value="published" {{ request()->get('status') == 'published' ? 'selected' : '' }}>
+                                            {{ __('blog.published') }}
+                                        </option>
+                                        <option value="draft" {{ request()->get('status') == 'draft' ? 'selected' : '' }}>
+                                            {{ __('blog.draft') }}
+                                        </option>
+                                    </select>
+                                </div>
+                        
+                                <!-- Bouton de recherche -->
+                                <div class="col-md-4 mb-3">
+                                    <button type="submit" class="btn view-cart">{{ __('blog.search_button') }}</button>
+                                </div>
+                            </div>
                         </form>
+                        
                     </div>
                 </div>
 

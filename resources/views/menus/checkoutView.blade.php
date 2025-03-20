@@ -23,13 +23,13 @@
         <div class="checkout-container">
                 <!-- Coupon -->
                 <div class="coupon-box" onclick="toggleCouponSection()">
-                    Vous avez un coupon ? Cliquez ici pour entrer votre code
+                    {{ __('menu.coupon_text') }}
                 </div>
 
                 <div class="coupon-section" id="couponSection">
                     <div class="d-flex gap-2 mt-3 mb-4">
-                        <input type="text" name="coupon_code" class="form-control form-custom" placeholder="Code du coupon">
-                        <button type="submit" class="btn btn-orange">Appliquer le coupon</button>
+                        <input type="text" name="coupon_code" class="form-control form-custom" placeholder="  {{ __('menu.coupon_placeholder') }}">
+                        <button type="submit" class="btn btn-orange">  {{ __('menu.apply_coupon') }}</button>
                     </div>
                 </div>
 
@@ -37,115 +37,88 @@
             <!-- Formulaire de facturation -->
             <div class="row">
                 <div class="col-md-5">
-                    <h4 class="mt-3 mb-3">Détails de facturation</h4>
+                    <h4 class="mt-3 mb-3">{{ __('menu.billing_details') }}</h4>
                     <form id="checkout-form"  action="{{ route('checkout.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="firstName" class="form-label">Prénom</label>
-                            <input type="text" id="firstName" name="first_name" class="form-control form-custom @error('first_name') is-invalid @enderror" placeholder="Prénom" value="{{ old('first_name') }}">
+                            <label for="firstName" class="form-label">{{ __('menu.first_name') }}</label>
+                            <input type="text" id="firstName" name="first_name" class="form-control form-custom @error('first_name') is-invalid @enderror" placeholder="{{ __('menu.first_name') }}" value="{{ old('first_name') }}">
                             @error('first_name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="lastName" class="form-label">Nom</label>
-                            <input type="text" id="last_name" name="last_name" class="form-control form-custom @error('last_name') is-invalid @enderror" placeholder="Nom" value="{{ old('last_name')}}">
+                            <label for="lastName" class="form-label">{{ __('menu.last_name') }}</label>
+                            <input type="text" id="last_name" name="last_name" class="form-control form-custom @error('last_name') is-invalid @enderror" placeholder="{{ __('menu.last_name') }}" value="{{ old('last_name')}}">
                             @error('last_name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Adresse email</label>
-                            <input type="email" id="email" name="email" class="form-control form-custom @error('email') is-invalid @enderror" placeholder="Email" value="{{ old('email') }}">
+                            <label for="email" class="form-label">{{ __('menu.email') }}</label>
+                            <input type="email" id="email" name="email" class="form-control form-custom @error('email') is-invalid @enderror" placeholder="{{ __('menu.email') }}" value="{{ old('email') }}">
                             @error('email')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Téléphone</label>
-                            {{-- <input type="text" id="phone" name="phone" class="form-control form-custom @error('phone') is-invalid @enderror" placeholder="Téléphone" value="{{ old('phone') }}"> --}}
-
-                            <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
-                            class="form-control form-custom @error('phone') is-invalid @enderror"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                            >
-
+                            <label for="phone" class="form-label">{{ __('menu.phone') }}</label>
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" class="form-control form-custom @error('phone') is-invalid @enderror" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             <input type="hidden" id="country_code" name="country_code">
                             @error('phone')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="address" class="form-label">Adresse</label>
-                            <input type="text" id="address" name="address" class="form-control form-custom @error('address') is-invalid @enderror" placeholder="Rue et numéro" value="{{ old('address') }}">
+                            <label for="address" class="form-label">{{ __('menu.address') }}</label>
+                            <input type="text" id="address" name="address" class="form-control form-custom @error('address') is-invalid @enderror" placeholder="{{ __('menu.address_placeholder') }}" value="{{ old('address') }}">
                             @error('address')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="city" class="form-label">Ville</label>
-                            <input type="text" id="city" name="city" class="form-control form-custom @error('city') is-invalid @enderror" placeholder="Ville" value="{{ old('city') }}">
+                            <label for="city" class="form-label">{{ __('menu.city') }}</label>
+                            <input type="text" id="city" name="city" class="form-control form-custom @error('city') is-invalid @enderror" placeholder="{{ __('menu.city') }}" value="{{ old('city') }}">
                             @error('city')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="zip" class="form-label">Code postal</label>
-                            <input type="text" id="zip" name="zip" class="form-control form-custom @error('zip') is-invalid @enderror" placeholder="Code postal" value="{{ old('zip') }}">
+                            <label for="zip" class="form-label">{{ __('menu.zip_code') }}</label>
+                            <input type="text" id="zip" name="zip" class="form-control form-custom @error('zip') is-invalid @enderror" placeholder="{{ __('menu.zip_code') }}" value="{{ old('zip') }}">
                             @error('zip')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <!-- Nouvelle section : Zone desservie -->
-                        <div class="mb-3">
-                            <label for="zone_id" class="form-label">Zone de livraison</label>
-                            <select id="zone_id" name="zone_id" class="form-control form-custom @error('zone_id') is-invalid @enderror">
-                                <option value="">Choisissez votre zone</option>
-                                @foreach($zones as $zone)
-                                    <option value="{{ $zone->id }}" {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
-                                        {{ $zone->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('zone_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                    <!-- Mode de paiement -->
                     <div class="mb-3">
-                        <label for="create_payment_id" class="form-label">Mode de paiement</label>
+                    <label for="zone_id" class="form-label">{{ __('menu.delivery_zone') }}</label>
+                    <select id="zone_id" name="zone_id" class="form-control form-custom @error('zone_id') is-invalid @enderror">
+                        <option value="">{{ __('menu.select_zone') }}</option>
+                        @foreach($zones as $zone)
+                            <option value="{{ $zone->id }}" {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
+                                {{ $zone->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('zone_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                            </div>
+
+                            <!-- Mode de paiement -->
+                    <div class="mb-3">
+                        <label for="create_payment_id" class="form-label">{{ __('menu.payment_method') }}</label>
                         @foreach($payments as $payment)
                             <div class="form-check">
-                                <input
-                                    class="form-check-input payment-option"
-                                    type="radio"
-                                    id="payment_{{ $payment->id }}"
-                                    name="payment_id"
-                                    value="{{ $payment->id }}"
-                                    data-payment-name="{{ $payment->name }}"
-                                    {{ old('payment_id') == $payment->id ? 'checked' : '' }}>
+                                <input class="form-check-input payment-option" type="radio" id="payment_{{ $payment->id }}" name="payment_id" value="{{ $payment->id }}" data-payment-name="{{ $payment->name }}" {{ old('payment_id') == $payment->id ? 'checked' : '' }}>
                                 <label class="form-check-label" for="payment_{{ $payment->id }}">
                                     {{ $payment->name }}
                                 </label>
@@ -155,117 +128,122 @@
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
-                    <input type="hidden" id="payment_method" name="payment_method" class="form-control">
+                                <input type="hidden" id="payment_method" name="payment_method" class="form-control">
 
-                    <!-- Conteneur Stripe -->
+                                <!-- Conteneur Stripe -->
+                            <!-- Conteneur Stripe -->
                     <div id="stripe_elements_container" style="display: none;">
-                        <label for="card-element" class="form-label">Paiement Stripe</label>
+                        <label for="card-element" class="form-label">{{ __('menu.stripe_payment') }}</label>
                         <div id="card-element"></div>
                     </div>
 
 
 
-                        <div class="mb-3">
-                            <label for="orderNotes" class="form-label">Notes de commande (facultatif)</label>
-                            <textarea id="orderNotes" name="order_notes" class="form-control form-custom @error('order_notes') is-invalid @enderror" rows="5" placeholder="Notes sur la commande, par ex. instructions de livraison.">{{ old('order_notes') }}</textarea>
-                            @error('order_notes')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                            @enderror
-                        </div>
+                    <div class="mb-3">
+                        <label for="orderNotes" class="form-label">{{ __('menu.order_notes') }}</label>
+                        <textarea id="orderNotes" name="order_notes" class="form-control form-custom @error('order_notes') is-invalid @enderror" rows="5" placeholder="{{ __('menu.order_notes_placeholder') }}">{{ old('order_notes') }}</textarea>
+                        @error('order_notes')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                        <div class="alert alert-info mt-3">
-                            Un acompte de <strong>50%</strong> est requis pour confirmer votre commande. Le solde sera réglé à la livraison.
-                        </div>
+                    <div class="alert alert-info mt-3">
+                        {!! __('menu.deposit_notice') !!}
 
-                        <!-- Case à cocher pour conditions générales -->
-                        <div class="form-check mb-3">
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                id="terms"
-                                name="terms"
-                                value="1"
-                                {{ old('terms') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="terms">
-                                J'accepte les <a href="#" target="_blank">conditions générales</a> de vente.
-                            </label>
-                            @error('terms')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    </div>
 
-                        <button type="submit" id="submit-button" class="btn btn-orange mt-3">COMMANDER</button>
+                      <!-- Case à cocher pour conditions générales -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="terms" name="terms" value="1" {{ old('terms') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="terms">
+                            {!! __('menu.terms_acceptance') !!}
+                        </label>
+                        @error('terms')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                        <button type="submit" id="submit-button" class="btn btn-orange mt-3">{{ __('menu.order_button') }}</button>
                     </form>
                 </div>
                <!-- Résumé de la commande -->
                <div class="col-md-7">
-                <h4 class="mt-4">Votre commande</h4>
+                <h4 class="mt-4">{{ __('menu.order_summary_title') }}</h4>
                 <table class="table table-dark mt-4">
                     <thead>
                         <tr>
-                            <th>Produit</th>
-                            <th>Quantité</th>
-                            <th>Sous-total</th>
+                            <th>{{ __('menu.order_product') }}</th>
+                            <th>{{ __('menu.order_quantity') }}</th>
+                            <th>{{ __('menu.order_subtotal') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($cart as $id => $item)
                             @php
-                                // Calcul de la valeur en litres en fonction de la taille sélectionnée
-                                $sizeValue = $item['size'] === 'half_litre' ? 0.5 : 1;
-                                $totalSize = $sizeValue * $item['quantity'];
+                                $itemSubtotal = $item['price'] * $item['quantity'];
+                                $totalSize = null;
+                                $sizeLabel = '';
+
+                                if ($item['price_choice'] === 'detailed') {
+                                    $sizeValue = $item['size'] === 'half_litre' ? 0.5 : 1;
+                                    $totalSize = $sizeValue * $item['quantity'];
+                                    $sizeLabel = $item['size'] === 'half_litre' ? __('menu.half') : __('menu.full');
+                                }
                             @endphp
                             <tr>
+                                <!-- Produit (image + nom) -->
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
                                         <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" style="width: 80px; height: auto;">
                                         <span>{{ $item['name'] }}</span>
                                     </div>
                                 </td>
+
+                                <!-- Prix × Quantité (+ Taille si detailed) -->
                                 <td>
-                                    {{ $item['quantity'] }} ×
-                                    @if ($item['size'] === 'half_litre')
-                                        0.5L
-                                    @else
-                                        1L
-                                    @endif
-                                    = <strong>{{ $totalSize }} Litre(s)</strong>
+                                    {{ $item['quantity'] }} × £{{ number_format($item['price'], 2) }}
+                                    {{--
+                                    @if ($item['price_choice'] === 'detailed')
+                                        ({{ $sizeLabel }})
+                                        <br>
+                                        = <strong>{{ $totalSize }} {{ __('menu.litre') }}</strong>
+                                    @endif --}}
                                 </td>
-                                <td>£{{ number_format($item['price'] * $item['quantity'], 2) }}</td>
+
+                                <!-- Sous-total -->
+                                <td>£{{ number_format($itemSubtotal, 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="2">Sous-total</th>
+                            <th colspan="2">{{ __('menu.order_subtotal_footer') }}</th>
                             <th>£{{ number_format($subtotal, 2) }}</th>
                         </tr>
                         <tr>
-                            <th colspan="2">Acompte (50%)</th>
+                            <th colspan="2">{{ __('menu.order_deposit') }}</th>
                             <th>£{{ number_format($subtotal * 0.5, 2) }}</th>
                         </tr>
                         <tr>
-                            <th colspan="2">Frais de livraison</th>
+                            <th colspan="2">{{ __('menu.order_shipping') }}</th>
                             <th>£{{ number_format($shipping_cost, 2) }}</th>
                         </tr>
                         <tr>
-                            <th colspan="2">Total</th>
+                            <th colspan="2">{{ __('menu.order_total') }}</th>
                             <th>£{{ number_format($total, 2) }}</th>
                         </tr>
                     </tfoot>
-
                 </table>
 
-                <img src="{{ asset('assets/images/menu/images.jpg') }}" class="reseaux" alt="reseaux">
+
+                <img src="{{ asset('assets/images/menu/images.jpg') }}" class="reseaux" alt="{{ __('menu.order_network_image_alt') }}">
 
 
                 <section id="faq">
                     <div class="container py-5">
                         <div class="section-title">
-                            <h2>FAQs</h2>
-                            <p class="faq">Découvrez les réponses aux questions les plus fréquentes concernant nos services.</p>
+                            <h2>{{ __('menu.faq_title') }}</h2>
+                            <p class="faq">{{ __('menu.faq_description') }}</p>
                         </div>
                         <div class="row">
                             <div class="col-md-2"></div>
@@ -275,21 +253,21 @@
                                      <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingFour">
                                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                                Comment commander ?
+                                                {{__('menu.faq_order')  }}
                                             </button>
                                         </h2>
                                         <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
                                             <div class="accordion-body">
                                                 <ol class="ps-3">
-                                                    <li>Parcourez notre menu et ajoutez vos plats et boissons préférés à votre panier.</li>
-                                                    <li>Confirmez votre commande en payant 50% à l'avance (solde à la livraison).</li>
-                                                    <li>Choisissez votre mode de paiement : en ligne ou en espèces.</li>
-                                                    <li>Recevez votre commande directement chez vous !</li>
+                                                    <li> {{__('menu.faq_order_details') }}</li>
+                                                    <li>{{__('menu.faq_order_deposit') }}</li>
+                                                    <li>{{__('menu.faq_order_payment_method') }}</li>
+                                                    <li>{{__('menu.faq_order_delivery') }}</li>
                                                 </ol>
-                                                <p class="mt-2"><strong>Livraison rapide à Londres !</strong></p>
+                                                <p class="mt-2"><strong>{{__('menu.quick_delivery') }}</strong></p>
                                                 <ul>
-                                                    <li>Livraison gratuite pour les commandes de £30 ou plus.</li>
-                                                    <li><strong>Zones desservies :</strong> [Liste des zones locales].</li>
+                                                    <li>{{__('menu.free_delivery') }}</li>
+                                                    <li><strong>{{__('menu.delivery_zones') }} :</strong>{{__('menu.local_zones') }}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -299,12 +277,12 @@
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingOne">
                                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                                Quels sont vos modes de paiement ?
+                                                {{__('menu.faq_payment') }}
                                             </button>
                                         </h2>
                                         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                             <div class="accordion-body">
-                                                Nous acceptons les paiements en ligne (carte bancaire ou PayPal) et en espèces à la livraison.
+                                                {{__('menu.faq_payment_details') }}
                                             </div>
                                         </div>
                                     </div>
@@ -313,12 +291,12 @@
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingTwo">
                                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                                Comment fonctionne le paiement ?
+                                                {{__('menu.faq_deposit')}}
                                             </button>
                                         </h2>
                                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                                             <div class="accordion-body">
-                                                Un acompte de 50% est requis à la commande. Le solde restant est à régler lors de la livraison.
+                                                {{__('menu.faq_deposit_details')}}
                                             </div>
                                         </div>
                                     </div>
@@ -327,12 +305,12 @@
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingThree">
                                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                                Quels sont vos délais de livraison ?
+                                                 {{__('menu.faq_delivery')}}
                                             </button>
                                         </h2>
                                         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                                             <div class="accordion-body">
-                                                Nos livraisons sont effectuées dans un délai de 1 à 2 heures après la confirmation de la commande.
+                                                {{__('menu.faq_delivery_details')}}
                                             </div>
                                         </div>
                                     </div>
@@ -473,32 +451,10 @@
 
 @push('scriptsCheckout')
 <script src="{{ asset('assets/js/global.js') }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const stripeContainer = document.getElementById('stripe_elements_container');
-        const paymentOptions = document.querySelectorAll('.payment-option');
 
-        paymentOptions.forEach(option => {
-            option.addEventListener('change', function () {
-                // Vérifiez si la méthode de paiement est Stripe
-                if (this.dataset.paymentName === 'Stripe') {
-                    stripeContainer.style.display = 'block'; // Affiche le conteneur Stripe
-                } else {
-                    stripeContainer.style.display = 'none'; // Masque le conteneur Stripe
-                }
-            });
-        });
-
-        // Si un choix est pré-sélectionné au chargement de la page
-        const selectedOption = document.querySelector('.payment-option:checked');
-        if (selectedOption && selectedOption.dataset.paymentName === 'Stripe') {
-            stripeContainer.style.display = 'block';
-        }
-    });
-</script>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+   document.addEventListener('DOMContentLoaded', function () {
     const stripeApiKey = "{{ $stripeGateway->api_key }}";
     const stripe = Stripe(stripeApiKey);
     const elements = stripe.elements();
@@ -509,35 +465,57 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     cardElement.mount('#card-element');
 
-    const cardButton = document.getElementById('submit-button');
-    cardButton.addEventListener('click', async (e) => {
-        e.preventDefault();
+    const submitButton = document.getElementById('submit-button');
+    const checkoutForm = document.getElementById('checkout-form');
+    const paymentMethodInput = document.getElementById('payment_method');
+    const stripeContainer = document.getElementById('stripe_elements_container');
+    const paymentOptions = document.querySelectorAll('.payment-option');
 
-        const selectedPaymentOption = document.querySelector('.payment-option:checked');
-        if (selectedPaymentOption && selectedPaymentOption.dataset.paymentName === 'Stripe') {
-            try {
-                // Créer le PaymentMethod avec Stripe
-                const { paymentMethod, error } = await stripe.createPaymentMethod('card', cardElement);
-
-                if (error) {
-                    alert(error.message);
-                    return;
-                }
-
-                // Ajouter l'ID de payment_method à un champ caché
-                document.getElementById('payment_method').value = paymentMethod.id;
-
-                // Soumettre le formulaire au backend
-                document.getElementById('checkout-form').submit();
-            } catch (err) {
-                console.error("Erreur lors de la création du PaymentMethod", err);
-                alert("Une erreur est survenue. Veuillez réessayer.");
+    // Gestion de l'affichage du conteneur Stripe
+    paymentOptions.forEach(option => {
+        option.addEventListener('change', function () {
+            if (this.dataset.paymentName === 'Stripe') {
+                stripeContainer.style.display = 'block';
+            } else {
+                stripeContainer.style.display = 'none';
             }
-        } else {
-            alert("Veuillez sélectionner une méthode de paiement valide.");
+        });
+    });
+
+    // Pré-sélection au chargement
+    const selectedOption = document.querySelector('.payment-option:checked');
+    if (selectedOption && selectedOption.dataset.paymentName === 'Stripe') {
+        stripeContainer.style.display = 'block';
+    }
+
+    submitButton.addEventListener('click', async function (e) {
+        const selectedPaymentOption = document.querySelector('.payment-option:checked');
+
+        if (selectedPaymentOption) {
+            const paymentName = selectedPaymentOption.dataset.paymentName;
+
+            // Bloquer uniquement pour Stripe
+            if (paymentName === 'Stripe') {
+                e.preventDefault();
+                try {
+                    const { paymentMethod, error } = await stripe.createPaymentMethod('card', cardElement);
+
+                    if (error) {
+                        alert(error.message);
+                        return;
+                    }
+
+                    paymentMethodInput.value = paymentMethod.id;
+                    checkoutForm.submit(); // Soumission pour Stripe après la création du PaymentMethod
+                } catch (err) {
+                    console.error("Erreur lors de la création du PaymentMethod", err);
+                    alert("Une erreur est survenue. Veuillez réessayer.");
+                }
+            }
         }
     });
 });
+
 </script>
 
 

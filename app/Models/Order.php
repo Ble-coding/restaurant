@@ -5,18 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Translatable\HasTranslations;
 
 class Order extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
 
     const STATUSES = [
-        'pending' => 'En attente',
-        'preparing' => 'En cours de préparation',
-        'shipped' => 'Expédiée',
-        'delivered' => 'Livrée',
-        'canceled' => 'Annulée',
+        'pending' => 'order.status.pending',
+        'preparing' => 'order.status.preparing',
+        'shipped' => 'order.status.shipped',
+        'delivered' => 'order.status.delivered',
+        'canceled' => 'order.status.canceled',
     ];
+
+    public $translatable = ['status'];
 
     const NON_MODIFIABLE_STATUSES = ['canceled', 'delivered'];
 
@@ -28,6 +31,16 @@ class Order extends Model
          ,'shipping_cost'
         //  ,'shipping_id'
     ];
+
+    protected $casts = [
+        'status' => 'array', // Pour caster automatiquement ton JSON
+    ];
+
+    public function getTranslatedStatusAttribute()
+    {
+        $locale = App::getLocale(); // Récupère la langue actuelle
+        return $this->status[$locale] ?? $this->status['en']; // Fallback en anglais si pas trouvé
+    }
 
     public function products()
     {
@@ -60,9 +73,18 @@ class Order extends Model
     // Méthode pour récupérer l'étiquette du statut
     public function getStatusLabel()
     {
-        return self::STATUSES[$this->status] ?? 'Statut inconnu';
+        return __($this->getStatusTranslationKey());
     }
 
+    // Nouvelle méthode pour récupérer la clé
+    public function getStatusTranslationKey()
+    {
+        return self::STATUSES[$this->status] ?? 'order.status.unknown';
+    }
+    public function getRawStatus()
+    {
+        return $this->getAttributes()['status'];
+    }
 
     // Relation avec le modèle Shipping
     // public function shipping()

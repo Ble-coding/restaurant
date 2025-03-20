@@ -49,29 +49,19 @@
                                     $sizeLabel = $item['size'] === 'half_litre' ? __('menu.half') : __('menu.full');
                                 }
                             @endphp
-                            <tr>
-                                <!-- Produit (image + nom) -->
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" style="width: 80px; height: auto;">
-                                        <span>{{ $item['name'] }}</span>
-                                    </div>
-                                </td>
+                          <tr>
+                            <td>
+                                <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" width="50" height="50">
+                                {{ $item['name'] }}
+                                {{-- @if (!empty($item['size']))
+                                    <br>({{ __('menu.' . $item['size']) }})
+                                @endif --}}
+                            </td>
+                            <td>£ {{ number_format($item['price'], 2) }}</td>
+                            <td>{{ $item['quantity'] }}</td>
+                            <td>£ {{ number_format($item['price'] * $item['quantity'], 2) }}</td>
 
-                                <!-- Prix × Quantité (+ Taille si detailed) -->
-                                <td>
-                                    {{ $item['quantity'] }} × £{{ number_format($item['price'], 2) }}
-
-                                    @if ($item['price_choice'] === 'detailed')
-                                        ({{ $sizeLabel }})
-                                        <br>
-                                        = <strong>{{ $totalSize }} {{ __('menu.litre') }}</strong>
-                                    @endif
-                                </td>
-
-                                <!-- Sous-total -->
-                                <td>£{{ number_format($itemSubtotal, 2) }}</td>
-                            </tr>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>

@@ -253,7 +253,7 @@ class MenuController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Veuillez vous connecter pour passer une commande.',
+                'message' => __('menu.login_required'),
                 'redirect' => route('customer.login')
             ], 401);
         }
@@ -269,7 +269,7 @@ class MenuController extends Controller
             } else {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Veuillez sélectionner une taille valide.'
+                    'message' => __('menu.invalid_size')
                 ], 400);
             }
         } else {
@@ -296,7 +296,7 @@ class MenuController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Produit ajouté au panier.',
+            'message' => __('menu.product_added'),
             'cart' => $cart,
         ]);
     }
@@ -367,9 +367,19 @@ class MenuController extends Controller
         //     $query->where('name', 'Stripe');
         // })->first();
 
+        // $stripeGateway = PaymentGateway::whereHas('payment', function ($query) {
+        //     $query->where('name', 'Stripe');
+        // })->first();
+
         $stripeGateway = PaymentGateway::whereHas('payment', function ($query) {
-            $query->where('name', 'Stripe');
+            $query->where(function ($subQuery) {
+                foreach (['fr', 'en'] as $locale) {
+                    $subQuery->orWhere("name->{$locale}", 'Stripe');
+                }
+            });
         })->first();
+
+        // dd($stripeGateway);
 
 
         $cart = session('cart', []);
@@ -377,14 +387,22 @@ class MenuController extends Controller
             return $item['price'] * $item['quantity'];
         });
 
-        // Gestion des frais de livraison
-        $standardShipping = Shipping::where('name', 'Standard')->first();
-        $freeShipping = Shipping::where('name', 'Gratuit')->first();
+            // Récupération des modes de livraison en fonction du type
+        $freeShipping = Shipping::where('type', 'free')->first();
+        $paidShipping = Shipping::where('type', 'paid')->first();
+        $conditionalShipping = Shipping::where('type', 'conditional')->first();
 
-        $shipping_cost = ($subtotal >= 30)
-            ? 0 // Livraison gratuite
-            : ($standardShipping ? $standardShipping->price : 0); // Livraison standard
+        $shipping_cost = 0; // Par défaut, livraison gratuite
 
+        if ($conditionalShipping && $subtotal < $conditionalShipping->min_price_for_free) {
+            // Si la livraison conditionnelle est définie et que le sous-total est inférieur au seuil
+            $shipping_cost = $conditionalShipping->price;
+        } elseif (!$freeShipping) {
+            // Si la livraison gratuite n'existe pas, on applique la livraison payante s'il y en a une
+            $shipping_cost = $paidShipping ? $paidShipping->price : 0;
+        }
+
+        // Calcul du total
         $total = $subtotal + $shipping_cost;
 
         // Passez les variables nécessaires à la vue
@@ -423,13 +441,16 @@ class MenuController extends Controller
 
          // Vérifiez si Stripe est sélectionné et que payment_method est requis
             $payment = Payment::findOrFail($request->payment_id);
-            if ($payment->name === "Stripe" && !$request->filled('payment_method')) {
-                return back()->withErrors(['payment_method' => 'Veuillez sélectionner un moyen de paiement valide pour Stripe.']);
+            if ($payment->getTranslation('name', app()->getLocale()) === "Stripe" && !$request->filled('payment_method')) {
+                // return back()->withErrors(['payment_method' => 'Veuillez sélectionner un moyen de paiement valide pour Stripe.']);
+                return back()->withErrors(['payment_method' => __('menu.invalid_payment')]);
             }
 
         $customerId = Auth::guard('customer')->id();
         if (!$customerId) {
-            return redirect()->route('customer.login')->withErrors(['error' => 'Veuillez vous connecter pour passer une commande.']);
+            // return redirect()->route('customer.login')->withErrors(['error' => 'Veuillez vous connecter pour passer une commande.']);
+            return redirect()->route('customer.login')->withErrors(['error' => __('menu.login_required')]);
+
         }
 
         $coupon = null;
@@ -439,7 +460,8 @@ class MenuController extends Controller
             if ($coupon && $coupon->isValid()) {
                 $discount = $coupon->discount;
             } else {
-                return back()->withErrors(['coupon_code' => 'Le coupon est invalide ou expiré.']);
+                return back()->withErrors(['coupon_code' => __('menu.invalid_coupon')]);
+
             }
         }
 
@@ -447,9 +469,20 @@ class MenuController extends Controller
         $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
         $total = $subtotal - ($subtotal * ($discount / 100));
 
-        $shipping = Shipping::where('name', $total >= 30 ? 'Gratuit' : 'Standard')->first();
-        $shippingCost = $total >= 30 ? 0 : $shipping->price;
+          // Récupération des modes de livraison en fonction du type
+          $freeShipping = Shipping::where('type', 'free')->first();
+          $paidShipping = Shipping::where('type', 'paid')->first();
+          $conditionalShipping = Shipping::where('type', 'conditional')->first();
+
+        $shipping_cost = 0;
+       // Récupération du mode de livraison correspondant
+        $shipping = $shipping_cost == 0 ? $freeShipping : ($conditionalShipping && $subtotal < $conditionalShipping->min_price_for_free ? $conditionalShipping : $paidShipping);
+        $shippingCost = $shipping ? $shipping->price : 0;
         $total += $shippingCost;
+
+        // $shipping = Shipping::where('name', $total >= 30 ? 'Gratuit' : 'Standard')->first();
+        // $shippingCost = $total >= 30 ? 0 : $shipping->price;
+        // $total += $shippingCost;
 
         $order = Order::create([
             'code' => Order::generateOrderCode(),
@@ -488,14 +521,19 @@ class MenuController extends Controller
 
 
 
-        if ($order->payment->name === "Cinetpay") {
+        if ($order->payment->getTranslation('name', app()->getLocale()) === "Cinetpay") {
             $paymentGateway = PaymentGateway::whereHas('payment', function ($query) {
-                $query->where('name', 'Cinetpay');
+                $query->whereRaw("JSON_EXTRACT(name, '$.fr') = ?", ['Cinetpay'])
+                      ->orWhereRaw("JSON_EXTRACT(name, '$.en') = ?", ['Cinetpay']);
             })->first();
 
 
+
             if (!$paymentGateway) {
-                return back()->withErrors(['error' => 'Passerelle de paiement non configurée.']);
+
+                return back()->withErrors(['error' => __('menu.stripe_gateway_not_configured')]);
+
+
             }
 
             // Conversion GBP -> XOF
@@ -540,7 +578,7 @@ class MenuController extends Controller
             }
 
 
-        }else if($order->payment->name === "Stripe") {
+        }else if($order->payment->getTranslation('name', app()->getLocale()) === "Stripe") {
             return $this->handleStripePayment($order, $total, $request);
         }
 
@@ -642,57 +680,119 @@ class MenuController extends Controller
      * @param float $total
      * @return RedirectResponse
      */
-    private function handleStripePayment(Order $order, float $total, Request $request)
-    {
-        \Log::info("Début du traitement Stripe pour la commande", ['order_code' => $order->code]);
+    // private function handleStripePayment(Order $order, float $total, Request $request)
+    // {
+    //     \Log::info("Début du traitement Stripe pour la commande", ['order_code' => $order->code]);
 
-        // Récupération des informations de passerelle Stripe depuis la table `payment_gateways`
-        $paymentGateway = PaymentGateway::whereHas('payment', function ($query) {
-            $query->where('name', 'Stripe');
-        })->first();
+    //     // Récupération des informations de passerelle Stripe depuis la table `payment_gateways`
+    //     // $paymentGateway = PaymentGateway::whereHas('payment', function ($query) {
+    //     //     $query->where('name', 'Stripe');
+    //     // })->first();
 
-        if (!$paymentGateway) {
-            \Log::error("Passerelle de paiement Stripe non configurée.");
-            return back()->withErrors(['error' => 'Passerelle de paiement Stripe non configurée.']);
-        }
+    //     $paymentGateway = PaymentGateway::whereHas('payment', function ($query) {
+    //         $query->whereRaw("JSON_EXTRACT(name, '$.fr') = ?", ['Stripe'])
+    //               ->orWhereRaw("JSON_EXTRACT(name, '$.en') = ?", ['Stripe']);
+    //     })->first();
 
-        // Initialisation du service Stripe avec les clés API de la table
-        $stripeService = new Stripe($paymentGateway->api_key, $paymentGateway->secret_key);
 
-        $totalInCents = (int) round($total * 100); // Stripe utilise des montants en centimes
-        \Log::info("Montant total calculé pour Stripe", ['totalInCents' => $totalInCents]);
+    //     if (!$paymentGateway) {
+    //         \Log::error("Passerelle de paiement Stripe non configurée.");
 
-        try {
-            $paymentIntent = $stripeService->initiatePayment([
-                'amount' => $totalInCents,
-                'currency' => 'usd',
-                'description' => "Paiement pour la commande {$order->code}",
-                'payment_method' => $request->payment_method, // Utilisez le payment_method transmis
-                'confirm' => true, // Confirmer le paiement immédiatement
-            ]);
+    //         return back()->withErrors(['error' => __('menu.stripe_gateway_not_configured')]);
 
-            if ($paymentIntent['status'] !== 'succeeded') {
-                \Log::warning("Paiement non complété", ['status' => $paymentIntent['status']]);
-                return back()->withErrors(['error' => 'Le paiement n\'a pas été complété. Veuillez réessayer.']);
+
+    //     }
+
+    //     // Initialisation du service Stripe avec les clés API de la table
+    //     $stripeService = new Stripe($paymentGateway->api_key, $paymentGateway->secret_key);
+
+    //     $totalInCents = (int) round($total * 100); // Stripe utilise des montants en centimes
+    //     \Log::info("Montant total calculé pour Stripe", ['totalInCents' => $totalInCents]);
+
+    //     try {
+    //         $paymentIntent = $stripeService->initiatePayment([
+    //             'amount' => $totalInCents,
+    //             'currency' => 'usd',
+    //             'description' => "Paiement pour la commande {$order->code}",
+    //             'payment_method' => $request->payment_method, // Utilisez le payment_method transmis
+    //             'confirm' => true, // Confirmer le paiement immédiatement
+    //         ]);
+
+    //         if ($paymentIntent['status'] !== 'succeeded') {
+    //             \Log::warning("Paiement non complété", ['status' => $paymentIntent['status']]);
+    //             return back()->withErrors(['error' => 'Le paiement n\'a pas été complété. Veuillez réessayer.']);
+    //         }
+
+    //         $order->update([
+    //             'status' => 'paid',
+    //             'payment_intent_id' => $paymentIntent['id'],
+    //         ]);
+
+    //         \Log::info("Paiement Stripe confirmé", ['paymentIntent' => $paymentIntent]);
+
+    //         // Redirection vers une page de succès
+    //         return redirect()->route('customer.orders.success', $order->id);
+    //     } catch (\Exception $e) {
+    //         \Log::error("Erreur Stripe lors du paiement", [
+    //             'order_code' => $order->code,
+    //             'error' => $e->getMessage(),
+    //         ]);
+    //         return back()->withErrors(['error' => __('menu.stripe_payment_error', ['message' => $e->getMessage()])]);
+    //     }
+    // }
+
+    public function handleStripePayment(Request $request, Order $order, StripeService $stripeService)
+{
+    try {
+        $totalInCents = (int) ($order->total * 100); // Convertir en cents
+
+        // Étape 1 : Créer le PaymentIntent sans confirmation immédiate
+        $paymentIntent = $stripeService->initiatePayment([
+            'amount' => $totalInCents,
+            'currency' => 'usd',
+            'description' => "Paiement pour la commande {$order->code}",
+            'payment_method' => $request->payment_method,
+        ]);
+
+        // Vérification du statut du PaymentIntent
+        if ($paymentIntent['status'] === 'requires_confirmation') {
+            \Log::info("Confirmation requise pour Stripe", ['paymentIntentId' => $paymentIntent['id']]);
+
+            // Étape 2 : Confirmer le PaymentIntent après sa création
+            $confirmedPayment = $stripeService->confirmPaymentIntent($paymentIntent['id']);
+
+            if ($confirmedPayment['status'] !== 'succeeded') {
+                \Log::warning("Paiement non complété après confirmation", ['status' => $confirmedPayment['status']]);
+                return back()->withErrors(['error' => 'Le paiement n\'a pas été complété après confirmation. Veuillez réessayer.']);
             }
 
+            // Mettre à jour la commande après confirmation réussie
+            $order->update([
+                'status' => 'paid',
+                'payment_intent_id' => $confirmedPayment['id'],
+            ]);
+
+            \Log::info("Paiement Stripe confirmé après confirmation manuelle", ['paymentIntent' => $confirmedPayment]);
+
+            return redirect()->route('customer.orders.success', $order->id);
+        }
+
+        // Cas où le paiement est déjà réussi sans confirmation
+        if ($paymentIntent['status'] === 'succeeded') {
             $order->update([
                 'status' => 'paid',
                 'payment_intent_id' => $paymentIntent['id'],
             ]);
-
-            \Log::info("Paiement Stripe confirmé", ['paymentIntent' => $paymentIntent]);
-
-            // Redirection vers une page de succès
             return redirect()->route('customer.orders.success', $order->id);
-        } catch (\Exception $e) {
-            \Log::error("Erreur Stripe lors du paiement", [
-                'order_code' => $order->code,
-                'error' => $e->getMessage(),
-            ]);
-            return back()->withErrors(['error' => 'Erreur de paiement Stripe : ' . $e->getMessage()]);
         }
+
+        return back()->withErrors(['error' => 'Une erreur s\'est produite lors du paiement. Veuillez réessayer.']);
+    } catch (Exception $e) {
+        \Log::error("Erreur lors du traitement du paiement Stripe", ['message' => $e->getMessage()]);
+        return back()->withErrors(['error' => 'Une erreur s\'est produite avec Stripe : ' . $e->getMessage()]);
     }
+}
+
 
     private function handle3DSecureAction($paymentIntent)
     {
@@ -703,6 +803,11 @@ class MenuController extends Controller
 
         \Log::error("Action supplémentaire Stripe requise mais non prise en charge", ['paymentIntent' => $paymentIntent]);
         return back()->withErrors(['error' => 'Action supplémentaire Stripe requise mais non prise en charge.']);
+    }
+    public function paymentSuccess()
+    {
+        return redirect()->route('customer.orders.index')
+        ->with('success', __('menu.payment_success'));
     }
 
     public function getConversionRate($fromCurrency, $toCurrency)
@@ -740,11 +845,7 @@ class MenuController extends Controller
     }
 
 
-    public function paymentSuccess()
-    {
-        return redirect()->route('customer.orders.index')
-            ->with('success', 'Paiement Réussi ! Votre commande a été confirmée avec succès. Merci pour votre achat');
-    }
+
 
 
 

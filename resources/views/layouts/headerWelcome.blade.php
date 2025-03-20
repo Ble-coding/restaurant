@@ -11,14 +11,14 @@
                     <!-- Lien pour les utilisateurs authentifiés -->
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() === 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                            Dashboard
+                            {{ __('header.home') }}
                         </a>
                     </li>
                 @else
                     <!-- Lien pour la connexion -->
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() === 'login' ? 'active' : '' }}" href="{{ route('login') }}">
-                            Accès
+                            {{ __('header.login') }}
                         </a>
                     </li>
 
@@ -26,7 +26,7 @@
                     @if (Route::has('register.account'))
                         <li class="nav-item">
                             <a class="nav-link {{ Route::currentRouteName() === 'register.account' ? 'active' : '' }}" href="{{ route('register.account') }}">
-                                Inscription
+                                {{ __('header.register') }}
                             </a>
                         </li>
                     @endif

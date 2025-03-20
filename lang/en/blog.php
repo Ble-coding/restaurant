@@ -77,7 +77,7 @@ return [
      // Translations for the page and dashboard
      'dashboard_title' => 'Blogs',
      'dashboard_welcome_message' => 'Welcome to the dashboard, your control center where you can view important information and manage your settings.',
-     'search_placeholder' => 'Search...',
+    //  'search_placeholder' => 'Search...',
 
      // Delete modal
      'delete_modal_title' => 'Confirm Deletion',
@@ -99,5 +99,13 @@ return [
     "content" => "Enter your comment here...",
     "save_info" => "Save my name, email, and website in this browser for my next comment.",
     "submit" => "Post Comment",
+
+    'search_placeholder' => 'Search articles...',
+    'category_filter' => 'Filter by category',
+    'status_filter' => 'Filter by status',
+    'published' => 'Published',
+    'draft' => 'Draft',
+    'search_button' => 'Search',
+    // 'forbidden' => 'You do not have permission to view this page.',
 
 ];

@@ -21,4 +21,77 @@ return [
     'quantity' => 'Quantité',
     'deposit' => 'Acompte',
 
+     // Coupon
+     'coupon_text' => 'Vous avez un coupon ? Cliquez ici pour entrer votre code',
+     'coupon_placeholder' => 'Code du coupon',
+     'apply_coupon' => 'Appliquer le coupon',
+
+     // FAQ
+     'faq_title' => 'FAQs',
+     'faq_description' => 'Découvrez les réponses aux questions les plus fréquentes concernant nos services.',
+     'faq_order' => 'Comment commander ?',
+     'faq_order_details' => 'Parcourez notre menu et ajoutez vos plats et boissons préférés à votre panier.',
+     'faq_payment' => 'Quels sont vos modes de paiement ?',
+     'faq_payment_details' => 'Nous acceptons les paiements en ligne (carte bancaire ou PayPal) et en espèces à la livraison.',
+     'faq_deposit' => 'Comment fonctionne le paiement ?',
+     'faq_deposit_details' => 'Un acompte de 50% est requis à la commande. Le solde restant est à régler lors de la livraison.',
+     'faq_delivery' => 'Quels sont vos délais de livraison ?',
+     'faq_delivery_details' => 'Nos livraisons sont effectuées dans un délai de 1 à 2 heures après la confirmation de la commande.',
+     'delivery_zones' => 'Zones desservies',
+     'free_delivery' => 'Livraison gratuite pour les commandes de £30 ou plus.',
+     'faq_order_deposit' => 'Confirmez votre commande en payant 50% à l\'avance (solde à la livraison).',
+     'faq_order_payment_method' => 'Choisissez votre mode de paiement : en ligne ou en espèces.',
+     'faq_order_delivery' => 'Recevez votre commande directement chez vous !',
+     'quick_delivery' => 'Livraison rapide à Londres !',
+     'local_zones' => '[Liste des zones locales]',
+
+        // Order Summary
+    'order_summary_title' => 'Votre commande',
+    'order_product' => 'Produit',
+    'order_quantity' => 'Quantité',
+    'order_subtotal' => 'Sous-total',
+    'order_half_litre' => '0.5L',
+    'order_one_litre' => '1L',
+    'order_litres' => 'Litre(s)',
+    'order_subtotal_footer' => 'Sous-total',
+    'order_deposit' => 'Acompte (50%)',
+    'order_shipping' => 'Frais de livraison',
+    'order_total' => 'Total',
+    'order_network_image_alt' => 'Réseaux',
+
+
+    'login_required' => 'Veuillez vous connecter pour passer une commande.',
+    'invalid_size' => 'Veuillez sélectionner une taille valide.',
+    'product_added' => 'Produit ajouté au panier.',
+
+    'product_removed' => 'Produit retiré du panier.',
+    'invalid_payment' => 'Veuillez sélectionner un moyen de paiement valide pour Stripe.',
+    'stripe_not_configured' => 'Passerelle de paiement Stripe non configurée.',
+    'payment_description' => 'Paiement pour la commande :order_code',
+    'payment_not_completed' => 'Le paiement n\'a pas été complété. Veuillez réessayer.',
+    'stripe_payment_error' => 'Erreur de paiement Stripe : :message',
+    'stripe_action_required' => 'Action supplémentaire Stripe requise mais non prise en charge.',
+    'payment_success' => 'Paiement Réussi ! Votre commande a été confirmée avec succès. Merci pour votre achat.',
+
+    'billing_details' => 'Détails de facturation',
+    'first_name' => 'Prénom',
+    'last_name' => 'Nom',
+    'email' => 'Adresse email',
+    'phone' => 'Téléphone',
+    'address' => 'Adresse',
+    'address_placeholder' => 'Rue et numéro',
+    'city' => 'Ville',
+    'zip_code' => 'Code postal',
+    'delivery_zone' => 'Zone de livraison',
+    'stripe_payment' => 'Paiement Stripe',
+    'select_zone' => 'Choisissez votre zone',
+    'payment_method' => 'Mode de paiement',
+    'order_notes' => 'Notes de commande (facultatif)',
+    'order_notes_placeholder' => 'Notes sur la commande, par ex. instructions de livraison.',
+    'deposit_notice' => 'Un acompte de <strong>50%</strong> est requis pour confirmer votre commande. Le solde sera réglé à la livraison.',
+    'terms_acceptance' => 'J\'accepte les <a href="#" target="_blank">conditions générales</a> de vente.',
+    'order_button' => 'COMMANDER',
+
+
+
 ];

@@ -7,34 +7,34 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'home' ? 'active' : '' }}" href="{{ route('home') }}">Accueil</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'home' ? 'active' : '' }}" href="{{ route('home') }}">{{ __('header.home') }}</a>
                 </li>
               <!-- Vérification si vous êtes sur la page des menus -->
               <li class="nav-item">
-                <a class="nav-link {{ Route::currentRouteName() === 'menus.index' ? 'active' : '' }}" href="{{ route('menus.index') }}">Menus</a>
+                <a class="nav-link {{ Route::currentRouteName() === 'menus.index' ? 'active' : '' }}" href="{{ route('menus.index') }}">{{ __('header.menus') }}</a>
             </li>
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Equipes
+                        {{ __('header.teams') }}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{{ route('home') }}#team">Team</a></li>
-                        <li><a class="dropdown-item" href="{{ route('home') }}#apropos">À propos</a></li>
-                        <li><a class="dropdown-item" href="{{ route('home') }}#services">Services</a></li>
+                        <li><a class="dropdown-item" href="{{ route('home') }}#team">{{ __('header.team') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ route('home') }}#apropos"> {{ __('header.about') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ route('home') }}#services">{{ __('header.services') }}</a></li>
                     </ul>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'customer.orders.index' ? 'active' : '' }}" href="{{ route('customer.orders.index') }}">Commandes</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'customer.orders.index' ? 'active' : '' }}" href="{{ route('customer.orders.index') }}">{{ __('header.orders') }}</a>
                 </li>
 
               <!-- Vérification si vous êtes sur la page des blogs -->
                 <li class="nav-item">
-                    <a class="nav-link {{ in_array(Route::currentRouteName(), ['blogs.index', 'blogs.show']) ? 'active' : '' }}" href="{{ route('blogs.index') }}">Blogs</a>
+                    <a class="nav-link {{ in_array(Route::currentRouteName(), ['blogs.index', 'blogs.show']) ? 'active' : '' }}" href="{{ route('blogs.index') }}">{{ __('header.blogs') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('home') }}#contact">Contact</a>
+                    <a class="nav-link" href="{{ route('home') }}#contact">{{ __('header.contact') }}</a>
                 </li>
 
                 <li class="nav-item dropdown menu-item-has-children">
@@ -92,7 +92,7 @@
                                 @csrf
                             </form>
                             <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Déconnexion
+                                {{ __('header.logout') }}
                             </a>
                         </li>
                     </ul>
@@ -101,11 +101,11 @@
                 {{-- Si le client n'est pas connecté --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Connexion
+                        {{ __('header.login') }}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{{ route('customer.login') }}">{{ __('Se connecter') }}</a></li>
-                        <li><a class="dropdown-item" href="{{ route('customer.register') }}">{{ __('S\'enregistrer') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ route('customer.login') }}">  {{ __('header.login') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ route('customer.register') }}">  {{ __('header.register') }}</a></li>
                     </ul>
                 </li>
             @endif

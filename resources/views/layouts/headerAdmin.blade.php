@@ -7,7 +7,7 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">Accueil</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">{{ __('header.home') }}</a>
                 </li>
                 @hasanyrole('super_administrator|administrator')
                     <li class="nav-item dropdown">
@@ -17,49 +17,49 @@
                            role="button"
                            data-bs-toggle="dropdown"
                            aria-expanded="false">
-                            Utilisateurs
+                           {{ __('header.users') }}
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownUsers">
                             <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.users.index' ? 'active' : '' }}"
                                    href="{{ route('admin.users.index') }}">
-                                    User
+                                   {{ __('header.users') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.roles.index' ? 'active' : '' }}"
                                    href="{{ route('admin.roles.index') }}">
-                                    Role
+                                   {{ __('header.roles') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.permissions.index' ? 'active' : '' }}"
                                    href="{{ route('admin.permissions.index') }}">
-                                    Permission
+                                   {{ __('header.permissions') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.coupons.index' ? 'active' : '' }}"
                                    href="{{ route('admin.coupons.index') }}">
-                                    Coupons
+                                   {{ __('header.coupons') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.payments.index' ? 'active' : '' }}"
                                    href="{{ route('admin.payments.index') }}">
-                                    Paiement
+                                   {{ __('header.payments') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.gateways.index' ? 'active' : '' }}"
                                    href="{{ route('admin.gateways.index') }}">
-                                    Passerelle
+                                   {{ __('header.gateways') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item {{ Route::currentRouteName() === 'admin.shippings.index' ? 'active' : '' }}"
                                    href="{{ route('admin.shippings.index') }}">
-                                    Livraison
+                                   {{ __('header.shippings') }}
                                 </a>
                             </li>
                             {{-- <li>
@@ -79,16 +79,19 @@
                 @endhasanyrole
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'admin.products.index' ? 'active' : '' }}" href="{{ route('admin.products.index') }}">Menus</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'admin.products.index' ? 'active' : '' }}" href="{{ route('admin.products.index') }}">{{ __('header.menus') }}</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'admin.categories.index' ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">Catégorie</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'admin.categories.index' ? 'active' : '' }}"
+                       href="{{ route('admin.categories.index') }}">
+                        {{ __('header.category') }}
+                    </a>
                 </li>
 
                 {{-- @if (auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin')) --}}
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() === 'admin.commandes.index' ? 'active' : '' }}" href="{{ route('admin.commandes.index') }}">Commandes</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'admin.commandes.index' ? 'active' : '' }}" href="{{ route('admin.commandes.index') }}">{{ __('header.orders') }}</a>
                 </li>
                 {{-- @elseif (auth()->user()->hasRole('manager') || auth()->user()->can('view-orders'))
                     <li class="nav-item">
@@ -104,19 +107,19 @@
                        role="button"
                        data-bs-toggle="dropdown"
                        aria-expanded="false">
-                        Blogs
+                       {{ __('header.blogs') }}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li>
                             <a class="dropdown-item {{ Route::currentRouteName() === 'admin.articles.index' ? 'active' : '' }}"
                                href="{{ route('admin.articles.index') }}">
-                                Liste
+                               {{ __('header.list') }}
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item {{ Route::currentRouteName() === 'admin.articles.create' ? 'active' : '' }}"
                                href="{{ route('admin.articles.create') }}">
-                                Créer un article
+                               {{ __('header.create_blog') }}
                             </a>
                         </li>
                     </ul>
@@ -162,13 +165,13 @@
                         {{ Auth::user()->name }}
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{{route('admin.profile.edit')}}">{{ __('Profile') }}</a></li>
+                        <li><a class="dropdown-item" href="{{route('admin.profile.edit')}}"> {{ __('header.profile') }}</a></li>
                         <li>
                             <form id="logout-form" action="{{ route('dashboard.exit') }}" method="POST" style="display: none;">
                                 @csrf
                             </form>
                             <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Déconnexion
+                                {{ __('header.logout') }}
                             </a>
                         </li>
 

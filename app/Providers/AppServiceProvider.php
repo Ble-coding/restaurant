@@ -8,6 +8,9 @@ use App\Observers\CouponObserver;
 use Carbon\Carbon;
 // use Illuminate\Support\Facades\Gate;
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**

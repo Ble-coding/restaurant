@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Blog;
 
+use App\Models\Category;
+
 class BlogController extends Controller
 {
     /**
@@ -12,24 +14,39 @@ class BlogController extends Controller
      */
     public function index(Request $request)
     {
-
-        $search = trim($request->get('search')); // Nettoyer l'entrée utilisateur
-
+        // Récupération des filtres
+        $search = trim($request->get('search'));
+        $categoryId = $request->get('category_id'); // Facultatif si tu veux filtrer par catégorie
+        $status = $request->get('status'); // Facultatif si tu veux autoriser d'autres statuts (ex: drafts visibles pour admin connecté)
+    
+        // Récupération des catégories si nécessaire (pour afficher dans la vue)
+        $categories = Category::all();
+    
+        // Construction de la requête
         $blogs = Blog::query()
-            ->withCount('comments')
-            ->where('status', 'published')
+            ->with('category') // Si tu veux afficher la catégorie
+            ->withCount('comments') // Compter les commentaires
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('title', 'like', '%' . $search . '%')
-                            ->orWhere('content', 'like', '%' . $search . '%');
+                             ->orWhere('content', 'like', '%' . $search . '%');
                 });
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            }, function ($query) {
+                $query->where('status', 'published'); // Par défaut, uniquement les blogs publiés
             })
             ->orderBy('created_at', 'desc')
             ->paginate(4);
-
-        return view('blogs.index', compact('blogs'));
+    
+        // Retourner la vue avec filtres
+        return view('blogs.index', compact('blogs', 'categories'));
     }
-
+    
 
     /**
      * Show the form for creating a new resource.
