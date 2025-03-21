@@ -503,6 +503,7 @@ class MenuController extends Controller
             'order_notes' => $request->input('order_notes', null),
             'customer_id' => $customerId,
             'status' => 'pending',
+            'status_key' => 'pending', // <= Ajout ici
         ]);
 
         foreach ($cart as $key => $item) {
@@ -580,6 +581,8 @@ class MenuController extends Controller
 
         }else if($order->payment->getTranslation('name', app()->getLocale()) === "Stripe") {
             return $this->handleStripePayment($order, $total, $request);
+        }else{
+            return redirect()->route('customer.orders.index');
         }
 
         // else if ($order->payment->name === "Stripe") {

@@ -138,7 +138,7 @@
                             <a href="#" class="add_cart m-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $order->id }}">✏️</a>
                         @endunless
                     @endcanany
-                    
+
                             @canany(['view-commandes', 'view-orders'])
                               <a class="{{ Route::currentRouteName() === 'admin.commandes.show' ? 'active' : '' }}" href="{{ route('admin.commandes.show', $order->id) }}">👀</a>
                             @endcanany
@@ -183,6 +183,10 @@
                                         <form method="POST" action="{{ route('admin.commandes.update', $order->id) }}">
                                             @csrf
                                             @method('PUT')
+                                            {{-- {{ __('order.status.pending') }} --}}
+                                            {{-- @dd($order->status)  --}}
+                                            {{-- @dd(__('order.status.pending'));   --}}
+                                            {{ __( $order->status) }}
 
                                             <div class="mb-3">
                                                 <label for="status" class="form-label">{{ __('order.status_filter') }}</label>
@@ -194,6 +198,8 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
+
+                                              
 
                                                 @error('status')
                                                     <span class="text-danger">{{ $message }}</span>

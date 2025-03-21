@@ -6,19 +6,19 @@ return [
     'search_placeholder' => 'Rechercher par nom, code...',
     'status_filter' => 'Filtrer par statut',
     'price_min' => 'Prix min',
+    'not_specified' => 'Non spécifié',
     'search_button' => 'Rechercher',
     'no_orders' => 'Aucune commande trouvée.',
     'product' => 'Produit',
     'products' => 'Produits',
     'status' => [
         'pending' => 'En attente',
-        'preparing' => 'En cours de préparation',
-        'shipped' => 'Expédiée',
-        'delivered' => 'Livrée',
-        'canceled' => 'Annulée',
-        'unknown' => 'Statut inconnu',
+        'preparing' => 'En préparation',
+        'shipped' => 'Expédié',
+        'delivered' => 'Livré',
+        'canceled' => 'Annulé',
     ],
-    'edit_order_title' => 'Modifier la Commande #:code',
+    'edit_order_title' => 'Modifier la Commande :code',
     'update_button' => 'Mettre à jour',
     'cancel_order' => 'Annuler la Commande :code',
     'cancel_confirmation' => 'Êtes-vous sûr de vouloir annuler cette commande ? Cette action est irréversible.',
@@ -32,8 +32,7 @@ return [
     'must_be_logged_in' => 'Vous devez être connecté pour voir vos commandes.',
     'cannot_be_canceled' => 'La commande ne peut être annulée que si elle est en attente.',
 
-
-
+    'cancel_date' => 'Date d\'annulation',
     'order_details' => 'Détails de la commande :code',
     'billing_info' => 'Informations de facturation',
     'first_name' => 'Prénom',
@@ -48,7 +47,7 @@ return [
     'order_info' => 'Informations sur la commande',
     'date' => 'Date',
     'total' => 'Total',
-    'status' => 'Statut',
+    'statut' => 'Statut',
     'coupon_used' => 'Coupon utilisé',
     'delivery_date' => 'Date de livraison',
     'not_delivered' => 'Non livré',
@@ -64,6 +63,5 @@ return [
     'shipping_cost' => 'Frais de livraison',
     'total' => 'Total',
     'footer_text' => 'Vos données personnelles seront utilisées pour traiter votre commande, améliorer votre expérience sur ce site et pour d\'autres fins décrites dans notre <a href="#">politique de confidentialité</a>.',
-
 
 ];

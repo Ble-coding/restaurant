@@ -37,7 +37,11 @@
                 <h5>{{ __('order.order_info') }}</h5>
                 <p><strong class="menu-item-title">{{ __('order.date') }} :</strong> {{ $order->created_at->translatedFormat('j F, Y') }}</p>
                 <p><strong class="menu-item-title">{{ __('order.total') }} :</strong> £{{ number_format($order->total, 2) }} </p>
-                <p><strong class="menu-item-title">{{ __('order.status') }} :</strong>  {{ $order->getTranslation('status', app()->getLocale()) }}</p>
+                <p><strong class="menu-item-title">{{ __('order.statut') }} :</strong>  {{ $order->getTranslation('status', app()->getLocale()) }}</p>
+                {{-- {{ dd($order->status) }} --}}
+                {{-- <p><strong class="menu-item-title">{{ __('order.statut') }} :</strong> {{ $order->status[app()->getLocale()] ?? 'N/A' }}</p> --}}
+
+
                 @if ($order->coupon)
                     <p><strong class="menu-item-title">{{ __('order.coupon_used') }} :</strong> {{ $order->coupon->code }}</p>
                 @endif

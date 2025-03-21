@@ -19,6 +19,14 @@ class Order extends Model
         'canceled' => 'order.status.canceled',
     ];
 
+    // const STATUSES = [
+    //     'pending' => ['en' => 'Pending', 'fr' => 'En attente'],
+    //     'preparing' => ['en' => 'Preparing', 'fr' => 'En préparation'],
+    //     'shipped' => ['en' => 'Shipped', 'fr' => 'Expédié'],
+    //     'delivered' => ['en' => 'Delivered', 'fr' => 'Livré'],
+    //     'canceled' => ['en' => 'Canceled', 'fr' => 'Annulé'],
+    // ];
+
     public $translatable = ['status'];
 
     const NON_MODIFIABLE_STATUSES = ['canceled', 'delivered'];
@@ -28,13 +36,20 @@ class Order extends Model
         'first_name', 'last_name', 'email', 'phone', 'address', 'city','code',
         'zip', 'total', 'status', 'coupon_id', 'order_notes', 'customer_id', 'country_code',
          'payment_id', 'zone_id', 'terms'
-         ,'shipping_cost'
+         ,'shipping_cost','status_key',
         //  ,'shipping_id'
     ];
 
     protected $casts = [
-        'status' => 'array', // Pour caster automatiquement ton JSON
+        'status' => 'array',
+        
     ];
+
+    public function getStatusInEnglish()
+    {
+        return $this->status; // Retourne simplement le statut (qui est une chaîne)
+    }
+
 
     public function getTranslatedStatusAttribute()
     {

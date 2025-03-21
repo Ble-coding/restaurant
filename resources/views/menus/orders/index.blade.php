@@ -171,7 +171,7 @@
                                     <div class="modal-footer">
                                         <form method="POST" action="{{ route('customer.orders.cancelOrder', $order->id) }}">
                                             @csrf
-                                            @method('DELETE')
+                                            {{-- @method('DELETE') --}}
                                             {{-- {{ route('customer.orders.cancelOrder', ['commande' => $order->id]) }} --}}
 
                                             <button type="submit" class="btn view-cart">

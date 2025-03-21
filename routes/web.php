@@ -56,7 +56,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
     Route::get('commandes', [OrderController::class, 'customerOrders'])->name('orders.index');
     Route::get('commandes/{commande}', [OrderController::class, 'CustomerShowOrders'])->name('orders.show');
-    Route::delete('/commandes/{commande}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancelOrder');
+    Route::post('/commandes/{commande}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancelOrder');
 
 });
 

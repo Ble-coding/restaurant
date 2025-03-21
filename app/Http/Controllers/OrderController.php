@@ -29,6 +29,14 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+
+        $STATUSES = collect([
+            'pending' => __('order.status.pending'),
+            'preparing' => __('order.status.preparing'),
+            'shipped' => __('order.status.shipped'),
+            'delivered' => __('order.status.delivered'),
+            'canceled' => __('order.status.canceled'),
+        ]);
         $search = trim($request->get('search'));
         $status = $request->get('status');
         $date = $request->get('date');
@@ -63,7 +71,7 @@ class OrderController extends Controller
 
         $orders = $orders->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('admin.orders.index', compact('orders'));
+        return view('admin.orders.index', compact('orders','STATUSES'));
     }
 
     public function customerOrders(Request $request)
@@ -193,54 +201,52 @@ class OrderController extends Controller
             'status_before' => $oldStatus,
             'status_after' => $request->status,
             'changed_by' => Auth::user()->name ?? 'Client',
+                'status_key' => $request->status, // On enregistre la clé brute
         ]);
 
         return redirect()->route('admin.commandes.index')
                          ->with('success', __('order.status_updated'));
     }
+
     public function cancelOrder($id)
     {
-
         $customer = Auth::guard('customer')->user();
-        // $customerId = Auth::guard('customer')->id();
+
         if (!$customer || empty($customer->last_name)) {
             return redirect()->route('customer.login')->with('error', __('order.must_be_logged_in'));
         }
 
+        // Récupérer la commande appartenant au client connecté
+        $order = Order::where('customer_id', $customer->id)->findOrFail($id);
        
 
-        // Récupérer la commande appartenant au client connecté
-        $order = Order::where('customer_id', Auth::guard('customer')->id())
-                      ->findOrFail($id);
+        // Vérifier le statut (qui est maintenant une chaîne de caractères)
+        $statusInEnglish = $order->getStatusInEnglish();
 
-                      
-    
-        // Vérifier si la commande est annulable (statut "pending")
-        if ($order->getTranslation('status', 'en') !== 'pending') {
+        // Vérifier si le statut est "pending"
+        if ($statusInEnglish !== 'pending') {
+            dd($order->status);
             return back()->withErrors(__('order.cannot_be_canceled'));
         }
-    
-        // Mettre à jour le statut de la commande avec Spatie Translatable
-        $order->setTranslation('status', 'en', 'canceled');
-        $order->setTranslation('status', 'fr', 'Annulé');
 
-        // dd($order);
-        $order->save();
-    
+        // Mettre à jour le statut en "canceled" (en tant que chaîne de caractères)
+        $order->update([
+            'status' => 'canceled', // Le statut est maintenant une chaîne
+            'status_key' => 'canceled', // Clé brute pour faciliter les comparaisons
+        ]);
+
         // Enregistrer le changement dans les logs
         $order->orderLogs()->create([
-            'status_before' => 'pending',
+            'status_before' => $statusInEnglish,
             'status_after' => 'canceled',
-            // 'changed_by' => Auth::guard('customer')->user()->name,
-            'changed_by' => $customer->last_name, // Correction ici
-            // 'changed_by' =>  Auth::guard('customer')->name(),
+            'status_key' => 'canceled',
+            'changed_by' => $customer->last_name,
         ]);
-    
-        // Redirection avec un message de succès
+
         return redirect()->route('customer.orders.index')
-                         ->with('success', __('order.canceled_success'));
+                        ->with('success', __('order.canceled_success'));
     }
-    
+
 
     public function CustomerShowOrders($commandeId)
     {
