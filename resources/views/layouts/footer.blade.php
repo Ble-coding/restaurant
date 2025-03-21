@@ -6,7 +6,7 @@
                 <h5>{{ __('footer.about_title') }}</h5>
                 <p><strong>Côte d'Ivoire Drinks & Foods</strong>, {{ __('footer.about_content') }}</p>
             </div>
-    
+
             <!-- Contact Us -->
             <div class="col-md-4">
                 <h5>{{ __('footer.contact_title') }}</h5>
@@ -21,7 +21,7 @@
                     <a href="#" class="btn-custom-icon"><i class="bi bi-behance"></i></a>
                 </div>
             </div>
-    
+
             <!-- Newsletter -->
             <div class="col-md-4">
                 <h5>{{ __('footer.newsletter_title') }}</h5>
@@ -34,15 +34,15 @@
                 </form>
             </div>
         </div>
-    
+
         <hr class="bg-secondary">
-    
+
         <div class="text-center">
             <p class="mb-0">{{ __('footer.opening_hours') }}</p>
             <p class="mb-0">{{ __('footer.opening_days') }}</p>
             <p class="mb-0">{{ __('footer.opening_sunday') }}</p>
-            <p class="mt-3">{{ __('footer.copyright') }}</p>
+            <p class="mt-3">{{ __('footer.copyright', ['year' => date('Y')]) }}</p>
         </div>
     </div>
-    
+
 </footer>

@@ -18,5 +18,5 @@ return [
     'opening_days' => "Lundi au Samedi : 9h00 - 22h00",
     'opening_sunday' => "Dimanche : 11h00 - 20h30",
 
-    'copyright' => 'Copyright © 2024. Tous droits réservés | Ce site est conçu avec ❤️ par DigitalVision',
+    'copyright' => 'Copyright © :year. Tous droits réservés | Ce site est conçu avec ❤️ par DigitalVision',
 ];

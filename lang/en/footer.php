@@ -18,5 +18,7 @@ return [
     'opening_days' => 'Monday to Saturday: 9:00 AM - 10:00 PM',
     'opening_sunday' => 'Sunday: 11:00 AM - 8:30 PM',
 
-    'copyright' => 'Copyright © 2024. All rights reserved | This site is designed with ❤️ by DigitalVision',
+    'copyright' => 'Copyright © :year. All rights reserved | This site is designed with ❤️ by DigitalVision',
+
+    // 'copyright' => 'Copyright © 2024. All rights reserved | This site is designed with ❤️ by DigitalVision',
 ];

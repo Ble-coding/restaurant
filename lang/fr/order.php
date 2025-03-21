@@ -32,4 +32,38 @@ return [
     'must_be_logged_in' => 'Vous devez être connecté pour voir vos commandes.',
     'cannot_be_canceled' => 'La commande ne peut être annulée que si elle est en attente.',
 
+
+
+    'order_details' => 'Détails de la commande :code',
+    'billing_info' => 'Informations de facturation',
+    'first_name' => 'Prénom',
+    'last_name' => 'Nom',
+    'email' => 'Email',
+    'phone' => 'Téléphone',
+    'address' => 'Adresse',
+    'city' => 'Ville',
+    'zip' => 'Code postal',
+    'notes' => 'Notes',
+    'no_notes' => 'Aucune note',
+    'order_info' => 'Informations sur la commande',
+    'date' => 'Date',
+    'total' => 'Total',
+    'status' => 'Statut',
+    'coupon_used' => 'Coupon utilisé',
+    'delivery_date' => 'Date de livraison',
+    'not_delivered' => 'Non livré',
+    'zone' => 'Zone',
+    'payment_method' => 'Mode de paiement',
+    'account' => 'effectuée depuis le compte :first_name :last_name',
+    'product_summary' => 'Résumé des produits',
+    'product' => 'Produit',
+    'quantity' => 'Quantité',
+    'unit_price' => 'Prix unitaire',
+    'subtotal' => 'Sous-total',
+    'deposit' => 'Acompte (50%)',
+    'shipping_cost' => 'Frais de livraison',
+    'total' => 'Total',
+    'footer_text' => 'Vos données personnelles seront utilisées pour traiter votre commande, améliorer votre expérience sur ce site et pour d\'autres fins décrites dans notre <a href="#">politique de confidentialité</a>.',
+
+
 ];
