@@ -64,4 +64,7 @@ return [
     'total' => 'Total',
     'footer_text' => 'Vos données personnelles seront utilisées pour traiter votre commande, améliorer votre expérience sur ce site et pour d\'autres fins décrites dans notre <a href="#">politique de confidentialité</a>.',
 
+    'culinary_universe' => 'Notre univers culinaire !',
+    'culinary_description' => 'Découvrez un menu soigneusement élaboré pour éveiller vos papilles et satisfaire toutes vos envies.',
+
 ];
