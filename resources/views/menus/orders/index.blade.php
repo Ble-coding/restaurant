@@ -106,7 +106,7 @@
                 @if($orders->isEmpty())
                 <p>{{ __('order.no_orders') }}</p>
             @else
-                    @foreach ($orders as $order)
+            @foreach ($orders as $order)
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="menu-item p-3">
                                 <div class="menu-item-content">
@@ -126,23 +126,39 @@
                                     <p class="menu-item-description">
                                         <span class="menu-badge">
                                             {{ $order->created_at->translatedFormat('j F, Y') }} -
-                                            ({{ $order->getTranslation('status', app()->getLocale()) }})</span>
-
-                                            @unless(in_array($order->getTranslation('status', 'en'), \App\Models\Order::NON_MODIFIABLE_STATUSES))
-                                            <a href="#" class="add_cart m-3" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $order->id }}">🗑️</a>
-                                        @endunless
-                                        
-                                        <a class="{{ Route::currentRouteName() === 'customer.orders.show' ? 'active' : '' }}" href="{{ route('customer.orders.show', $order->id) }}">👀</a>
-
+                                            ({{ $order->getTranslation('status', app()->getLocale()) }})
+                                        </span>
                                     </p>
 
-                                    <ul class="menu-item-products">
-                                        @php
-                                            $productCount = $order->products->sum('pivot.quantity');
-                                        @endphp
 
-                                        <strong>    {{ $order->code }}
-                                            {{ $productCount > 1 ? __('order.products') : __('order.product') }} : {{ $productCount }}</strong>
+
+
+
+
+
+                                    @if($order->status === 'pending')
+                                    <a href="#" class="add_cart m-3" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $order->id }}">🗑️</a>
+                                @endif
+
+
+
+                            <a class="{{ Route::currentRouteName() === 'customer.orders.show' ? 'active' : '' }}" href="{{ route('customer.orders.show', $order->id) }}">👀</a>
+                                            </p>
+
+                                            <ul class="menu-item-products">
+                                                @php
+                                                    $productCount = $order->products->sum('pivot.quantity');
+                                                @endphp
+
+                        <strong>
+                            {{ $order->code }}
+                            {{ $productCount > 1 ? __('order.products') : __('order.product') }} : {{ $productCount }}
+                        </strong>
+
+                        {{--
+                        <strong> {{ $order->code }}
+                        {{ trans_choice(__('order.product'), $productCount, ['count' => $productCount]) }}</strong>
+                                        <strong> {{ $order->code }}  {{ \Illuminate\Support\Str::plural('Produit', $productCount) }} : {{ $productCount }}</strong> --}}
 
                                         {{-- @foreach($order->products as $product)
                                             <li>{{ $product->name }} (x{{ $product->pivot->quantity }})</li>
@@ -165,14 +181,34 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
+                                        <p>ID attendu : {{ $order->id }}</p>
                                         <p>{{ __('order.cancel_confirmation') }}</p>
-                                    </div>
-
-                                    <div class="modal-footer">
                                         <form method="POST" action="{{ route('customer.orders.cancelOrder', $order->id) }}">
                                             @csrf
-                                            {{-- @method('DELETE') --}}
-                                            {{-- {{ route('customer.orders.cancelOrder', ['commande' => $order->id]) }} --}}
+                                            @method('DELETE')
+                                            {{-- {{ __('order.status.pending') }} --}}
+                                            {{-- @dd($order->status)  --}}
+                                            {{-- @dd(__('order.status.pending'));   --}}
+                                            <!-- {{ __( $order->status) }}
+
+                                            <div class="mb-3">
+                                                <label for="status" class="form-label">{{ __('order.status_filter') }}</label>
+                                                <select name="status" class="form-select">
+                                                    @foreach (\App\Models\Order::STATUSES as $key => $label)
+                                                        <option value="{{ $key }}"
+                                                            {{ old('status', $order->status) == $key ? 'selected' : '' }}>
+                                                            {{ __($label) }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+
+
+                                                @error('status')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div> -->
+
 
                                             <button type="submit" class="btn view-cart">
                                                 {{ __('order.confirm_button') }}
@@ -181,6 +217,7 @@
                                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                                 {{ __('order.cancel_button') }}
                                             </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

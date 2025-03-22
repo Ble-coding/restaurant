@@ -42,13 +42,27 @@ class Order extends Model
 
     protected $casts = [
         'status' => 'array',
-        
+
     ];
 
     public function getStatusInEnglish()
     {
-        return $this->status; // Retourne simplement le statut (qui est une chaîne)
+        // Si le statut est stocké sous forme de JSON, on le décode
+        if (is_string($this->status) && str_starts_with($this->status, '{')) {
+            $statusArray = json_decode($this->status, true);
+            return $statusArray['en'] ?? 'unknown';
+        }
+
+        // Sinon, on suppose que le statut est déjà une chaîne
+        return $this->status;
     }
+
+
+    public function isCancelable()
+    {
+        return $this->getStatusInEnglish() === 'pending';
+    }
+
 
 
     public function getTranslatedStatusAttribute()

@@ -92,6 +92,7 @@ class OrderController extends Controller
                 });
             });
 
+
         // Appliquer les filtres ensemble si au moins un est défini
         if ($status || $date || $price) {
             $orders->where(function ($q) use ($status, $date, $price) {
@@ -109,7 +110,7 @@ class OrderController extends Controller
         }
 
         $orders = $orders->orderBy('created_at', 'desc')->paginate(10);
-
+        // dd($orders->pluck('id'));
         return view('menus.orders.index', compact('orders'));
     }
 
@@ -207,45 +208,50 @@ class OrderController extends Controller
         return redirect()->route('admin.commandes.index')
                          ->with('success', __('order.status_updated'));
     }
-
     public function cancelOrder($id)
     {
+        // Récupérer le client connecté
         $customer = Auth::guard('customer')->user();
 
-        if (!$customer || empty($customer->last_name)) {
-            return redirect()->route('customer.login')->with('error', __('order.must_be_logged_in'));
-        }
+        // Trouver la commande appartenant au client connecté
+        $order = Order::where('id', $id)
+                      ->where('customer_id', $customer->id) // sécurité : commande doit appartenir au client connecté
+                      ->firstOrFail();
 
-        // Récupérer la commande appartenant au client connecté
-        $order = Order::where('customer_id', $customer->id)->findOrFail($id);
-       
-
-        // Vérifier le statut (qui est maintenant une chaîne de caractères)
+        // Vérifier le statut actuel en anglais
         $statusInEnglish = $order->getStatusInEnglish();
 
-        // Vérifier si le statut est "pending"
-        if ($statusInEnglish !== 'pending') {
-            dd($order->status);
+        // La commande ne peut être annulée que si elle est "pending"
+        if (! $order->isCancelable()) {
             return back()->withErrors(__('order.cannot_be_canceled'));
         }
 
-        // Mettre à jour le statut en "canceled" (en tant que chaîne de caractères)
+        // Mettre à jour le statut en JSON pour les deux langues
+        $newStatus = [
+            'en' => 'canceled',
+            'fr' => 'Annulé'
+        ];
+
         $order->update([
-            'status' => 'canceled', // Le statut est maintenant une chaîne
-            'status_key' => 'canceled', // Clé brute pour faciliter les comparaisons
+            'status' => $newStatus,
+            'status_key' => 'canceled',
         ]);
 
-        // Enregistrer le changement dans les logs
+        // Enregistrer dans les logs
         $order->orderLogs()->create([
-            'status_before' => $statusInEnglish,
-            'status_after' => 'canceled',
+            'status_before' => json_encode([
+                'en' => $statusInEnglish,
+                'fr' => $order->status['fr'] ?? 'En attente'
+            ]),
+            'status_after' => json_encode($newStatus),
             'status_key' => 'canceled',
-            'changed_by' => $customer->last_name,
+            'changed_by' => $customer->last_name ?? 'Client',
         ]);
 
         return redirect()->route('customer.orders.index')
-                        ->with('success', __('order.canceled_success'));
+                         ->with('success', __('order.canceled_success'));
     }
+
 
 
     public function CustomerShowOrders($commandeId)

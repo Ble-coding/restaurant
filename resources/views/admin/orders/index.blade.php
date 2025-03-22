@@ -137,25 +137,25 @@
                         @unless(in_array($order->getTranslation('status', 'en'), ['shipped', 'delivered', 'canceled']))
                             <a href="#" class="add_cart m-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $order->id }}">✏️</a>
                         @endunless
-                    @endcanany
-
-                            @canany(['view-commandes', 'view-orders'])
-                              <a class="{{ Route::currentRouteName() === 'admin.commandes.show' ? 'active' : '' }}" href="{{ route('admin.commandes.show', $order->id) }}">👀</a>
                             @endcanany
-                                    </p>
 
-                                    <ul class="menu-item-products">
-                                        @php
-                                            $productCount = $order->products->sum('pivot.quantity');
-                                        @endphp
+                                    @canany(['view-commandes', 'view-orders'])
+                                    <a class="{{ Route::currentRouteName() === 'admin.commandes.show' ? 'active' : '' }}" href="{{ route('admin.commandes.show', $order->id) }}">👀</a>
+                                    @endcanany
+                                            </p>
 
-<strong>
-    {{ $order->code }}
-    {{ $productCount > 1 ? __('order.products') : __('order.product') }} : {{ $productCount }}
-</strong>
+                                            <ul class="menu-item-products">
+                                                @php
+                                                    $productCount = $order->products->sum('pivot.quantity');
+                                                @endphp
 
-                 {{--
-                    <strong> {{ $order->code }}
+                        <strong>
+                            {{ $order->code }}
+                            {{ $productCount > 1 ? __('order.products') : __('order.product') }} : {{ $productCount }}
+                        </strong>
+
+                        {{--
+                        <strong> {{ $order->code }}
                         {{ trans_choice(__('order.product'), $productCount, ['count' => $productCount]) }}</strong>
                                         <strong> {{ $order->code }}  {{ \Illuminate\Support\Str::plural('Produit', $productCount) }} : {{ $productCount }}</strong> --}}
 
@@ -199,7 +199,7 @@
                                                     @endforeach
                                                 </select>
 
-                                              
+
 
                                                 @error('status')
                                                     <span class="text-danger">{{ $message }}</span>
