@@ -29,7 +29,6 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-
         $STATUSES = collect([
             'pending' => __('order.status.pending'),
             'preparing' => __('order.status.preparing'),
@@ -37,6 +36,7 @@ class OrderController extends Controller
             'delivered' => __('order.status.delivered'),
             'canceled' => __('order.status.canceled'),
         ]);
+
         $search = trim($request->get('search'));
         $status = $request->get('status');
         $date = $request->get('date');
@@ -47,14 +47,16 @@ class OrderController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->where('code', 'like', '%' . $search . '%')
                       ->orWhere('total', 'like', '%' . $search . '%')
-                      ->orWhereHas('customer', function ($subQuery) use ($search) {
+                      ->orWhere('first_name', 'like', '%' . $search . '%') // Recherche directe sur Order
+                      ->orWhere('last_name', 'like', '%' . $search . '%')
+                      ->orWhereHas('customer', function ($subQuery) use ($search) { // Recherche sur Customer
                           $subQuery->where('first_name', 'like', '%' . $search . '%')
                                    ->orWhere('last_name', 'like', '%' . $search . '%');
                       });
                 });
             });
 
-        // Appliquer les filtres ensemble si au moins un est défini
+        // Filtres supplémentaires
         if ($status || $date || $price) {
             $orders->where(function ($q) use ($status, $date, $price) {
                 if ($status) {
@@ -71,7 +73,7 @@ class OrderController extends Controller
 
         $orders = $orders->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('admin.orders.index', compact('orders','STATUSES'));
+        return view('admin.orders.index', compact('orders', 'STATUSES'));
     }
 
     public function customerOrders(Request $request)
@@ -88,12 +90,13 @@ class OrderController extends Controller
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('code', 'like', '%' . $search . '%')
-                      ->orWhere('total', 'like', '%' . $search . '%');
+                      ->orWhere('total', 'like', '%' . $search . '%')
+                      ->orWhere('first_name', 'like', '%' . $search . '%')
+                      ->orWhere('last_name', 'like', '%' . $search . '%');
                 });
             });
 
-
-        // Appliquer les filtres ensemble si au moins un est défini
+        // Filtres supplémentaires
         if ($status || $date || $price) {
             $orders->where(function ($q) use ($status, $date, $price) {
                 if ($status) {
@@ -110,13 +113,9 @@ class OrderController extends Controller
         }
 
         $orders = $orders->orderBy('created_at', 'desc')->paginate(10);
-        // dd($orders->pluck('id'));
+
         return view('menus.orders.index', compact('orders'));
     }
-
-
-
-
 
 
     /**

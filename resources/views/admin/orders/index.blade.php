@@ -111,7 +111,11 @@
                                     <div class="menu-item-header">
 
                                         <h3 class="menu-item-title">
-                                            {{ $order->first_name }} {{ $order->last_name }}
+                                            @if ($order->customer)
+                                                {{ $order->customer->first_name }} {{ $order->customer->last_name }}
+                                            @else
+                                                {{ $order->first_name }} {{ $order->last_name }}
+                                            @endif
                                         </h3>
 
                                         <div class="menu-item-dots"></div>
@@ -186,7 +190,7 @@
                                             {{-- {{ __('order.status.pending') }} --}}
                                             {{-- @dd($order->status)  --}}
                                             {{-- @dd(__('order.status.pending'));   --}}
-                                            {{ __( $order->status) }}
+                                            {{-- {{ __( $order->status) }} --}}
 
                                             <div class="mb-3">
                                                 <label for="status" class="form-label">{{ __('order.status_filter') }}</label>
