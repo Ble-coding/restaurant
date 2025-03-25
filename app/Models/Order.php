@@ -37,7 +37,7 @@ class Order extends Model
         'zip', 'total', 'status', 'coupon_id', 'order_notes', 'customer_id', 'country_code',
          'payment_id', 'zone_id', 'terms'
          ,'shipping_cost','status_key',
-        //  ,'shipping_id'
+        //  ,'status_date'
     ];
 
     protected $casts = [

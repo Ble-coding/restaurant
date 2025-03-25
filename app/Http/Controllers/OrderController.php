@@ -144,7 +144,7 @@ class OrderController extends Controller
             ->first();
 
         if (!$order) {
-            return redirect()->route('admin.orders.index')->with('error', __('order.not_found'));
+            return redirect()->route('admin.commandes.index')->with('error', __('order.not_found'));
         }
 
         // Extraction du statut en anglais uniquement
@@ -202,11 +202,13 @@ class OrderController extends Controller
             'status_after' => $request->status,
             'changed_by' => Auth::user()->name ?? 'Client',
                 'status_key' => $request->status, // On enregistre la clé brute
+                'status_date' => now(),
         ]);
 
         return redirect()->route('admin.commandes.index')
                          ->with('success', __('order.status_updated'));
     }
+
     public function cancelOrder($id)
     {
         // Récupérer le client connecté
@@ -245,13 +247,12 @@ class OrderController extends Controller
             'status_after' => json_encode($newStatus),
             'status_key' => 'canceled',
             'changed_by' => $customer->last_name ?? 'Client',
+            'status_date' => now(),
         ]);
 
         return redirect()->route('customer.orders.index')
                          ->with('success', __('order.canceled_success'));
     }
-
-
 
     public function CustomerShowOrders($commandeId)
     {

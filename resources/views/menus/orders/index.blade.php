@@ -181,7 +181,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <p>ID attendu : {{ $order->id }}</p>
+                                        {{-- <p>ID attendu : {{ $order->id }}</p> --}}
                                         <p>{{ __('order.cancel_confirmation') }}</p>
                                         <form method="POST" action="{{ route('customer.orders.cancelOrder', $order->id) }}">
                                             @csrf

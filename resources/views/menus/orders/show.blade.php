@@ -38,22 +38,29 @@
                 <p><strong class="menu-item-title">{{ __('order.date') }} :</strong> {{ $order->created_at->translatedFormat('j F, Y') }}</p>
                 <p><strong class="menu-item-title">{{ __('order.total') }} :</strong>  £{{ number_format($order->total, 2) }} </p>
                 {{-- <p><strong class="menu-item-title">{{ __('order.total') }} :</strong>  £ {{ number_format($order->total, 2) }}</p> --}}
-                <p><strong class="menu-item-title">{{ __('order.statut') }} :</strong>  {{ $order->getTranslation('status', app()->getLocale()) }}</p>
+                       <p><strong class="menu-item-title">{{ __('order.statut') }} :</strong>  {{ $order->getTranslation('status', app()->getLocale()) }}</p>
                 @if ($order->coupon)
                     <p><strong class="menu-item-title">{{ __('order.coupon_used') }} :</strong> {{ $order->coupon->code }}</p>
                 @endif
+                @php
+                    // Récupérer les dates depuis les logs
+                    $statusDates = $order->orderLogs->pluck('status_date', 'status_key');
+                @endphp
 
-                @if ($deliveryDate)
-                    <p><strong class="menu-item-title">{{ __('order.delivery_date') }} :</strong> {{ $deliveryDate->format('d/m/Y H:i') }}</p>
-                @else
-                    {{-- <p><strong>{{ __('order.delivery_date') }} :</strong> {{ __('order.not_delivered') }}</p> --}}
+                @if ($statusDates->has('delivered'))
+                    <p><strong class="menu-item-title">{{ __('order.delivery_date') }} :</strong>
+                        {{ \Carbon\Carbon::parse($statusDates['delivered'])->format('d/m/Y H:i') }}
+                    </p>
                 @endif
 
-                @if ($cancelDate)
-                    <p><strong class="menu-item-title">{{ __('order.cancel_date') }} :</strong> {{ $cancelDate->format('d/m/Y H:i') }}</p>
-                @else
-                    {{-- <p><strong>{{ __('order.cancel_date') }} :</strong> {{ __('order.not_canceled') }}</p> --}}
+                @if ($statusDates->has('canceled'))
+                    <p><strong class="menu-item-title">{{ __('order.cancel_date') }} :</strong>
+                        {{ \Carbon\Carbon::parse($statusDates['canceled'])->format('d/m/Y H:i') }}
+                    </p>
                 @endif
+
+
+
 
                 <p><strong class="menu-item-title">{{ __('order.zone') }} :</strong> {{ $order->zone->name ?? __('order.not_specified') }}</p>
                 <p><strong class="menu-item-title">{{ __('order.payment_method') }} :</strong> {{ $order->payment->name ?? __('order.not_specified') }}</p>

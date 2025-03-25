@@ -582,7 +582,8 @@ class MenuController extends Controller
         }else if($order->payment->getTranslation('name', app()->getLocale()) === "Stripe") {
             return $this->handleStripePayment($order, $total, $request);
         }else{
-            return redirect()->route('customer.orders.index');
+            // return redirect()->route('customer.orders.index');
+            return redirect()->route('customer.orders.index')->with('success', __('order.validated'));
         }
 
         // else if ($order->payment->name === "Stripe") {

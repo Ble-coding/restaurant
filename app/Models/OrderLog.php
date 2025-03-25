@@ -11,6 +11,7 @@ class OrderLog extends Model
 
     protected $fillable = [
         'order_id', 'status_before', 'changed_by', 'status_after','status_key'
+        ,'status_date'
     ];
 
     /**

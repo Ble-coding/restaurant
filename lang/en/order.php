@@ -33,6 +33,7 @@ return [
     'cannot_be_canceled' => 'The order can only be canceled if it is pending.',
 
     'not_found' => 'Order not found.',
+    'validated' => 'Order validated.',
     'cannot_be_modified' => 'The order cannot be modified after shipment.',
     'status_updated' => 'Order status updated successfully.',
     'canceled_success' => 'Order canceled successfully.',
